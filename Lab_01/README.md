@@ -1,5 +1,4 @@
-# VLAN IPv4/IPv6
-
+# VLAN IPv4
 
 ### Задание:
 
