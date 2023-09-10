@@ -164,3 +164,4 @@ VPCS> ping 192.168.3.12
 ```
 
 Все файлы изменений приведены [здесь.](https://github.com/Pekep97/Labs/tree/main/Lab_01/Config)
+Итоговая схема: [![](https://github.com/Pekep97/Labs/blob/main/Lab_01/Lab_1.png)
