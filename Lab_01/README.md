@@ -1,4 +1,4 @@
-# [моя первая сноска](https://github.com/Pekep97/Labs/edit/main/Lab_01/README.md")
+# [моя первая сноска](https://github.com/Pekep97/Labs/edit/main/Lab_01/README.md#tables-1")
 ## [Tables]
 
 ### Tables
@@ -18,3 +18,23 @@ conf t
   interface gi1/0/1
 ```
 ##### [Главная github](https://github.com/")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## *Первая сноска*
