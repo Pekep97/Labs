@@ -1,0 +1,45 @@
+hostname SW1
+!
+enable password class
+!
+username admin privilege 15 secret 5 $1$6sUL$ClPcI0/dGypiBsnpRluXH1
+!
+clock timezone MSK 3 0
+!
+no ip domain-lookup
+!
+interface Ethernet0/0
+ switchport trunk allowed vlan 3,4
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+!
+interface Ethernet0/1
+ switchport trunk encapsulation dot1q
+ switchport trunk native vlan 8
+ switchport mode trunk
+ switchport protected
+!
+interface Ethernet0/2
+ switchport access vlan 3
+ switchport mode access
+!
+interface Ethernet0/3
+!
+interface Vlan3
+ ip address 192.168.3.11 255.255.255.0
+ ipv6 address FE80::11 link-local
+ ipv6 enable
+!
+ip default-gateway 192.168.3.1
+ip forward-protocol nd
+!
+line con 0
+ password cisco
+ logging synchronous
+ login local
+line aux 0
+line vty 0 4
+ password cisco
+ login local
+!
+end
