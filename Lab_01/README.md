@@ -20,7 +20,7 @@ conf t
 ##### [Главная github](https://github.com/")
 
 # Решение
-1. [ФОрмируем список адресов](#ФОрмируем список адресов)
+1. [ФОрмируем список адресов](#ФОрмируем-список-адресов)
 2. [Example2](#example2)
 3. [Third Example](#third-example)
 4. [Fourth Example](#fourth-examplehttpwwwfourthexamplecom)
