@@ -1,3 +1,4 @@
+# [моя первая сноска]([https://github.com/ "гитхаб](https://github.com/Pekep97/Labs/edit/main/Lab_01/README.md))
 ## [Tables]
 
 ### Tables
@@ -16,11 +17,4 @@ Content Cell  | Content Cell   | Content Cell   |
 conf t
   interface gi1/0/1
 ```
-| Сентябрь | 21,66 | 37,76 | 343,72 |
-| Октябрь  | 21,66 | 37,76 | 343,72 |
-| Ноябрь   | 21,66 | 37,76 | 343,72 |
-| Декабрь  | 21,66 | 37,76 | 343,72 |
-| Январь   | 21,66 | 37,76 | 343,72 |
-| Февраль  | 21,66 | 37,76 | 343,72 |
-
 ##### [Главная github](https://github.com/")
