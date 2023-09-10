@@ -1,1 +1,52 @@
-confif
+hostname R1
+!
+enable secret 5 $1$2aCI$kxdYIG/j0g5pVs8E16ipI1
+!
+no ip domain lookup
+!
+username admin privilege 15 secret 5 $1$LaOt$xWcuDkHZEadGrSwK/rVRf/
+!
+interface Ethernet0/0
+ no ip address
+ no cdp enable
+ no mop enabled
+!
+interface Ethernet0/0.3
+ description MANAGEMENT
+ encapsulation dot1Q 3
+ ip address 192.168.3.1 255.255.255.0
+ ipv6 address FE80::1 link-local
+ ipv6 address FD00::1/64
+ ipv6 enable
+ no cdp enable
+!
+interface Ethernet0/0.4
+ encapsulation dot1Q 4
+ ip address 192.168.4.1 255.255.255.0
+ no cdp enable
+!
+interface Ethernet0/1
+ no ip address
+ shutdown
+ no cdp enable
+!
+interface Ethernet0/2
+ no ip address
+ shutdown
+ no cdp enable
+!
+interface Ethernet0/3
+ no ip address
+ shutdown
+ no cdp enable
+!
+line con 0
+ exec-timeout 0 0
+ logging synchronous
+line aux 0
+line vty 0 4
+ password cisco
+ login
+ transport input none
+!
+end
