@@ -19,14 +19,16 @@ conf t
 ```
 ##### [Главная github](https://github.com/")
 
-# Table of Contents
-1. [Example](#example)
+# Решение
+1. [ФОрмируем список адресов](#ФОрмируем список адресов)
 2. [Example2](#example2)
 3. [Third Example](#third-example)
 4. [Fourth Example](#fourth-examplehttpwwwfourthexamplecom)
 
 
-## Example
+## ФОрмируем список адресов
+ароллыовра
+аовлыдылвоаоалыд
 ## Example2
 ## Third Example
 ## [Fourth Example](http://www.fourthexample.com) 
