@@ -163,5 +163,5 @@ VPCS> ping 192.168.3.12
 84 bytes from 192.168.3.12 icmp_seq=5 ttl=255 time=0.581 ms
 ```
 
-Все файлы изменений приведены [здесь.](https://github.com/Pekep97/Labs/tree/main/Lab_01/Config)
-Итоговая схема: [![](https://github.com/Pekep97/Labs/blob/main/Lab_01/Lab_1.png)
+Все файлы изменений приведены [здесь.](https://github.com/Pekep97/Labs/tree/main/Lab_01/Config) 
+![Итоговая схема:](https://github.com/Pekep97/Labs/blob/main/Lab_01/Lab_1.png)
