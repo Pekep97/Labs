@@ -237,7 +237,7 @@ Et0/3               Root FWD 100       128.4    Shr
 
 ### 4. Понаблюдаем за процессом выбора протоколом STP порта, исходя из приоритета портов и задокументируем все изменения:
 
-Активируем избыточные порты (et0/0 и et0/2) на коммутаторах и покажем результат работы STP:
+- Активируем избыточные порты (et0/0 и et0/2) на коммутаторах и покажем результат работы STP:
 
 SW1
 ```
@@ -313,4 +313,18 @@ Et0/2               Desg FWD 100       128.3    Shr
 Et0/3               Desg FWD 100       128.4    Shr
 ```
 
-Все файлы изменений приведены [здесь.](https://github.com/Pekep97/Labs/tree/main/Lab_01/Config)
+- Покажем связность сети утилитой ping на SW1:
+```
+SW1#ping 192.168.1.2
+Type escape sequence to abort.
+Sending 5, 100-byte ICMP Echos to 192.168.1.2, timeout is 2 seconds:
+.!!!!
+Success rate is 80 percent (4/5), round-trip min/avg/max = 1/1/1 ms
+SW1#ping 192.168.1.3
+Type escape sequence to abort.
+Sending 5, 100-byte ICMP Echos to 192.168.1.3, timeout is 2 seconds:
+.!!!!
+Success rate is 80 percent (4/5), round-trip min/avg/max = 1/1/1 ms
+```
+
+Все файлы изменений приведены [здесь.](https://github.com/Pekep97/Labs/tree/main/Lab_02/Configs)
