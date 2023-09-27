@@ -148,11 +148,11 @@ Et0/3               Desg FWD 100       128.4    Shr
 ### 3. Понаблюдаем за процессом выбора протоколом STP порта, исходя из стоимости портов:
 
 При текущей конфигурации только один коммутатор может содержать заблокированный протоколом STP порт с самым высоким идентификатором BID (SW2:et0/1).
-- Изменим стоимость корневого порта (SW2:et0/3) на равную 200000000 командой 
+- Изменим стоимость корневого порта (SW2:et0/3) на равную 5 командой 
 ```
 SW2(config)#interface ethernet 0/3
 SW2(config-if)#shut
-SW2(config-if)#spanning-tree cost 200000000
+SW2(config-if)#spanning-tree cost 5
 SW2(config-if)#no shut
 ```
 
@@ -160,7 +160,7 @@ SW2(config-if)#no shut
 
 SW1:
 ```
-SW1#sh spanning-tree
+SW1#sh span
 
 VLAN0001
   Spanning tree enabled protocol rstp
@@ -177,7 +177,7 @@ VLAN0001
 
 Interface           Role Sts Cost      Prio.Nbr Type
 ------------------- ---- --- --------- -------- --------------------------------
-Et0/1               Desg FWD 100       128.2    Shr
+Et0/1               Altn BLK 100       128.2    Shr
 Et0/3               Root FWD 100       128.4    Shr
 ```
 
@@ -189,8 +189,8 @@ VLAN0001
   Spanning tree enabled protocol rstp
   Root ID    Priority    32769
              Address     aabb.cc00.1000
-             Cost        200
-             Port        2 (Ethernet0/1)
+             Cost        5
+             Port        4 (Ethernet0/3)
              Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec
 
   Bridge ID  Priority    32769  (priority 32768 sys-id-ext 1)
@@ -200,8 +200,8 @@ VLAN0001
 
 Interface           Role Sts Cost      Prio.Nbr Type
 ------------------- ---- --- --------- -------- --------------------------------
-Et0/1               Root FWD 100       128.2    Shr
-Et0/3               Altn BLK 200000000 128.4    Shr
+Et0/1               Desg FWD 100       128.2    Shr
+Et0/3               Root FWD 5         128.4    Shr
 ```
 
 - Удалим изменения стоимости порта и покажем что протокол STP сбросил порт на коммутаторе некорневого моста, вернув исходные настройки порта:
@@ -326,5 +326,16 @@ Sending 5, 100-byte ICMP Echos to 192.168.1.3, timeout is 2 seconds:
 .!!!!
 Success rate is 80 percent (4/5), round-trip min/avg/max = 1/1/1 ms
 ```
+
+Вопросы для повторения:
+
+1. Какое значение протокол STP использует первым после выбора корневого моста, чтобы определить выбор порта?
+Ответ: суммарный RPC.
+
+3. Если первое значение на двух портах одинаково, какое следующее значение будет использовать протокол STP при выборе порта?
+Ответ: Bridge ID.
+
+4. Если оба значения на двух портах равны, каким будет следующее значение, которое использует протокол STP при выборе порта?
+Ответ: Port ID.
 
 Все файлы изменений приведены [здесь.](https://github.com/Pekep97/Labs/tree/main/Lab_02/Configs)
