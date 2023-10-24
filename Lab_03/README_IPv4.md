@@ -36,7 +36,7 @@
 | R1     | e0/1.200  | 192.168.1.65 | 255.255.255.224 | N/A             |
 | R1     | e0/1.1000 | N/A          | N/A             | N/A             |
 | R2     | e0/1      | 10.0.0.2     | 255.255.255.252 | N/A             |
-| R2     | e0/0      | 192.168.1.96 | 255.255.255.240 | N/A             |
+| R2     | e0/0      | 192.168.1.97 | 255.255.255.240 | N/A             |
 | S1     | VLAN 200  | 192.168.1.66 | 255.255.255.224 | 192.168.1.65    |
 | S2     | VLAN 1    | N/A          | N/A             | N/A             |
 | PC-A   | NIC       | DHCP         | DHCP            | DHCP            |
@@ -87,5 +87,76 @@ line vty 0 4
 ### 1.1 Настроим маршрутизацию между VLAN на маршрутизаторе R1:
 
 Настроим интерфейс е0/0:
-- создадим подинтерфейсы использующие инкапсуляцию 802.1Q, и назначим адрес из таблицы
+- создадим подинтерфейсы использующие инкапсуляцию 802.1Q, и назначим IP-адреса из [таблицы:](https://github.com/Pekep97/Labs/blob/main/Lab_03/README_IPv4.md#%D1%82%D0%B0%D0%B1%D0%BB%D0%B8%D1%86%D0%B0-%D0%B0%D0%B4%D1%80%D0%B5%D1%81%D0%B0%D1%86%D0%B8%D0%B8)
+- покажем результат.
+```
+R1#sh ip interface brief
+Interface                  IP-Address      OK? Method Status                Prot                                                                                                                                                             ocol
+Ethernet0/0                unassigned      YES unset  up                    up                                                                                                                                                               
+Ethernet0/0.100            192.168.1.1     YES manual up                    up                                                                                                                                                               
+Ethernet0/0.200            192.168.1.65    YES manual up                    up                                                                                                                                                               
+Ethernet0/0.1000           unassigned      YES unset  up                    up                                                                                                                                                               
+Ethernet0/1                unassigned      YES unset  administratively down down                                                                                                                                                             
+Ethernet0/2                unassigned      YES unset  administratively down down                                                                                                                                                             
+Ethernet0/3                unassigned      YES unset  administratively down down
+```
+
+### 1.2 Настроим активные интерфейсы и статическую маршрутизацию для обоих маршрутизаторов;
+  
+Настройки на R1
+- присвоеним IP-адреса из [таблицы:](https://github.com/Pekep97/Labs/blob/main/Lab_03/README_IPv4.md#%D1%82%D0%B0%D0%B1%D0%BB%D0%B8%D1%86%D0%B0-%D0%B0%D0%B4%D1%80%D0%B5%D1%81%D0%B0%D1%86%D0%B8%D0%B8) на интерфейсе e0/1;
+- настроим статический маршрут на R2;
+- выведем результаты.
+
+Покажем результат:
+```
+R1(config)#do sh ip route
+S        192.168.1.96/28 [1/0] via 10.0.0.2
+
+R1(config)#do sh ip inter brie
+Interface                  IP-Address      OK? Method Status                Prot                                                                                                                                                             ocol
+Ethernet0/0                unassigned      YES unset  up                    up                                                                                                                                                               
+Ethernet0/0.100            192.168.1.1     YES manual up                    up                                                                                                                                                               
+Ethernet0/0.200            192.168.1.65    YES manual up                    up                                                                                                                                                               
+Ethernet0/0.1000           unassigned      YES unset  up                    up                                                                                                                                                               
+Ethernet0/1                10.0.0.1        YES manual up                    up
+```
+
+Настройки на R2:
+- присвоеним IP-адреса из [таблицы:](https://github.com/Pekep97/Labs/blob/main/Lab_03/README_IPv4.md#%D1%82%D0%B0%D0%B1%D0%BB%D0%B8%D1%86%D0%B0-%D0%B0%D0%B4%D1%80%D0%B5%D1%81%D0%B0%D1%86%D0%B8%D0%B8) на интерфейсах e0/0 и e0/1;
+- настроим статический маршрут на R1;
+- выведим результаты.
+
+Покажем результат:
+```
+R2(config)#do sh ip inter brief
+Interface                  IP-Address      OK? Method Status                Prot                                                                                                                                                             ocol
+Ethernet0/0                unassigned      YES NVRAM  up                    up                                                                                                                                                               
+Ethernet0/0.1              192.168.1.97    YES manual up                    up                                                                                                                                                               
+Ethernet0/1                10.0.0.2        YES manual up                    up                                                                                                                                                               
+Ethernet0/2                unassigned      YES NVRAM  administratively down down                                                                                                                                                             
+Ethernet0/3                unassigned      YES NVRAM  administratively down down
+```
+``` R2#sh ip route
+
+S        192.168.1.0/26 [1/0] via 10.0.0.1
+S        192.168.1.64/27 [1/0] via 10.0.0.1
+```
+
+Продемонстрируем работу маршрутизации утилитой ping  на R2:
+```
+R2(config)#do ping 192.168.1.1
+Type escape sequence to abort.
+Sending 5, 100-byte ICMP Echos to 192.168.1.1, timeout is 2 seconds:
+!!!!!
+Success rate is 100 percent (5/5), round-trip min/avg/max = 1/1/1 ms
+
+R2(config)#do ping 192.168.1.65
+Type escape sequence to abort.
+Sending 5, 100-byte ICMP Echos to 192.168.1.65, timeout is 2 seconds:
+!!!!!
+Success rate is 100 percent (5/5), round-trip min/avg/max = 1/1/4 ms
+```
+  
+### 1.3 Настроим VLAN и интерфейсы на SW1 и SW2;
 
