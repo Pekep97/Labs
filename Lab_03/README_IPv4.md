@@ -160,3 +160,60 @@ Success rate is 100 percent (5/5), round-trip min/avg/max = 1/1/4 ms
   
 ### 1.3 Настроим VLAN и интерфейсы на SW1 и SW2;
 
+Сконфигурируем интерфейсы коммутаторов согласно [таблице](https://github.com/Pekep97/Labs/blob/main/Lab_03/README_IPv4.md#%D1%82%D0%B0%D0%B1%D0%BB%D0%B8%D1%86%D0%B0-vlan) и покажем пример настройки на SW1
+```
+SW1#sh ip inter brief
+Interface              IP-Address      OK? Method Status                Protocol
+Ethernet0/0            unassigned      YES unset  up                    up
+Ethernet0/1            unassigned      YES unset  up                    up
+Ethernet0/2            unassigned      YES unset  up                    up
+Ethernet0/3            unassigned      YES unset  up                    up
+Vlan200                192.168.1.66    YES manual up                    up
+
+SW1#sh vlan brief
+VLAN Name                             Status    Ports
+---- -------------------------------- --------- -------------------------------
+1    default                          active    Et0/2, Et0/3
+100  Clients                          active    Et0/0
+200  Management                       active
+1000 Native                           active
+1002 fddi-default                     act/unsup
+1003 token-ring-default               act/unsup
+1004 fddinet-default                  act/unsup
+1005 trnet-default                    act/unsup
+SW1#sh run inter e0/1
+Building configuration...
+
+Current configuration : 164 bytes
+!
+interface Ethernet0/1
+ switchport trunk allowed vlan 100,200
+ switchport trunk encapsulation dot1q
+ switchport trunk native vlan 1000
+ switchport mode trunk
+end
+
+SW1#sh run inter e0/0
+Building configuration...
+Current configuration : 81 bytes
+!
+interface Ethernet0/0
+ switchport access vlan 100
+ switchport mode access
+end
+```
+
+### 2. Настроим и проверим два сервера DHCPv4 на маршрутизаторе R1:
+
+Настроим маршрутизатор R1 с пулами DHCPv4 для двух поддерживаемых подсетей. Ниже приведен только пул DHCP для подсети 192.168.1.0 255.255.255.192:
+- исключим первые пять доступных адресов из каждого пула адресов;
+- создадим пул DHCP (используем имя пула R1_Client_LAN);
+- настроим доменное имя как ccna-lab.com;
+- настроим соответствующий шлюз по умолчанию для каждого пула DHCP;
+- настроим время аренды на 2 дня 12 часов 30 минут.
+- затем настроим второй пул DHCPv4, используя имя пула R2_Client_LAN и рассчитанную сеть, маршрутизатор по умолчанию, и используем то же имя домена и время аренды, что и в предыдущем пуле DHCP.
+- покажем результат;
+
+ВЫведем ркзультат настройки DHCP пулов на R1:
+```
+
