@@ -26,7 +26,7 @@
   ![Исследуемая схема](https://github.com/Pekep97/Labs/blob/main/Lab_03/DHCPv4.png)
   
 
-Таблица адресации:
+#### Таблица адресации:
 
 | Device | Interface | IP Address   | Subnet Mask     | Default Gateway |
 |--------|-----------|--------------|-----------------|-----------------|
@@ -42,7 +42,7 @@
 | PC-A   | NIC       | DHCP         | DHCP            | DHCP            |
 | PC-B   | NIC       | DHCP         | DHCP            | DHCP            |
 
-Таблица VLAN:
+#### Таблица VLAN:
 
 | VLAN | Name       | Interface Assigned |
 |------|------------|--------------------|
