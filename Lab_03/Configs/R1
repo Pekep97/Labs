@@ -1,0 +1,98 @@
+R1#sh run
+Building configuration...
+
+Current configuration : 1840 bytes
+!
+! Last configuration change at 22:41:10 MSK Tue Oct 24 2023
+!
+version 15.4
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname R1
+!
+boot-start-marker
+boot-end-marker
+!
+enable secret 5 $1$eHTx$obKcy1Ewh4jc2D09JjBju1
+!
+no aaa new-model
+clock timezone MSK 3 0
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+ip dhcp excluded-address 192.168.1.1 192.168.1.5
+ip dhcp excluded-address 192.168.1.97 192.168.1.101
+!
+ip dhcp pool R1_Client_LAN
+ network 192.168.1.0 255.255.255.192
+ domain-name ccna-lab.com
+ dns-server 192.168.1.1
+ default-router 192.168.1.1
+ lease 2 12 30
+!
+ip dhcp pool R2_Client_LAN
+ network 192.168.1.96 255.255.255.240
+ domain-name ccna-lab.com
+ dns-server 192.168.1.96
+ default-router 192.168.1.96
+ lease 2 12 30
+!
+no ip domain lookup
+ip cef
+no ipv6 cef
+!
+multilink bundle-name authenticated
+!
+username admin privilege 15 secret 5 $1$6sUL$ClPcI0/dGypiBsnpRluXH1
+!
+redundancy
+!
+interface Ethernet0/0
+ no ip address
+!
+interface Ethernet0/0.100
+ encapsulation dot1Q 100
+ ip address 192.168.1.1 255.255.255.192
+!
+interface Ethernet0/0.200
+ encapsulation dot1Q 200
+ ip address 192.168.1.65 255.255.255.224
+!
+interface Ethernet0/0.1000
+ encapsulation dot1Q 1000 native
+!
+interface Ethernet0/1
+ ip address 10.0.0.1 255.255.255.252
+!
+interface Ethernet0/2
+ no ip address
+ shutdown
+!
+interface Ethernet0/3
+ no ip address
+ shutdown
+!
+ip forward-protocol nd
+!
+no ip http server
+no ip http secure-server
+ip route 192.168.1.96 255.255.255.240 10.0.0.2
+!
+control-plane
+!
+banner motd ^C unauthorized access is prohibited ^C
+!
+line con 0
+ password cisco
+ logging synchronous
+line aux 0
+line vty 0 4
+ password cisco
+ login
+ transport input none
+!
+end
