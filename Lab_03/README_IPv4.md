@@ -114,7 +114,7 @@ R1(config)#do sh ip route
 S        192.168.1.96/28 [1/0] via 10.0.0.2
 
 R1(config)#do sh ip inter brie
-Interface                  IP-Address      OK? Method Status                Prot                                                                                                                                                             ocol
+Interface                  IP-Address      OK? Method Status                Protocol
 Ethernet0/0                unassigned      YES unset  up                    up                                                                                                                                                               
 Ethernet0/0.100            192.168.1.1     YES manual up                    up                                                                                                                                                               
 Ethernet0/0.200            192.168.1.65    YES manual up                    up                                                                                                                                                               
@@ -130,7 +130,7 @@ Ethernet0/1                10.0.0.1        YES manual up                    up
 Покажем результат:
 ```
 R2(config)#do sh ip inter brief
-Interface                  IP-Address      OK? Method Status                Prot                                                                                                                                                             ocol
+Interface                  IP-Address      OK? Method Status                Protocol
 Ethernet0/0                unassigned      YES NVRAM  up                    up                                                                                                                                                               
 Ethernet0/0.1              192.168.1.97    YES manual up                    up                                                                                                                                                               
 Ethernet0/1                10.0.0.2        YES manual up                    up                                                                                                                                                               
@@ -214,6 +214,204 @@ end
 - затем настроим второй пул DHCPv4, используя имя пула R2_Client_LAN и рассчитанную сеть, маршрутизатор по умолчанию, и используем то же имя домена и время аренды, что и в предыдущем пуле DHCP.
 - покажем результат;
 
-ВЫведем ркзультат настройки DHCP пулов на R1:
+Выведем ркзультат настройки DHCP пулов на R1:
+```
+ip dhcp excluded-address 192.168.1.1 192.168.1.5
+ip dhcp excluded-address 192.168.1.97 192.168.1.101
+!
+ip dhcp pool R1_Client_LAN
+ network 192.168.1.0 255.255.255.192
+ domain-name ccna-lab.com
+ dns-server 192.168.1.1
+ default-router 192.168.1.1
+ lease 2 12 30
+!
+ip dhcp pool R2_Client_LAN
+ network 192.168.1.96 255.255.255.240
+ domain-name ccna-lab.com
+ dns-server 192.168.1.96
+ default-router 192.168.1.96
+ lease 2 12 30
 ```
 
+Покажем что VPC1 получил IP-адрес по DHCP из пула R1_Client_LAN:
+```
+R1#sh ip dhcp binding
+Bindings from all pools not associated with VRF:
+IP address          Client-ID/              Lease expiration        Type
+                    Hardware address/
+                    User name
+192.168.1.8         0100.5079.6668.05       Oct 27 2023 10:47 AM    Automatic
+```
+
+Покажем вывод команды ***show ip dhcp pool*** на R1:
+```
+R1#show ip dhcp pool
+
+Pool R1_Client_LAN :
+ Utilization mark (high/low)    : 100 / 0
+ Subnet size (first/next)       : 0 / 0
+ Total addresses                : 62
+ Leased addresses               : 1
+ Pending event                  : none
+ 1 subnet is currently in the pool :
+ Current index        IP address range                    Leased addresses
+ 192.168.1.9          192.168.1.1      - 192.168.1.62      1
+
+Pool R2_Client_LAN :
+ Utilization mark (high/low)    : 100 / 0
+ Subnet size (first/next)       : 0 / 0
+ Total addresses                : 14
+ Leased addresses               : 1
+ Pending event                  : none
+ 1 subnet is currently in the pool :
+ Current index        IP address range                    Leased addresses
+ 192.168.1.103        192.168.1.97     - 192.168.1.110     1
+```
+
+Покажем вывод команды ***show ip dhcp server statistics*** на R1:
+```
+R1# show ip dhcp server statistics
+Memory usage         67277
+Address pools        2
+Database agents      0
+Automatic bindings   2
+Manual bindings      0
+Expired bindings     0
+Malformed messages   27
+Secure arp entries   0
+
+Message              Received
+BOOTREQUEST          0
+DHCPDISCOVER         50
+DHCPREQUEST          4
+DHCPDECLINE          0
+DHCPRELEASE          0
+DHCPINFORM           0
+
+Message              Sent
+BOOTREPLY            0
+DHCPOFFER            4
+DHCPACK              4
+DHCPNAK              0
+```
+
+Покажем что порлучил VPC1:
+```
+VPCS> sh ip
+
+NAME        : VPCS[1]
+IP/MASK     : 192.168.1.8/26
+GATEWAY     : 192.168.1.1
+DNS         : 192.168.1.1
+DHCP SERVER : 192.168.1.1
+DHCP LEASE  : 169563, 217800/108900/190575
+DOMAIN NAME : ccna-lab.com
+MAC         : 00:50:79:66:68:05
+LPORT       : 20000
+RHOST:PORT  : 127.0.0.1:30000
+MTU         : 1500
+```
+
+### 3. Настроим и проверим DHCP Relay на маршрутизаторе R2 и задокументируем все изменения:
+
+Для выполнения требований выполним следующее:
+- Настроим на интерфейсе e0/0.1 роутера R2 ***ip helper-address*** и покажем его работу;
+- Покжем вывод команды ***show ip dhcp binding*** на R1;
+- Покжем вывод команды ***show ip dhcp server statistics*** на R1 и R2.
+
+Настройка ***ip helper-address***:
+```
+R2#sh run inter e0/0.1
+Building configuration...
+
+Current configuration : 130 bytes
+!
+interface Ethernet0/0.1
+ encapsulation dot1Q 1 native
+ ip address 192.168.1.97 255.255.255.240
+ ip helper-address 10.0.0.1
+end
+```
+
+Покажем что VPC2 получает IP-адрес из пула R2_Client_LAN:
+```
+VPCS> sh ip
+
+NAME        : VPCS[1]
+IP/MASK     : 192.168.1.102/28
+GATEWAY     : 192.168.1.96
+DNS         : 192.168.1.96
+DHCP SERVER : 10.0.0.1
+DHCP LEASE  : 169461, 217800/108900/190575
+DOMAIN NAME : ccna-lab.com
+MAC         : 00:50:79:66:68:06
+LPORT       : 20000
+RHOST:PORT  : 127.0.0.1:30000
+MTU         : 1500
+```
+
+Вывод команды ***show ip dhcp binding*** на R1:
+```
+R1#show ip dhcp binding
+Bindings from all pools not associated with VRF:
+IP address          Client-ID/              Lease expiration        Type
+                    Hardware address/
+                    User name
+192.168.1.8         0100.5079.6668.05       Oct 27 2023 10:47 AM    Automatic
+192.168.1.102       0100.5079.6668.06       Oct 27 2023 10:56 AM    Automatic
+```
+
+Dывод команды ***show ip dhcp server statistics*** на R1 и R2:
+```
+R1#show ip dhcp server statistics
+Memory usage         67277
+Address pools        2
+Database agents      0
+Automatic bindings   2
+Manual bindings      0
+Expired bindings     0
+Malformed messages   27
+Secure arp entries   0
+
+Message              Received
+BOOTREQUEST          0
+DHCPDISCOVER         50
+DHCPREQUEST          4
+DHCPDECLINE          0
+DHCPRELEASE          0
+DHCPINFORM           0
+
+Message              Sent
+BOOTREPLY            0
+DHCPOFFER            4
+DHCPACK              4
+DHCPNAK              0
+```
+```
+R2#sh ip dhcp server statistics
+Memory usage         22565
+Address pools        0
+Database agents      0
+Automatic bindings   0
+Manual bindings      0
+Expired bindings     0
+Malformed messages   0
+Secure arp entries   0
+
+Message              Received
+BOOTREQUEST          0
+DHCPDISCOVER         0
+DHCPREQUEST          0
+DHCPDECLINE          0
+DHCPRELEASE          0
+DHCPINFORM           0
+
+Message              Sent
+BOOTREPLY            0
+DHCPOFFER            0
+DHCPACK              0
+DHCPNAK              0
+```
+
+Все изменения приведены [здесь.](https://github.com/Pekep97/Labs/tree/main/Lab_03/Configs)
