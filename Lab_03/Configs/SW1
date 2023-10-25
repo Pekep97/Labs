@@ -1,0 +1,75 @@
+SW1#sh run
+Building configuration...
+
+Current configuration : 1366 bytes
+!
+! Last configuration change at 22:27:25 MSK Tue Oct 24 2023 by admin
+!
+version 15.2
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+service compress-config
+!
+hostname SW1
+!
+boot-start-marker
+boot-end-marker
+!
+enable password class
+!
+username admin privilege 15 secret 5 $1$6sUL$ClPcI0/dGypiBsnpRluXH1
+no aaa new-model
+clock timezone MSK 3 0
+!
+ip dhcp snooping vlan 100
+ip dhcp snooping
+no ip domain-lookup
+ip cef
+no ipv6 cef
+!
+spanning-tree mode rapid-pvst
+spanning-tree extend system-id
+!
+vlan internal allocation policy ascending
+!
+interface Ethernet0/0
+ switchport access vlan 100
+ switchport mode access
+ spanning-tree portfast edge
+ ip dhcp snooping trust
+!
+interface Ethernet0/1
+ switchport trunk allowed vlan 100,200
+ switchport trunk encapsulation dot1q
+ switchport trunk native vlan 1000
+ switchport mode trunk
+ ip dhcp snooping trust
+!
+interface Ethernet0/2
+!
+interface Ethernet0/3
+!
+interface Vlan200
+ ip address 192.168.1.66 255.255.255.224
+!
+ip default-gateway 192.168.1.65
+ip forward-protocol nd
+!
+no ip http server
+no ip http secure-server
+!
+control-plane
+!
+banner motd ^C unauthorized access is prohibited ^C
+!
+line con 0
+ password cisco
+ logging synchronous
+ login local
+line aux 0
+line vty 0 4
+ password cisco
+ login local
+!
+end
