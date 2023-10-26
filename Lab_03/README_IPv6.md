@@ -34,8 +34,8 @@
 | R2     | e0/0      | fe80::2                |
 | R2     | e0/1      | 2001:db8:acad:3::1 /64 |
 | R2     | e0/1      | fe80::1                |
-| PC-A   | NIC       | DHCP                   |
-| PC-B   | NIC       | DHCP                   |
+| VPC1   | NIC       | DHCP                   |
+| VPC2   | NIC       | DHCP                   |
 
 На роутерах настроим:
 - время;
