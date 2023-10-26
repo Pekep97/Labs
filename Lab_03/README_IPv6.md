@@ -254,4 +254,4 @@ interface Ethernet0/1
 end
 ```
 
-Все изменения приведены [сдесь.](https://github.com/Pekep97/Labs/tree/main/Lab_03/Configs)
+Все изменения приведены [здесь.](https://github.com/Pekep97/Labs/tree/main/Lab_03/Configs)
