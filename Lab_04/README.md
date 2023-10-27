@@ -19,8 +19,8 @@
 
 ### Таблица адрестного пространства (пока только IPv4):
 
-| Москва       |
-| ------------ |
+### Москва       
+
 | Hostname     | Interfaces | Description | IPv4-address | Mask | Gateway | IPv6-address | IPv6-prefix | LLIPv6-address |
 | R12          | e0/0.100 | MANAGEMENT_MSK | 10.58.100.2 | 255.255.255.0 (/24) |  |  |  |  |
 | e0/0.10      | DHCP_MSK | 192.168.10.2 | 255.255.255.0 (/24) |  |  |  |  |
@@ -38,7 +38,9 @@
 | SW5          | VLAN100 | MANAGEMENT_MSK | 10.58.100.15 | 255.255.255.0 (/24) | 10.58.100.1 |  |  |  |
 | VPC1         | NIC | \- | DHCP | DHCP | DHCP |  |  |  |
 | VPC2         | NIC | \- | DHCP | DHCP | DHCP |  |  |  |
-| С.-Петербург |
+
+### С.-Петербург
+
 | Hostname     | Interfaces | Description | IPv4-address | Mask | Gateway | IPv6-address | IPv6-prefix | LLIPv6-address |
 | R16          | e0/0.200 | MANAGEMENT_SPB | 10.58.200.2 | 255.255.255.0 (/24) |  |  |  |  |
 | e0/0.20      | DHCP_SPB | 192.168.20.2 | 255.255.255.0 (/24) |  |  |  |  |
@@ -54,7 +56,9 @@
 | SW10         | VLAN200 | MANAGEMENT_SPB | 10.58.200.110 | 255.255.255.0 (/24) | 10.58.200.1 |  |  |  |
 | VPC          | NIC | \- | DHCP | DHCP | DHCP |  |  |  |
 | VPC8         | NIC | \- | DHCP | DHCP | DHCP |  |  |  |
-| Чокурдах     |
+
+### Чокурдах
+
 | Hostname     | Interfaces | Description | IPv4-address | Mask | Gateway | IPv6-address | IPv6-prefix | LLIPv6-address |
 | R28          | e0/2.100 | MANAGEMENT_CHKR | 10.58.100.1 | 255.255.255.0 (/24) |  |  |  |  |
 | e0/2.10      | DHCP_CHKR | 192.168.10.1 | 255.255.255.0 (/24) |  |  |  |  |
