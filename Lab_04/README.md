@@ -2,11 +2,11 @@
 
 ### Задание:
 
-1. Разработаете и задокументируете адресное пространство для лабораторного стенда.
-2. Настроите ip адреса на каждом активном порту
-3. Настроите каждый VPC в каждом офисе в своем VLAN.
-4. Настроите VLAN/Loopbackup interface управления для сетевых устройств
-5. Настроите сети офисов так, чтобы не возникало broadcast штормов, а использование линков было максимально оптимизировано
+1. Разработаете и задокументируете адресное пространство для лабораторного стенда;
+2. Настроите ip адреса на каждом активном порту;
+3. Настроите каждый VPC в каждом офисе в своем VLAN;
+4. Настроите VLAN/Loopbackup interface управления для сетевых устройств;
+5. Настроите сети офисов так, чтобы не возникало broadcast штормов, а использование линков было максимально оптимизировано.
 
 ### Решение:
 
@@ -30,16 +30,12 @@
 
 ### Таблица адрестного пространства (пока только IPv4):
 
-|              |            |                 | Москва        |                     |             |               |            |                 |
+|              |            |                 | Москва        |                     |             |              |             |                |
 | ------------ | ---------- | --------------- | ------------- | ------------------- | ----------- | ------------ | ----------- | -------------- |
 | Hostname     | Interfaces | Description     | IPv4-address  | Mask                | Gateway     | IPv6-address | IPv6-prefix | LLIPv6-address |
 | R12          | e0/0.100   | MANAGEMENT_MSK  | 10.58.100.2   | 255.255.255.0 (/24) |             |              |             |                |
-|              | e0/0.10    | DHCP_MSK        | 192.168.10.2  | 255.255.255.0 (/24) |             |              |             |                |
-|              | e0/1.100   | MANAGEMENT_MSK  | 10.58.100.3   | 255.255.255.0 (/24) |             |              |             |                |
 |              | e0/1.10    | DHCP_MSK        | 192.168.10.3  | 255.255.255.0 (/24) |             |              |             |                |
 | R13          | e0/0.100   | MANAGEMENT_MSK  | 10.58.100.4   | 255.255.255.0 (/24) |             |              |             |                |
-|              | e0/0.10    | DHCP_MSK        | 192.168.10.4  | 255.255.255.0 (/24) |             |              |             |                |
-|              | e0/1.100   | MANAGEMENT_MSK  | 10.58.100.5   | 255.255.255.0 (/24) |             |              |             |                |
 |              | e0/1.10    | DHCP_MSK        | 192.168.10.5  | 255.255.255.0 (/24) |             |              |             |                |
 | VRRP_R12+R13 | \-         | MANAGEMENT_MSK  | 10.58.100.1   | 255.255.255.0 (/24) |             |              |             |                |
 |              | \-         | DHCP_MSK        | 192.168.10.1  | 255.255.255.0 (/24) |             |              |             |                |
@@ -52,12 +48,8 @@
 |              |            |                 | С.-Петербург  |                     |             |              |             |                |
 | Hostname     | Interfaces | Description     | IPv4-address  | Mask                | Gateway     | IPv6-address | IPv6-prefix | LLIPv6-address |
 | R16          | e0/0.200   | MANAGEMENT_SPB  | 10.58.200.2   | 255.255.255.0 (/24) |             |              |             |                |
-|              | e0/0.20    | DHCP_SPB        | 192.168.20.2  | 255.255.255.0 (/24) |             |              |             |                |
-|              | e0/2.200   | MANAGEMENT_SPB  | 10.58.200.3   | 255.255.255.0 (/24) |             |              |             |                |
 |              | e0/2.20    | DHCP_SPB        | 192.168.20.3  | 255.255.255.0 (/24) |             |              |             |                |
 | R17          | e0/0.200   | MANAGEMENT_SPB  | 10.58.200.4   | 255.255.255.0 (/24) |             |              |             |                |
-|              | e0/0.20    | DHCP_SPB        | 192.168.20.4  | 255.255.255.0 (/24) |             |              |             |                |
-|              | e0/2.200   | MANAGEMENT_SPB  | 10.58.200.5   | 255.255.255.0 (/24) |             |              |             |                |
 |              | e0/2.20    | DHCP_SPB        | 192.168.20.5  | 255.255.255.0 (/24) |             |              |             |                |
 | VRRP_R12+R13 | \-         | MANAGEMENT_SPB  | 10.58.200.1   | 255.255.255.0 (/24) |             |              |             |                |
 |              | \-         | DHCP_SPB        | 192.168.20.1  | 255.255.255.0 (/24) |             |              |             |                |
@@ -119,6 +111,8 @@ line vty 0 4
  !
  banner $ unauthorized access prohibited $
  !
+ username admin privilege 15 secret 5 $1$oiCq$/GWsWDICleh2G7ggNm8vm1
+ !
  ipv6 unicast-routing
  !
 R12#sh ip interface brief
@@ -137,5 +131,52 @@ Ethernet1/2                unassigned      YES unset  administratively down down
 Ethernet1/3                unassigned      YES unset  administratively down down
 !
  end
+```
+
+### 3. Настроим каждый VPC в каждом офисе в своем VLAN:
+
+Для выполнения этого пункта настроим порты коммутаторов к которым подключены VPC типа ***access***. Покажем настройку на SW2:
+
+```
+interface Ethernet0/2
+ switchport access vlan 10
+ switchport mode access
+ spanning-tree portfast edge
+ spanning-tree bpdufilter enable
+ spanning-tree bpduguard enable
+ ip dhcp snooping trust
+```
+
+### 4. Настроим VLAN/Loopbackup interface управления для сетевых устройств:
+
+На коммутаторах создадим интерфейс VLAN100, на роутерах создадимвиртуальные интерфейсы и зададим им адрес в соответствии с [таблицей](https://github.com/Pekep97/Labs/blob/main/Lab_04/README.md#%D1%82%D0%B0%D0%B1%D0%BB%D0%B8%D1%86%D0%B0-%D0%B0%D0%B4%D1%80%D0%B5%D1%81%D1%82%D0%BD%D0%BE%D0%B3%D0%BE-%D0%BF%D1%80%D0%BE%D1%81%D1%82%D1%80%D0%B0%D0%BD%D1%81%D1%82%D0%B2%D0%B0-%D0%BF%D0%BE%D0%BA%D0%B0-%D1%82%D0%BE%D0%BB%D1%8C%D0%BA%D0%BE-ipv4)
+
+Результат настройки покажем на SW2 и R12:
+
+SW2
+```
+SW2#sh ip inter brief
+Interface              IP-Address      OK? Method Status                Protocol
+Ethernet0/0            unassigned      YES unset  up                    up
+Ethernet0/1            unassigned      YES unset  up                    up
+Ethernet0/2            unassigned      YES unset  up                    up
+Ethernet0/3            unassigned      YES unset  up                    up
+Vlan100                10.58.100.12    YES NVRAM  up                    up
+```
+R12
+```
+R12#sh ip inter brief
+Interface                  IP-Address      OK? Method Status                Protocol
+Ethernet0/0                unassigned      YES NVRAM  up                    up
+Ethernet0/0.100            10.58.100.2     YES NVRAM  up                    up
+Ethernet0/1                unassigned      YES NVRAM  up                    up
+Ethernet0/1.10             192.168.10.3    YES NVRAM  up                    up
+Ethernet0/1.100            unassigned      YES unset  up                    up
+Ethernet0/2                unassigned      YES NVRAM  administratively down down
+Ethernet0/3                unassigned      YES NVRAM  administratively down down
+Ethernet1/0                unassigned      YES NVRAM  administratively down down
+Ethernet1/1                unassigned      YES NVRAM  administratively down down
+Ethernet1/2                unassigned      YES NVRAM  administratively down down
+Ethernet1/3                unassigned      YES NVRAM  administratively down down
 ```
 
