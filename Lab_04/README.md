@@ -84,16 +84,18 @@
 | Чокурдах     | 10     | DHCP_CHKR       |
 |              | 100    | MANAGEMENT_CHKR |
 
-
+### 2. Настроим ip адреса на каждом активном порту:
 
 На комутаторах и роутерах настроим:
 - время;
 - зададим имя;
+- содадим пользователя admin с зашифрованным паролем admin;
 - назначим class в качестве зашифрованного пароля привилегированного режима;
 - назначим cisco в качестве пароля консоли и включим вход;
 - назначим cisco в качестве пароля VTY и включим вход;
 	- зашифруем пароли в виде открытого текста.
 - создадим баннер предупреждающий всех, что несанкционированный доступ запрещен;
+- назначим IP-адреса активным интерфейсам; 
 - активируем IPv6 routing (на роутерах).
 
 Покажем для примера настройки на роутера R12:
@@ -119,6 +121,21 @@ line vty 0 4
  !
  ipv6 unicast-routing
  !
+R12#sh ip interface brief
+Interface                  IP-Address      OK? Method Status                Protocol
+Ethernet0/0                unassigned      YES unset  up                    up
+Ethernet0/0.10             unassigned      YES manual deleted               down
+Ethernet0/0.100            10.58.100.2     YES manual up                    up
+Ethernet0/1                unassigned      YES unset  up                    up
+Ethernet0/1.10             192.168.10.3    YES manual up                    up
+Ethernet0/1.100            unassigned      YES manual up                    up
+Ethernet0/2                unassigned      YES unset  administratively down down
+Ethernet0/3                unassigned      YES unset  administratively down down
+Ethernet1/0                unassigned      YES unset  administratively down down
+Ethernet1/1                unassigned      YES unset  administratively down down
+Ethernet1/2                unassigned      YES unset  administratively down down
+Ethernet1/3                unassigned      YES unset  administratively down down
+!
  end
 ```
 
