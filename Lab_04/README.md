@@ -235,7 +235,8 @@ ip dhcp pool DHCP_MSK_BACKUP
  domain-name DHCP_MSK.com
  lease 2 12 30
 ```
-	- на R13 создан DHCP-pool с именем DHCP_MSK и следующими параметрами:
+
+- на R13 создан DHCP-pool с именем DHCP_MSK и следующими параметрами:
  ```
 R13#sh run | sec dhcp
 ip dhcp excluded-address 192.168.10.1 192.168.10.5
@@ -247,7 +248,8 @@ ip dhcp pool DHCP_MSK
  domain-name DHCP_MSK.com
  lease 2 12 30
 ```
-	- покажем что VPC7 получил правильный адрес:
+
+- покажем что VPC7 получил правильный адрес:
 ```
 VPCS> sh ip
 
