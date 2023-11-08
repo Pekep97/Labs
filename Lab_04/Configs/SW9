@@ -1,0 +1,112 @@
+SW9#sh run view ful
+Building configuration...
+
+Current configuration : 2236 bytes
+!
+! Last configuration change at 18:57:04 MSK3 Tue Nov 7 2023 by admin
+!
+version 15.2
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+service compress-config
+!
+hostname SW9
+!
+boot-start-marker
+boot-end-marker
+!
+enable secret 5 $1$/yqZ$WE/0YR0XnODtDBsZeUD1j/
+!
+username admin privilege 15 secret 5 $1$e7AV$PTotnU8VawL7RyQiZqfzC0
+no aaa new-model
+clock timezone MSK3 0 0
+!
+ip dhcp snooping vlan 20
+ip dhcp snooping
+no ip domain-lookup
+ip cef
+no ipv6 cef
+!
+spanning-tree mode pvst
+spanning-tree extend system-id
+!
+vlan internal allocation policy ascending
+!
+interface Port-channel19
+ switchport trunk allowed vlan 20,200
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ ip dhcp snooping trust
+!
+interface Ethernet0/0
+ switchport trunk allowed vlan 20,200
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ channel-protocol lacp
+ channel-group 19 mode passive
+!
+interface Ethernet0/1
+ switchport trunk allowed vlan 20,200
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ channel-protocol lacp
+ channel-group 19 mode passive
+!
+interface Ethernet0/2
+ switchport access vlan 20
+ switchport trunk encapsulation dot1q
+ switchport mode access
+ spanning-tree portfast
+ ip dhcp snooping trust
+!
+interface Ethernet0/3
+ switchport trunk allowed vlan 200
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ spanning-tree bpdufilter enable
+ spanning-tree bpduguard enable
+ spanning-tree guard root
+!
+interface Ethernet1/0
+ switchport trunk allowed vlan 20
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ spanning-tree bpdufilter enable
+ spanning-tree bpduguard enable
+ spanning-tree guard root
+ ip dhcp snooping trust
+!
+interface Ethernet1/1
+!
+interface Ethernet1/2
+!
+interface Ethernet1/3
+!
+interface Vlan20
+ no ip address
+ shutdown
+!
+interface Vlan200
+ ip address 10.58.200.109 255.255.255.0
+!
+ip default-gateway 10.58.200.1
+ip forward-protocol nd
+!
+no ip http server
+no ip http secure-server
+!
+control-plane
+!
+banner motd ^C unauthorized access prohibited ^C
+!
+line con 0
+ password cisco
+ logging synchronous
+ login local
+line aux 0
+line vty 0 4
+ password cisco
+ login
+!
+end
