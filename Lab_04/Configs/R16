@@ -1,0 +1,93 @@
+R16#sh run
+Building configuration...
+
+Current configuration : 1666 bytes
+!
+! Last configuration change at 18:57:30 UTC Tue Nov 7 2023
+!
+version 15.4
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname R16
+!
+boot-start-marker
+boot-end-marker
+!
+enable secret 5 $1$/yqZ$WE/0YR0XnODtDBsZeUD1j/
+!
+no aaa new-model
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+ip dhcp excluded-address 192.168.20.1 192.168.20.127
+!
+ip dhcp pool DHCP_SPB_BACKUP
+ network 192.168.20.0 255.255.255.0
+ default-router 192.168.20.1
+ dns-server 192.168.20.1
+ domain-name DHCP_SPB.com
+ lease 2 12 30
+!
+no ip domain lookup
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+multilink bundle-name authenticated
+!
+username admin privilege 15 secret 5 $1$U/Md$PI1HGnXQGVMa2VSKDea6M.
+!
+redundancy
+!
+interface Ethernet0/0
+ no ip address
+!
+interface Ethernet0/0.200
+ description MANAGEMENT_SPB
+ encapsulation dot1Q 200
+ ip address 10.58.200.2 255.255.255.0
+ vrrp 200 description MANAGEMENT_SPB
+ vrrp 200 ip 10.58.200.1
+!
+interface Ethernet0/1
+ no ip address
+ shutdown
+!
+interface Ethernet0/2
+ no ip address
+!
+interface Ethernet0/2.20
+ description DHCP_SPB
+ encapsulation dot1Q 20
+ ip address 192.168.20.2 255.255.255.0
+ vrrp 20 description DHCP_SPB
+ vrrp 20 ip 192.168.20.1
+!
+interface Ethernet0/3
+ no ip address
+ shutdown
+!
+ip forward-protocol nd
+!
+no ip http server
+no ip http secure-server
+!
+control-plane
+!
+banner motd ^C unauthorized access prohibited ^C
+!
+line con 0
+ password cisco
+ logging synchronous
+ login local
+line aux 0
+line vty 0 4
+ password cisco
+ login
+ transport input none
+!
+end
