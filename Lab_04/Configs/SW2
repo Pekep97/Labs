@@ -1,0 +1,79 @@
+SW2#sh run
+Building configuration...
+
+Current configuration : 1501 bytes
+!
+! Last configuration change at 17:45:05 MSK3 Wed Nov 8 2023
+!
+version 15.2
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+service compress-config
+!
+hostname SW2
+!
+boot-start-marker
+boot-end-marker
+!
+enable secret 5 $1$/yqZ$WE/0YR0XnODtDBsZeUD1j/
+!
+username admin privilege 15 secret 5 $1$lw4C$skEuq8by1XiD503U0VsCe/
+no aaa new-model
+clock timezone MSK3 0 0
+!
+ip dhcp snooping vlan 10
+ip dhcp snooping
+ip cef
+no ipv6 cef
+!
+spanning-tree mode rapid-pvst
+spanning-tree extend system-id
+!
+vlan internal allocation policy ascending
+!
+interface Ethernet0/0
+ switchport trunk allowed vlan 10,100
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ ip dhcp snooping trust
+!
+interface Ethernet0/1
+ switchport trunk allowed vlan 10,100
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ ip dhcp snooping trust
+!
+interface Ethernet0/2
+ switchport access vlan 10
+ switchport mode access
+ spanning-tree portfast edge
+ spanning-tree bpdufilter enable
+ spanning-tree bpduguard enable
+ ip dhcp snooping trust
+!
+interface Ethernet0/3
+!
+interface Vlan100
+ ip address 10.58.100.12 255.255.255.0
+!
+ip default-gateway 10.58.100.1
+ip forward-protocol nd
+!
+no ip http server
+no ip http secure-server
+!
+control-plane
+!
+banner motd ^C unauthorized access prohibited ^C
+!
+line con 0
+ password cisco
+ logging synchronous
+ login local
+line aux 0
+line vty 0 4
+ password cisco
+ login
+!
+end
