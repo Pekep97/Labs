@@ -25,7 +25,7 @@
 
 ### Таблица адрестного пространства:
 
-|              |            |                 | *Москва*        |                       |             |              |             |                |
+|              |            |                 | *Москва*      |                       |             |              |             |                |
 |--------------|------------|-----------------|---------------|-----------------------|-------------|--------------|-------------|----------------|
 | **Hostname**     | **Interfaces** | **Description**     | **IPv4-address**  | **Mask**                  | **Gateway**     | **IPv6-address** | **IPv6-prefix** | **LLIPv6-address** |
 | R12          | e0/0.100   | MANAGEMENT_MSK  | 10.58.100.2   | 255.255.255.0 (/24)   |             |              |             |                |
@@ -44,7 +44,7 @@
 |              | e0/3       | l3:to-R19       | 10.64.100.21  | 255.255.255.252 (/30) |             |              |             |                |
 | R15          | e0/0       | l3:to-R13       | 10.64.100.14  | 255.255.255.252 (/30) |             |              |             |                |
 |              | e0/1       | l3:to-R12       | 10.64.100.6   | 255.255.255.252 (/30) |             |              |             |                |
-|              | e0/2       | UPLINK          | 132.50.21.2   | 255.255.255.252 (/30) |             |              |             |                |
+|              | e0/2       | l3:to-AS-301    | 132.50.21.2   | 255.255.255.252 (/30) |             |              |             |                |
 |              | e0/3       | l3:to-R20       | 10.64.100.17  | 255.255.255.252 (/30) |             |              |             |                |
 | R19          | e0/0       | l3:to-R14       | 10.64.100.22  | 255.255.255.252 (/30) |             |              |             |                |
 | R20          | e0/0       | l3:to-R15       | 10.64.100.18  | 255.255.255.252 (/30) |             |              |             |                |
@@ -54,18 +54,18 @@
 | SW5          | VLAN100    | MANAGEMENT_MSK  | 10.58.100.15  | 255.255.255.0 (/24)   | 10.58.100.1 |              |             |                |
 | VPC1         | NIC        | -               | DHCP          | DHCP                  | DHCP        |              |             |                |
 | VPC2         | NIC        | -               | DHCP          | DHCP                  | DHCP        |              |             |                |
-|              |            |                 | Киторн        |                       |             |              |             |                |
-| Hostname     | Interfaces | Description     | IPv4-address  | Mask                  | Gateway     | IPv6-address | IPv6-prefix | LLIPv6-address |
+|              |            |                 | *Киторн*      |                       |             |              |             |                |
+| **Hostname**     | **Interfaces** | **Description**     | **IPv4-address**  | **Mask**                  | **Gateway**     | **IPv6-address** | **IPv6-prefix** | **LLIPv6-address** |
 | R22          | e0/0       | l3:to-AS-1001   | 85.10.22.1    | 255.255.255.252 (/30) |             |              |             |                |
 |              | e0/1       | l3:to-AS-301    | 21.22.100.1   | 255.255.255.252 (/30) |             |              |             |                |
 |              | e0/2       | l3:to-AS-520    | 23.100.40.2   | 255.255.255.252 (/30) |             |              |             |                |
-|              |            |                 | Ламас         |                       |             |              |             |                |
-| Hostname     | Interfaces | Description     | IPv4-address  | Mask                  | Gateway     | IPv6-address | IPv6-prefix | LLIPv6-address |
+|              |            |                 | *Ламас*       |                       |             |              |             |                |
+| **Hostname**     | **Interfaces** | **Description**     | **IPv4-address**  | **Mask**                  | **Gateway**     | **IPv6-address** | **IPv6-prefix** | **LLIPv6-address** |
 | R21          | e0/0       | l3:to-AS-1001   | 132.50.21.1   | 255.255.255.252 (/30) |             |              |             |                |
 |              | e0/1       | l3:to-AS-101    | 21.22.100.2   | 255.255.255.252 (/30) |             |              |             |                |
 |              | e0/2       | l3:to-AS-520    | 24.100.40.2   | 255.255.255.252 (/30) |             |              |             |                |
-|              |            |                 | Триада        |                       |             |              |             |                |
-| Hostname     | Interfaces | Description     | IPv4-address  | Mask                  | Gateway     | IPv6-address | IPv6-prefix | LLIPv6-address |
+|              |            |                 | *Триада*      |                       |             |              |             |                |
+| **Hostname**     | **Interfaces** | **Description**     | **IPv4-address**  | **Mask**                  | **Gateway**     | **IPv6-address** | **IPv6-prefix** | **LLIPv6-address** |
 | R23          | e0/0       | l3:to-AS-101    | 23.100.40.1   | 255.255.255.252 (/30) |             |              |             |                |
 |              | e0/1       | l3:to-R25       | 10.64.52.1    | 255.255.255.252 (/30) |             |              |             |                |
 |              | e0/2       | l3:to-R24       | 10.64.52.5    | 255.255.255.252 (/30) |             |              |             |                |
@@ -81,11 +81,11 @@
 |              | e0/1       | l3:to-CHKR      | 3.3.3.2       | 255.255.255.252 (/30) |             |              |             |                |
 |              | e0/2       | l3:to-R25       | 10.64.52.14   | 255.255.255.252 (/30) |             |              |             |                |
 |              | e0/3       | l3:to-AS-2042   | 26.100.40.1   | 255.255.255.252 (/30) |             |              |             |                |
-|              |            |                 | Лабытнанги    |                       |             |              |             |                |
-| Hostname     | Interfaces | Description     | IPv4-address  | Mask                  | Gateway     | IPv6-address | IPv6-prefix | LLIPv6-address |
+|              |            |                 | *Лабытнанги*  |                       |             |              |             |                |
+| **Hostname**     | **Interfaces** | **Description**     | **IPv4-address**  | **Mask**                  | **Gateway**     | **IPv6-address** | **IPv6-prefix** | **LLIPv6-address** |
 | R27          | e0/0       | l3:to-AS-520    | 1.1.1.1       | 255.255.255.252 (/30) |             |              |             |                |
-|              |            |                 | С.-Петербург  |                       |             |              |             |                |
-| Hostname     | Interfaces | Description     | IPv4-address  | Mask                  | Gateway     | IPv6-address | IPv6-prefix | LLIPv6-address |
+|              |            |                 | *С.-Петербург*|                       |             |              |             |                |
+| **Hostname**     | **Interfaces** | **Description**     | **IPv4-address**  | **Mask**                  | **Gateway**     | **IPv6-address** | **IPv6-prefix** | **LLIPv6-address** |
 | R16          | e0/0.200   | MANAGEMENT_SPB  | 10.58.200.2   | 255.255.255.0 (/24)   |             |              |             |                |
 |              | e0/2.20    | DHCP_SPB        | 192.168.20.2  | 255.255.255.0 (/24)   |             |              |             |                |
 |              | e0/1       | l3:to-R18       | 10.64.20.6    | 255.255.255.252 (/30) |             |              |             |                |
@@ -104,8 +104,8 @@
 | SW10         | VLAN200    | MANAGEMENT_SPB  | 10.58.200.110 | 255.255.255.0 (/24)   | 10.58.200.1 |              |             |                |
 | VPC          | NIC        | -               | DHCP          | DHCP                  | DHCP        |              |             |                |
 | VPC8         | NIC        | -               | DHCP          | DHCP                  | DHCP        |              |             |                |
-|              |            |                 | Чокурдах      |                       |             |              |             |                |
-| Hostname     | Interfaces | Description     | IPv4-address  | Mask                  | Gateway     | IPv6-address | IPv6-prefix | LLIPv6-address |
+|              |            |                 | *Чокурдах*    |                       |             |              |             |                |
+| **Hostname**     | **Interfaces** | **Description**     | **IPv4-address**  | **Mask**                  | **Gateway**     | **IPv6-address** | **IPv6-prefix** | **LLIPv6-address** |
 | R28          | e0/2.100   | MANAGEMENT_CHKR | 10.58.10.1    | 255.255.255.0 (/24)   |             |              |             |                |
 |              | e0/2.10    | DHCP_CHKR       | 192.168.100.1 | 255.255.255.0 (/24)   |             |              |             |                |
 |              | e0/0       | l3:to-AS-520    | 3.3.3.1       | 255.255.255.252 (/30) |             |              |             |                |
