@@ -27,7 +27,7 @@
 
 |              |            |                 | *Москва*        |                       |             |              |             |                |
 |--------------|------------|-----------------|---------------|-----------------------|-------------|--------------|-------------|----------------|
-| Hostname     | Interfaces | Description     | IPv4-address  | Mask                  | Gateway     | IPv6-address | IPv6-prefix | LLIPv6-address |
+| **Hostname**     | **Interfaces** | **Description**     | **IPv4-address**  | **Mask**                  | **Gateway**     | **IPv6-address** | **IPv6-prefix** | **LLIPv6-address** |
 | R12          | e0/0.100   | MANAGEMENT_MSK  | 10.58.100.2   | 255.255.255.0 (/24)   |             |              |             |                |
 |              | e0/1.10    | DHCP_MSK        | 192.168.10.3  | 255.255.255.0 (/24)   |             |              |             |                |
 |              | e0/2       | l3:to-R14       | 10.64.100.1   | 255.255.255.252 (/30) |             |              |             |                |
