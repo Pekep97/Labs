@@ -1,9 +1,9 @@
 R28#sh run
 Building configuration...
 
-Current configuration : 1750 bytes
+Current configuration : 2168 bytes
 !
-! Last configuration change at 16:40:54 UTC Wed Nov 8 2023
+! Last configuration change at 22:50:57 UTC Fri Nov 10 2023 by admin
 !
 version 15.4
 service timestamps debug datetime msec
@@ -23,12 +23,12 @@ no mmi auto-configure
 no mmi pvc
 mmi snmp-timeout 180
 !
-ip dhcp excluded-address 192.168.10.1 192.168.10.5
+ip dhcp excluded-address 192.168.100.1 192.168.100.5
 !
 ip dhcp pool DHCP_CHKR
- network 192.168.10.0 255.255.255.0
- default-router 192.168.10.1
- dns-server 192.168.10.1
+ network 192.168.100.0 255.255.255.0
+ default-router 192.168.100.1
+ dns-server 192.168.100.1
  domain-name DHCP_CHKR.com
  lease 2 12 30
 !
@@ -44,12 +44,18 @@ username admin privilege 15 secret 5 $1$U/Md$PI1HGnXQGVMa2VSKDea6M.
 redundancy
 !
 interface Ethernet0/0
- no ip address
- shutdown
+ description l3:to-AS-520
+ ip address 3.3.3.1 255.255.255.252
+ ipv6 address FE80::2 link-local
+ ipv6 address 2000:0:520:3333::1/112
+ ipv6 enable
 !
 interface Ethernet0/1
- no ip address
- shutdown
+ description l3:to-AS-520
+ ip address 2.2.2.1 255.255.255.252
+ ipv6 address FE80::1 link-local
+ ipv6 address 2000:0:520:2222::1/112
+ ipv6 enable
 !
 interface Ethernet0/2
  no ip address
@@ -57,12 +63,18 @@ interface Ethernet0/2
 interface Ethernet0/2.10
  description DHCP_CHKR
  encapsulation dot1Q 10
- ip address 192.168.10.1 255.255.255.0
+ ip address 192.168.100.1 255.255.255.0
+ ipv6 address FE80::1 link-local
+ ipv6 address FD00:192:168:100::1/64
+ ipv6 enable
 !
 interface Ethernet0/2.100
  description MANAGEMENT_CHKR
  encapsulation dot1Q 100
- ip address 10.58.100.1 255.255.255.0
+ ip address 10.58.10.1 255.255.255.0
+ ipv6 address FE80::1 link-local
+ ipv6 address FD00:10:58:10::1/64
+ ipv6 enable
 !
 interface Ethernet0/3
  no ip address
