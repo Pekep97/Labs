@@ -166,19 +166,45 @@ line vty 0 4
  !
 R12#sh ip interface brief
 Interface                  IP-Address      OK? Method Status                Protocol
-Ethernet0/0                unassigned      YES unset  up                    up
-Ethernet0/0.10             unassigned      YES manual deleted               down
-Ethernet0/0.100            10.58.100.2     YES manual up                    up
-Ethernet0/1                unassigned      YES unset  up                    up
-Ethernet0/1.10             192.168.10.3    YES manual up                    up
-Ethernet0/1.100            unassigned      YES manual up                    up
-Ethernet0/2                unassigned      YES unset  administratively down down
-Ethernet0/3                unassigned      YES unset  administratively down down
-Ethernet1/0                unassigned      YES unset  administratively down down
-Ethernet1/1                unassigned      YES unset  administratively down down
-Ethernet1/2                unassigned      YES unset  administratively down down
-Ethernet1/3                unassigned      YES unset  administratively down down
+Ethernet0/0                unassigned      YES NVRAM  up                    up
+Ethernet0/0.100            10.58.100.2     YES NVRAM  up                    up
+Ethernet0/1                unassigned      YES NVRAM  up                    up
+Ethernet0/1.10             192.168.10.3    YES NVRAM  up                    up
+Ethernet0/1.100            unassigned      YES unset  up                    up
+Ethernet0/2                10.64.100.1     YES manual up                    up
+Ethernet0/3                10.64.100.5     YES manual up                    up
+Ethernet1/0                unassigned      YES NVRAM  administratively down down
+Ethernet1/1                unassigned      YES NVRAM  administratively down down
+Ethernet1/2                unassigned      YES NVRAM  administratively down down
+Ethernet1/3                unassigned      YES NVRAM  administratively down down
 !
+R12#sh ipv6 interface brief
+Ethernet0/0            [up/up]
+    unassigned
+Ethernet0/0.100        [up/up]
+    FE80::1
+    FD00:10:58:100::1
+Ethernet0/1            [up/up]
+    unassigned
+Ethernet0/1.10         [up/up]
+    FE80::1
+    FD00:192:168:10::1
+Ethernet0/1.100        [up/up]
+    unassigned
+Ethernet0/2            [up/up]
+    FE80::1
+    FD00:0:12:14::1
+Ethernet0/3            [up/up]
+    FE80::1
+    FD00:0:12:15::1
+Ethernet1/0            [administratively down/down]
+    unassigned
+Ethernet1/1            [administratively down/down]
+    unassigned
+Ethernet1/2            [administratively down/down]
+    unassigned
+Ethernet1/3            [administratively down/down]
+    unassigned
  end
 ```
 
@@ -198,43 +224,43 @@ interface Ethernet0/2
 
 ### 4. Настроим VLAN/Loopbackup interface управления для сетевых устройств:
 
-На коммутаторах создадим интерфейс VLAN100, на роутерах создадимвиртуальные интерфейсы и зададим им адрес в соответствии с [таблицей.](https://github.com/Pekep97/Labs/blob/main/Lab_04/README.md#%D1%82%D0%B0%D0%B1%D0%BB%D0%B8%D1%86%D0%B0-%D0%B0%D0%B4%D1%80%D0%B5%D1%81%D1%82%D0%BD%D0%BE%D0%B3%D0%BE-%D0%BF%D1%80%D0%BE%D1%81%D1%82%D1%80%D0%B0%D0%BD%D1%81%D1%82%D0%B2%D0%B0-%D0%BF%D0%BE%D0%BA%D0%B0-%D1%82%D0%BE%D0%BB%D1%8C%D0%BA%D0%BE-ipv4)
+На коммутаторах создадим интерфейс VLAN100, на роутерах создадим виртуальные интерфейсы и зададим им адрес в соответствии с [таблицей.](https://github.com/Pekep97/Labs/blob/main/Lab_04/README.md#%D1%82%D0%B0%D0%B1%D0%BB%D0%B8%D1%86%D0%B0-%D0%B0%D0%B4%D1%80%D0%B5%D1%81%D1%82%D0%BD%D0%BE%D0%B3%D0%BE-%D0%BF%D1%80%D0%BE%D1%81%D1%82%D1%80%D0%B0%D0%BD%D1%81%D1%82%D0%B2%D0%B0-%D0%BF%D0%BE%D0%BA%D0%B0-%D1%82%D0%BE%D0%BB%D1%8C%D0%BA%D0%BE-ipv4)
 
 Результат настройки покажем на SW2 и R12:
 
 SW2
 ```
-SW2#sh ip inter brief
-Interface              IP-Address      OK? Method Status                Protocol
-Ethernet0/0            unassigned      YES unset  up                    up
-Ethernet0/1            unassigned      YES unset  up                    up
-Ethernet0/2            unassigned      YES unset  up                    up
-Ethernet0/3            unassigned      YES unset  up                    up
-Vlan100                10.58.100.12    YES NVRAM  up                    up
+SW2#sh run inter vlan 100
+!
+interface Vlan100
+ ip address 10.58.100.12 255.255.255.0
+ ipv6 address FE80::2 link-local
+ ipv6 address FD00:10:58:100::2/64
+ ipv6 enable
+end
 ```
 R12
 ```
-R12#sh ip inter brief
-Interface                  IP-Address      OK? Method Status                Protocol
-Ethernet0/0                unassigned      YES NVRAM  up                    up
-Ethernet0/0.100            10.58.100.2     YES NVRAM  up                    up
-Ethernet0/1                unassigned      YES NVRAM  up                    up
-Ethernet0/1.10             192.168.10.3    YES NVRAM  up                    up
-Ethernet0/1.100            unassigned      YES unset  up                    up
-Ethernet0/2                unassigned      YES NVRAM  administratively down down
-Ethernet0/3                unassigned      YES NVRAM  administratively down down
-Ethernet1/0                unassigned      YES NVRAM  administratively down down
-Ethernet1/1                unassigned      YES NVRAM  administratively down down
-Ethernet1/2                unassigned      YES NVRAM  administratively down down
-Ethernet1/3                unassigned      YES NVRAM  administratively down down
+R12#sh run interface e0/0.100
+!
+interface Ethernet0/0.100
+ description MANAGEMENT_MSK
+ encapsulation dot1Q 100
+ ip address 10.58.100.2 255.255.255.0
+ ipv6 address FE80::1 link-local
+ ipv6 address FD00:10:58:100::1/64 anycast
+ ipv6 enable
+ vrrp 100 description MANAGEMENT_MSK
+ vrrp 100 ip 10.58.100.1
+end
 ```
 
 ### 5. Настроим сети офисов так, чтобы не возникало broadcast штормов, а использование линков было максимально оптимизировано и задокументируем все изменения:
 
 Опишем общий план действий:
 
-- В Офисе Москва планируется собрать lacp между SW4 и SW5, настроить STP между SW2-SW5. Роутеры R12, R13 настроить VRRP, на котором будет висеть DHCP-сервер и шлюз по-умолчанию.
-- В офисе С.-Петербург планируется собрать laсp между SW9 и SW10, на роутерах R16-R17 настроить VRRP, на котором будет висеть DHCP-сервер и шлюз по-умолчанию.
+- В Офисе Москва планируется собрать lacp между SW4 и SW5, настроить STP между SW2-SW5. Роутеры R12, R13 настроить VRRP, на котором будет висеть DHCP-сервер и шлюз по-умолчанию для IPv4; Для IPv6 на R12 и R13 на интерфейсах в сторону коммутаторов назанчены ***anycast*** адреса, для оптимальности использования линков.
+- В офисе С.-Петербург планируется собрать laсp между SW9 и SW10, на роутерах R16-R17 настроить VRRP, на котором будет висеть DHCP-сервер и шлюз по-умолчанию для IPv4; Для IPv6 на R16 и R17 на интерфейсах в сторону коммутаторов назанчены ***anycast*** адреса, для оптимальности использования линков.
 - В офисе Чокурдах планируется организовать топологию "роутер на палочке", на R28 настроить DHCP-сервер и шлюз по-умолчанию.
 
 Покажем результат настройки на офисе Москва:
