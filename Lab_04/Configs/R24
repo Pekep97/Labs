@@ -1,0 +1,100 @@
+R24#sh run
+Building configuration...
+
+Current configuration : 1812 bytes
+!
+! Last configuration change at 00:59:20 MSK Sat Nov 11 2023 by admin
+!
+version 15.4
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname R24
+!
+boot-start-marker
+boot-end-marker
+!
+enable secret 5 $1$/yqZ$WE/0YR0XnODtDBsZeUD1j/
+!
+no aaa new-model
+clock timezone MSK 3 0
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+multilink bundle-name authenticated
+!
+username admin privilege 15 secret 5 $1$U/Md$PI1HGnXQGVMa2VSKDea6M.
+!
+redundancy
+!
+interface Ethernet0/0
+ description l3:to-AS-301
+ ip address 24.100.40.1 255.255.255.252
+ ipv6 address FE80::2 link-local
+ ipv6 address 2000:0:520:301::1/112
+ ipv6 enable
+!
+interface Ethernet0/1
+ description l3:to-R26
+ ip address 10.64.52.9 255.255.255.252
+ ipv6 address FE80::2 link-local
+ ipv6 address FD00:0:24:26::1/112
+ ipv6 enable
+!
+interface Ethernet0/2
+ description l3:to-R23
+ ip address 10.64.52.6 255.255.255.252
+ ipv6 address FE80::2 link-local
+ ipv6 address FD00:0:23:24::2/112
+ ipv6 enable
+!
+interface Ethernet0/3
+ description l3:to-AS-2042
+ ip address 24.100.40.5 255.255.255.252
+ ipv6 address FE80::2 link-local
+ ipv6 address 2000:0:520:2042::1/112
+ ipv6 enable
+!
+interface Ethernet1/0
+ no ip address
+ shutdown
+!
+interface Ethernet1/1
+ no ip address
+ shutdown
+!
+interface Ethernet1/2
+ no ip address
+ shutdown
+!
+interface Ethernet1/3
+ no ip address
+ shutdown
+!
+ip forward-protocol nd
+!
+no ip http server
+no ip http secure-server
+!
+control-plane
+!
+banner motd ^C unauthorized access prohibited ^C
+!
+line con 0
+ password cisco
+ logging synchronous
+ login local
+line aux 0
+line vty 0 4
+ password cisco
+ login
+ transport input none
+!
+end
