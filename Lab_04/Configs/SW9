@@ -1,9 +1,9 @@
-SW9#sh run view ful
+SW9#sh run
 Building configuration...
 
-Current configuration : 2236 bytes
+Current configuration : 2301 bytes
 !
-! Last configuration change at 18:57:04 MSK3 Tue Nov 7 2023 by admin
+! Last configuration change at 22:43:29 MSK3 Fri Nov 10 2023 by admin
 !
 version 15.2
 service timestamps debug datetime msec
@@ -23,7 +23,6 @@ no aaa new-model
 clock timezone MSK3 0 0
 !
 ip dhcp snooping vlan 20
-ip dhcp snooping
 no ip domain-lookup
 ip cef
 no ipv6 cef
@@ -89,6 +88,9 @@ interface Vlan20
 !
 interface Vlan200
  ip address 10.58.200.109 255.255.255.0
+ ipv6 address FE80::9 link-local
+ ipv6 address FD00:10:58:200::9/64
+ ipv6 enable
 !
 ip default-gateway 10.58.200.1
 ip forward-protocol nd
