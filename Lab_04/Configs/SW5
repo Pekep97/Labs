@@ -1,9 +1,9 @@
 SW5#sh run
 Building configuration...
 
-Current configuration : 2302 bytes
+Current configuration : 2393 bytes
 !
-! Last configuration change at 17:02:38 MSK3 Tue Nov 7 2023
+! Last configuration change at 21:30:35 MSK3 Fri Nov 10 2023 by admin
 !
 version 15.2
 service timestamps debug datetime msec
@@ -90,6 +90,9 @@ interface Vlan10
 !
 interface Vlan100
  ip address 10.58.100.15 255.255.255.0
+ ipv6 address FE80::5 link-local
+ ipv6 address FD00:10:58:100::5/64
+ ipv6 enable
 !
 ip default-gateway 10.58.100.1
 ip forward-protocol nd
