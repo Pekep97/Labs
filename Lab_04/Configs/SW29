@@ -1,9 +1,9 @@
 SW29#sh run
 Building configuration...
 
-Current configuration : 1305 bytes
+Current configuration : 1395 bytes
 !
-! Last configuration change at 16:29:29 MSK3 Wed Nov 8 2023
+! Last configuration change at 22:52:23 MSK3 Fri Nov 10 2023 by admin
 !
 version 15.2
 service timestamps debug datetime msec
@@ -49,9 +49,12 @@ interface Ethernet0/2
 interface Ethernet0/3
 !
 interface Vlan100
- ip address 10.58.100.129 255.255.255.0
+ ip address 10.58.10.129 255.255.255.0
+ ipv6 address FE80::29 link-local
+ ipv6 address FD00:10:58:10::29/64
+ ipv6 enable
 !
-ip default-gateway 10.58.100.1
+ip default-gateway 10.58.10.1
 ip forward-protocol nd
 !
 no ip http server
