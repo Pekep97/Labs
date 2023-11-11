@@ -1,9 +1,7 @@
 R16#sh run
 Building configuration...
 
-Current configuration : 1666 bytes
-!
-! Last configuration change at 18:57:30 UTC Tue Nov 7 2023
+Current configuration : 2018 bytes
 !
 version 15.4
 service timestamps debug datetime msec
@@ -50,12 +48,18 @@ interface Ethernet0/0.200
  description MANAGEMENT_SPB
  encapsulation dot1Q 200
  ip address 10.58.200.2 255.255.255.0
+ ipv6 address FE80::1 link-local
+ ipv6 address FD00:10:58:200::1/64 anycast
+ ipv6 enable
  vrrp 200 description MANAGEMENT_SPB
  vrrp 200 ip 10.58.200.1
 !
 interface Ethernet0/1
- no ip address
- shutdown
+ description l3:to-R18
+ ip address 10.64.20.6 255.255.255.252
+ ipv6 address FE80::2 link-local
+ ipv6 address FD00:0:16:18::2/112
+ ipv6 enable
 !
 interface Ethernet0/2
  no ip address
@@ -64,12 +68,18 @@ interface Ethernet0/2.20
  description DHCP_SPB
  encapsulation dot1Q 20
  ip address 192.168.20.2 255.255.255.0
+ ipv6 address FE80::1 link-local
+ ipv6 address FD00:192:168:20::1/64 anycast
+ ipv6 enable
  vrrp 20 description DHCP_SPB
  vrrp 20 ip 192.168.20.1
 !
 interface Ethernet0/3
- no ip address
- shutdown
+ description l3:to-R32
+ ip address 10.64.20.9 255.255.255.252
+ ipv6 address FE80::1 link-local
+ ipv6 address FD00:0:16:32::1/112
+ ipv6 enable
 !
 ip forward-protocol nd
 !
