@@ -1,7 +1,9 @@
 R13#sh run
 Building configuration...
 
-Current configuration : 1872 bytes
+Current configuration : 2336 bytes
+!
+! Last configuration change at 21:11:58 UTC Fri Nov 10 2023 by admin
 !
 version 15.4
 service timestamps debug datetime msec
@@ -48,6 +50,8 @@ interface Ethernet0/0.100
  description MANAGEMENT_MSK
  encapsulation dot1Q 100
  ip address 10.58.100.4 255.255.255.0
+ ipv6 address FE80::100 link-local
+ ipv6 address FD00:10:58:100::1/64 anycast
  vrrp 100 description MANAGEMENT_MSK
  vrrp 100 ip 10.58.100.1
  vrrp 100 priority 110
@@ -59,17 +63,25 @@ interface Ethernet0/1.10
  description DHCP_MSK
  encapsulation dot1Q 10
  ip address 192.168.10.5 255.255.255.0
+ ipv6 address FE80::10 link-local
+ ipv6 address FD00:192:168:10::1/64 anycast
  vrrp 10 description DHCP_MSK
  vrrp 10 ip 192.168.10.1
  vrrp 10 priority 110
 !
 interface Ethernet0/2
- no ip address
- shutdown
+ description l3:to-R15
+ ip address 10.64.100.13 255.255.255.252
+ ipv6 address FE80::1 link-local
+ ipv6 address FD00:0:13:15::1/112
+ ipv6 enable
 !
 interface Ethernet0/3
- no ip address
- shutdown
+ description l3:to-R14
+ ip address 10.64.100.9 255.255.255.252
+ ipv6 address FE80::1 link-local
+ ipv6 address FD00:0:13:14::1/112
+ ipv6 enable
 !
 interface Ethernet1/0
  no ip address
