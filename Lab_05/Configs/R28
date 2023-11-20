@@ -1,0 +1,155 @@
+R28#sh run
+Building configuration...
+
+Current configuration : 3159 bytes
+!
+! Last configuration change at 20:13:23 UTC Mon Nov 20 2023 by admin
+!
+version 15.4
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname R28
+!
+boot-start-marker
+boot-end-marker
+!
+enable secret 5 $1$/yqZ$WE/0YR0XnODtDBsZeUD1j/
+!
+no aaa new-model
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+ip dhcp excluded-address 192.168.100.1 192.168.100.5
+!
+ip dhcp pool DHCP_CHKR
+ network 192.168.100.0 255.255.255.0
+ default-router 192.168.100.1
+ dns-server 192.168.100.1
+ domain-name DHCP_CHKR.com
+ lease 2 12 30
+!
+no ip domain lookup
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+multilink bundle-name authenticated
+!
+username admin privilege 15 secret 5 $1$U/Md$PI1HGnXQGVMa2VSKDea6M.
+!
+redundancy
+!
+track 1 ip sla 1 reachability
+ delay down 10 up 5
+!
+interface Ethernet0/0
+ description l3:to-AS-520
+ ip address 3.3.3.1 255.255.255.252
+ ip policy route-map permit_to-R26
+ ipv6 address FE80::2 link-local
+ ipv6 address 2000:0:520:3333::1/112
+ ipv6 enable
+!
+interface Ethernet0/1
+ description l3:to-AS-520
+ ip address 2.2.2.1 255.255.255.252
+ ip policy route-map permit_to-R25
+ ipv6 address FE80::1 link-local
+ ipv6 address 2000:0:520:2222::1/112
+ ipv6 enable
+!
+interface Ethernet0/2
+ no ip address
+!
+interface Ethernet0/2.10
+ description DHCP_CHKR
+ encapsulation dot1Q 10
+ ip address 192.168.100.1 255.255.255.0
+ ipv6 address FE80::1 link-local
+ ipv6 address FD00:192:168:100::1/64
+ ipv6 enable
+!
+interface Ethernet0/2.100
+ description MANAGEMENT_CHKR
+ encapsulation dot1Q 100
+ ip address 10.58.10.1 255.255.255.0
+ ipv6 address FE80::1 link-local
+ ipv6 address FD00:10:58:10::1/64
+ ipv6 enable
+!
+interface Ethernet0/3
+ no ip address
+ shutdown
+!
+interface Ethernet1/0
+ no ip address
+ shutdown
+!
+interface Ethernet1/1
+ no ip address
+ shutdown
+!
+interface Ethernet1/2
+ no ip address
+ shutdown
+!
+interface Ethernet1/3
+ no ip address
+ shutdown
+!
+ip forward-protocol nd
+!
+no ip http server
+no ip http secure-server
+ip route 10.64.52.0 255.255.255.252 2.2.2.2 track 1
+ip route 10.64.52.0 255.255.255.252 3.3.3.2 10
+!
+ip sla 1
+ icmp-echo 2.2.2.2 source-ip 2.2.2.1
+ threshold 1000
+ timeout 1500
+ frequency 3
+ip sla schedule 1 life forever start-time now
+!
+route-map permit_to-R26 permit 10
+ description permit_to-R26
+ match ip address 101
+ match ipv6 address permit_to-R26
+ set ip next-hop 3.3.3.2
+ set ipv6 next-hop 2000:0:520:3333::2
+!
+route-map permit_to-R25 permit 1
+ description permit_to-R25
+ match ip address 100
+ match ipv6 address permit_to-R25
+ set ip next-hop 2.2.2.2
+ set ipv6 next-hop 2000:0:520:2222::2
+!
+access-list 100 permit ip 192.168.100.0 0.0.0.255 host 10.64.52.1
+access-list 101 permit ip 192.168.100.0 0.0.0.255 host 10.64.52.9
+!
+ipv6 access-list permit_to-R25
+ permit ipv6 2000:0:520:101::/112 any
+!
+ipv6 access-list permit_to-R26
+ permit ipv6 FD00:0:24:26::/112 any
+!
+control-plane
+!
+banner motd ^C unauthorized access prohibited ^C
+!
+line con 0
+ password cisco
+ logging synchronous
+ login local
+line aux 0
+line vty 0 4
+ password cisco
+ login
+ transport input none
+!
+end
