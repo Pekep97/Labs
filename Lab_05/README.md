@@ -123,4 +123,117 @@
 | Чокурдах     | 10     | DHCP_CHKR       |
 |              | 100    | MANAGEMENT_CHKR |
 
+- создадим *access-lists* и *route-maps* на роутере R28 и привяжем их к интерфейсам, смотрящим в сторону R25 и R26 соответственно:
 
+***acess-lists***
+```
+R28#sh access-lists
+Extended IP access list 100 // перенаправляет трафик из сети 192.168.100.0/24 к хосту 10.64.52.1 (интерфейс e0/1 роутера R23)
+    10 permit ip 192.168.100.0 0.0.0.255 host 10.64.52.1
+Extended IP access list 101 // перенаправляет трафик из сети 192.168.100.0/24 к хосту 10.64.52.9 (интерфейс e0/1 роутера R24)
+    10 permit ip 192.168.100.0 0.0.0.255 host 10.64.52.9
+IPv6 access list permit_to-R25 // разрешает любой трафик к сети 2000:0:520:101::/112 (интерфейс e0/1 роутера R23)
+    permit ipv6 2000:0:520:101::/112 any sequence 10 
+IPv6 access list permit_to-R26 // разрешает любой трафик к сети FD00:0:24:26::/112 (интерфейс e0/1 роутера R24)
+    permit ipv6 FD00:0:24:26::/112 any sequence 10
+```
+
+***route-maps***
+```
+R28#sh route-map
+route-map permit_to-R26, permit, sequence 10 // задает next-hop (интерфейс е0/1 роутера R26) для трафика указанного в access-list
+  Match clauses:
+    ip address (access-lists): 101
+     ipv6 address permit_to-R26
+  Set clauses:
+    ip next-hop 3.3.3.2
+     ipv6 next-hop 2000:0:520:3333::2
+  Policy routing matches: 0 packets, 0 bytes
+route-map permit_to-R25, permit, sequence 1 // задает next-hop (интерфейс е0/3 роутера R25) для трафика указанного в access-list
+  Match clauses:
+    ip address (access-lists): 100
+     ipv6 address permit_to-R25
+  Set clauses:
+    ip next-hop 2.2.2.2
+     ipv6 next-hop 2000:0:520:2222::2
+  Policy routing matches: 0 packets, 0 bytes
+```
+
+### 2. Распределим трафик между двумя линками с провайдером:
+
+- для распределения трафика, применим выше указанные политики на интерфейсы роутера R28:
+
+```
+R28#sh run interface e0/1
+Building configuration...
+
+Current configuration : 209 bytes
+!
+interface Ethernet0/1
+ description l3:to-AS-520
+ ip address 2.2.2.1 255.255.255.252
+ ip policy route-map permit_to-R25
+ ipv6 address FE80::1 link-local
+ ipv6 address 2000:0:520:2222::1/112
+ ipv6 enable
+end
+!
+interface Ethernet0/0
+ description l3:to-AS-520
+ ip address 3.3.3.1 255.255.255.252
+ ip policy route-map permit_to-R26
+ ipv6 address FE80::2 link-local
+ ipv6 address 2000:0:520:3333::1/112
+ ipv6 enable
+end
+```
+
+### 3. Настроим отслеживание линка через технологию IP SLA.(только для IPv4):
+
+- Пусть будет маршрут через интерфейс e0/1 роутера R28 приоритетнее. Для этого настроим отслеживание IP-адреса 10.64.52.1 (интерфейса e0/1 на роутере R23).
+- Создадим статический маршрут к сети 10.64.52.0/30 и включим технологию IP SLA, а также применим ее к маршруту добавленного ранее:
+
+```
+R28#sh run | sec ip route
+ip route 10.64.52.0 255.255.255.252 2.2.2.2 track 1
+ip route 10.64.52.0 255.255.255.252 3.3.3.2 10
+!
+R28#sh run | sec sla
+track 1 ip sla 1 reachability
+ delay down 10 up 5
+ip sla 1
+ icmp-echo 2.2.2.2 source-ip 2.2.2.1
+ threshold 1000
+ timeout 1500
+ frequency 3
+ip sla schedule 1 life forever start-time now
+```
+
+### 4. Настроим для офиса Лабытнанги маршрут по-умолчанию и задокументируем все изменения:
+
+- Создадим *route-map* default-route которая будет весь трафик отправлять на интерфейс e0/0 роутера R27:
+
+```
+R27#sh route-map
+route-map default-route, permit, sequence 10
+  Match clauses:
+    interface Ethernet0/0
+  Set clauses:
+    ip next-hop 1.1.1.2
+  Policy routing matches: 0 packets, 0 bytes
+!
+R27#sh run inter e0/0
+Building configuration...
+
+Current configuration : 174 bytes
+!
+interface Ethernet0/0
+ description l3:to-AS-520
+ ip address 1.1.1.1 255.255.255.252
+ ipv6 address FE80::1 link-local
+ ipv6 address 2000:0:520:1111::1/112
+ ipv6 enable
+end
+```
+
+Все изменения приведены [здесь.]()
