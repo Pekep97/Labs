@@ -123,33 +123,54 @@
 | Чокурдах     | 10     | DHCP_CHKR       |
 |              | 100    | MANAGEMENT_CHKR |
 
-- создадим *access-lists* и *route-maps* на роутере R28 и привяжем их к интерфейсам, смотрящим в сторону R25 и R26 соответственно:
+- Настроим статическую маршрутизацию с роутеров R25, R26 к сетям 192.168.100.0/24 и 10.58.10.0/24; для примера покажем связность при помощи утилиты *ping* с VPC на интерфейсы роутеров R25, R26:
+
+```
+VPCS> ping 2.2.2.2
+
+84 bytes from 2.2.2.2 icmp_seq=1 ttl=254 time=0.619 ms
+84 bytes from 2.2.2.2 icmp_seq=2 ttl=254 time=0.786 ms
+84 bytes from 2.2.2.2 icmp_seq=3 ttl=254 time=0.759 ms
+84 bytes from 2.2.2.2 icmp_seq=4 ttl=254 time=0.764 ms
+84 bytes from 2.2.2.2 icmp_seq=5 ttl=254 time=0.705 ms
+
+VPCS> ping 3.3.3.2
+
+84 bytes from 3.3.3.2 icmp_seq=1 ttl=254 time=0.795 ms
+84 bytes from 3.3.3.2 icmp_seq=2 ttl=254 time=0.770 ms
+84 bytes from 3.3.3.2 icmp_seq=3 ttl=254 time=0.753 ms
+84 bytes from 3.3.3.2 icmp_seq=4 ttl=254 time=0.832 ms
+84 bytes from 3.3.3.2 icmp_seq=5 ttl=254 time=0.768 ms
+```
+Как видно из проверки, все что нужно - доступно.
+
+- создадим *access-lists* и *route-maps* на роутере R28 и привяжем их к интерфейсам для распределения трафика по интерфейсам (трафик из сети 192.168.100.0/24 будет ходить через 2.2.2.2, а 10.58.10.0/24 - через 3.3.3.2), смотрящим в сторону R25 и R26 соответственно:
 
 ***acess-lists***
 ```
 R28#sh access-lists
-Extended IP access list 100 // перенаправляет трафик из сети 192.168.100.0/24 к хосту 10.64.52.1 (интерфейс e0/1 роутера R23)
-    10 permit ip 192.168.100.0 0.0.0.255 host 10.64.52.1
-Extended IP access list 101 // перенаправляет трафик из сети 192.168.100.0/24 к хосту 10.64.52.9 (интерфейс e0/1 роутера R24)
-    10 permit ip 192.168.100.0 0.0.0.255 host 10.64.52.9
-IPv6 access list permit_to-R25 // разрешает любой трафик к сети 2000:0:520:101::/112 (интерфейс e0/1 роутера R23)
-    permit ipv6 2000:0:520:101::/112 any sequence 10 
-IPv6 access list permit_to-R26 // разрешает любой трафик к сети FD00:0:24:26::/112 (интерфейс e0/1 роутера R24)
-    permit ipv6 FD00:0:24:26::/112 any sequence 10
+Extended IP access list 100 // разрешает трафик из сети 192.168.100.0/24 к любому адреса назначения
+    10 permit ip 192.168.100.0 0.0.0.255 any
+Extended IP access list 101 // разрешает трафик из сети 10.58.10.0/24 к любому адреса назначения
+    10 permit ip 10.58.10.0 0.0.0.255 any (20 matches)
+IPv6 access list permit_to-R25 // разрешает трафик из сети FD00:192:168:100::/64 к любому адреса назначения
+    permit ipv6 FD00:192:168:100::/64 any sequence 10
+IPv6 access list permit_to-R26 // разрешает трафик из сети FD00:10:58:10::/64 к любому адреса назначения
+    permit ipv6 FD00:10:58:10::/64 any sequence 10
 ```
 
 ***route-maps***
 ```
 R28#sh route-map
-route-map permit_to-R26, permit, sequence 10 // задает next-hop (интерфейс е0/1 роутера R26) для трафика указанного в access-list
+route-map permit_to-R26, permit, sequence 10 // перенаправляет весь трафик, указанный в *acess-list* на интерфейс e0/0 роутера R28
   Match clauses:
     ip address (access-lists): 101
      ipv6 address permit_to-R26
   Set clauses:
     ip next-hop 3.3.3.2
      ipv6 next-hop 2000:0:520:3333::2
-  Policy routing matches: 0 packets, 0 bytes
-route-map permit_to-R25, permit, sequence 1 // задает next-hop (интерфейс е0/3 роутера R25) для трафика указанного в access-list
+  Policy routing matches: 20 packets, 2360 bytes
+route-map permit_to-R25, permit, sequence 10 // перенаправляет весь трафик, указанный в *acess-list* на интерфейс e0/1 роутера R28
   Match clauses:
     ip address (access-lists): 100
      ipv6 address permit_to-R25
@@ -164,28 +185,73 @@ route-map permit_to-R25, permit, sequence 1 // задает next-hop (интер
 - для распределения трафика, применим выше указанные политики на интерфейсы роутера R28:
 
 ```
-R28#sh run interface e0/1
+R28#sh run interface e0/2.10
 Building configuration...
 
-Current configuration : 209 bytes
+Current configuration : 237 bytes
 !
-interface Ethernet0/1
- description l3:to-AS-520
- ip address 2.2.2.1 255.255.255.252
+interface Ethernet0/2.10
+ description DHCP_CHKR
+ encapsulation dot1Q 10
+ ip address 192.168.100.1 255.255.255.0
  ip policy route-map permit_to-R25
  ipv6 address FE80::1 link-local
- ipv6 address 2000:0:520:2222::1/112
+ ipv6 address FD00:192:168:100::1/64
  ipv6 enable
 end
+
+R28#sh run interface e0/2.100
+Building configuration...
+
+Current configuration : 239 bytes
 !
-interface Ethernet0/0
- description l3:to-AS-520
- ip address 3.3.3.1 255.255.255.252
+interface Ethernet0/2.100
+ description MANAGEMENT_CHKR
+ encapsulation dot1Q 100
+ ip address 10.58.10.1 255.255.255.0
  ip policy route-map permit_to-R26
- ipv6 address FE80::2 link-local
- ipv6 address 2000:0:520:3333::1/112
+ ipv6 address FE80::1 link-local
+ ipv6 address FD00:10:58:10::1/64
  ipv6 enable
 end
+```
+
+После проделанных манипуляций, повторно запустим *ping* с VPC и SW29 (с VPC должен быть ping только на 2.2.2.2, с SW29 - успешным на 3.3.3.2):
+
+VPC
+```
+VPCS> ping 2.2.2.2
+
+84 bytes from 2.2.2.2 icmp_seq=1 ttl=254 time=0.582 ms
+84 bytes from 2.2.2.2 icmp_seq=2 ttl=254 time=0.700 ms
+84 bytes from 2.2.2.2 icmp_seq=3 ttl=254 time=0.911 ms
+84 bytes from 2.2.2.2 icmp_seq=4 ttl=254 time=0.848 ms
+84 bytes from 2.2.2.2 icmp_seq=5 ttl=254 time=0.773 ms
+
+VPCS> ping 3.3.3.2
+
+*2.2.2.2 icmp_seq=1 ttl=254 time=0.769 ms (ICMP type:3, code:1, Destination host unreachable)
+*2.2.2.2 icmp_seq=2 ttl=254 time=0.814 ms (ICMP type:3, code:1, Destination host unreachable)
+*2.2.2.2 icmp_seq=3 ttl=254 time=0.733 ms (ICMP type:3, code:1, Destination host unreachable)
+*2.2.2.2 icmp_seq=4 ttl=254 time=0.830 ms (ICMP type:3, code:1, Destination host unreachable)
+*2.2.2.2 icmp_seq=5 ttl=254 time=0.779 ms (ICMP type:3, code:1, Destination host unreachable)
+```
+
+SW29
+```
+SW29#ping 2.2.2.2
+Type escape sequence to abort.
+Sending 5, 100-byte ICMP Echos to 2.2.2.2, timeout is 2 seconds:
+U.U.U
+Success rate is 0 percent (0/5)
+SW29#ping 3.3.3..2
+% Unrecognized host or address, or protocol not running.
+
+SW29#ping 3.3.3.2
+Type escape sequence to abort.
+Sending 5, 100-byte ICMP Echos to 3.3.3.2, timeout is 2 seconds:
+!!!!!
+Success rate is 100 percent (5/5), round-trip min/avg/max = 1/1/1 ms
 ```
 
 ### 3. Настроим отслеживание линка через технологию IP SLA.(только для IPv4):
