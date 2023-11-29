@@ -82,7 +82,7 @@ ipv6 router ospf 1
 
 - Покажем обновленную таблицу маршрутизации:
 
-IPv4
+*IPv4*
 ```
 R14#sh ip route ospf
 Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP
@@ -102,7 +102,7 @@ O        10.64.100.4/30 [110/20] via 10.64.100.1, 04:03:58, Ethernet0/0
 O        10.64.100.8/30 [110/40] via 10.64.100.1, 04:03:48, Ethernet0/0
 ```
 
-IPv6
+*IPv6*
 ```
 R14#sh ipv6 route ospf
 IPv6 Routing Table - default - 11 entries
@@ -150,7 +150,7 @@ ipv6 router ospf 1
 
 - Покажем обновленную таблицу маршрутизации на примере R15:
 
-IPv4
+*IPv4*
 ```
 R15#sh ip route
 Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP
@@ -182,7 +182,7 @@ O IA  192.168.10.0/24 [110/20] via 10.64.100.13, 00:13:22, Ethernet0/0
                       [110/20] via 10.64.100.5, 00:13:22, Ethernet0/1
 ```
 
-IPv6
+*IPv6*
 ```
 R15#sh ipv6 route
 IPv6 Routing Table - default - 13 entries
@@ -230,7 +230,7 @@ L   FF00::/8 [0/0]
 
 - Для выполнения этого условия настроим зону 101 как *totaly stub area*, для визуализации правильности, представим таблицу маршрутизации роутера R19:
 
-IPv4
+*IPv4*
 ```
 R19#sh ip route
 Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP
@@ -251,7 +251,7 @@ C        10.64.100.20/30 is directly connected, Ethernet0/0
 L        10.64.100.22/32 is directly connected, Ethernet0/0
 ```
 
-IPv6
+*IPv6*
 ```
 R19#sh ipv6 route
 IPv6 Routing Table - default - 4 entries
@@ -273,17 +273,93 @@ L   FF00::/8 [0/0]
      via Null0, receive
 ```
 
-- Исходя из таблицы маршрутизации видно, что доступ к любой сети за пределами R20 будет направляться на интерфейс e0/3 роутера R15.
+- Исходя из таблицы маршрутизации видно, что доступ к любой сети за пределами R19 будет направляться на интерфейс e0/3 роутера R14.
 - Удостоверимся в работе маршрутизации при помощи утилиты *ping*, проверим доступность IPv4 - адреса 10.64.100.1 (пренадлежит интерфейсу роутера R12)
 
-!!!!!Показать пинг!!!!!
+```
+R19#ping 10.64.100.1
+Type escape sequence to abort.
+Sending 5, 100-byte ICMP Echos to 10.64.100.1, timeout is 2 seconds:
+!!!!!
+Success rate is 100 percent (5/5), round-trip min/avg/max = 1/1/1 ms
+```
 
 ### 4. Настроим маршрутизатор R20 в зоне 102 и будет получать все маршруты, кроме маршрутов до сетей зоны 101. Задокументируем все изменения:
 
-- Для реализации этого задания, потребуется настроить зону 102 как *standart area* и создать *prefix-list* area_101_deny.
-- Покажем результаты настройки на роутере R20 и его таблицу маршрутизации:
+- Для реализации этого задания, потребуется настроить зону 102 как *standart area* и создать *prefix-list* area_101_deny на роутере R15.
+- Покажем результаты настройки на роутере R15, R20 и его таблицу маршрутизации:
 
-IPv4
+*prefix-list*
+```
+R15#sh run | section prefix
+ area 102 filter-list prefix area_101_deny in
+ip prefix-list area_101_deny seq 5 deny 10.64.100.20/30
+ip prefix-list area_101_deny seq 10 permit 0.0.0.0/0 le 32
+ area 102 filter-list prefix area_101_deny in
+ipv6 prefix-list area_101_deny seq 5 deny FD00:0:14:19::/112
+ipv6 prefix-list area_101_deny seq 10 permit ::/0 le 128
 ```
 
+*IPv4*
+```
+R20#sh ip route
+Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP
+       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area
+       N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2
+       E1 - OSPF external type 1, E2 - OSPF external type 2
+       i - IS-IS, su - IS-IS summary, L1 - IS-IS level-1, L2 - IS-IS level-2
+       ia - IS-IS inter area, * - candidate default, U - per-user static route
+       o - ODR, P - periodic downloaded static route, H - NHRP, l - LISP
+       a - application route
+       + - replicated route, % - next hop override
+
+Gateway of last resort is not set
+
+      10.0.0.0/8 is variably subnetted, 7 subnets, 3 masks
+O IA     10.58.100.0/24 [110/30] via 10.64.100.17, 00:21:47, Ethernet0/0
+O IA     10.64.100.0/30 [110/30] via 10.64.100.17, 00:21:47, Ethernet0/0
+O IA     10.64.100.4/30 [110/20] via 10.64.100.17, 00:21:47, Ethernet0/0
+O IA     10.64.100.8/30 [110/30] via 10.64.100.17, 00:21:47, Ethernet0/0
+O IA     10.64.100.12/30 [110/20] via 10.64.100.17, 00:21:47, Ethernet0/0
+C        10.64.100.16/30 is directly connected, Ethernet0/0
+L        10.64.100.18/32 is directly connected, Ethernet0/0
+O IA  192.168.10.0/24 [110/30] via 10.64.100.17, 00:21:47, Ethernet0/0
+```
+
+*IPv6*
+```
+R20#sh ipv6 route
+IPv6 Routing Table - default - 9 entries
+Codes: C - Connected, L - Local, S - Static, U - Per-user Static route
+       B - BGP, HA - Home Agent, MR - Mobile Router, R - RIP
+       H - NHRP, I1 - ISIS L1, I2 - ISIS L2, IA - ISIS interarea
+       IS - ISIS summary, D - EIGRP, EX - EIGRP external, NM - NEMO
+       ND - ND Default, NDp - ND Prefix, DCE - Destination, NDr - Redirect
+       O - OSPF Intra, OI - OSPF Inter, OE1 - OSPF ext 1, OE2 - OSPF ext 2
+       ON1 - OSPF NSSA ext 1, ON2 - OSPF NSSA ext 2, la - LISP alt
+       lr - LISP site-registrations, ld - LISP dyn-eid, a - Application
+OI  FD00:0:12:14::/112 [110/30]
+     via FE80::2, Ethernet0/0
+OI  FD00:0:12:15::/112 [110/20]
+     via FE80::2, Ethernet0/0
+OI  FD00:0:13:14::/112 [110/30]
+     via FE80::2, Ethernet0/0
+OI  FD00:0:13:15::/112 [110/20]
+     via FE80::2, Ethernet0/0
+C   FD00:0:15:20::/112 [0/0]
+     via Ethernet0/0, directly connected
+L   FD00:0:15:20::2/128 [0/0]
+     via Ethernet0/0, receive
+OI  FD00:10:58:100::/64 [110/30]
+     via FE80::2, Ethernet0/0
+OI  FD00:192:168:10::/64 [110/30]
+     via FE80::2, Ethernet0/0
+L   FF00::/8 [0/0]
+     via Null0, receive
+```
   
+- Как видно из таблицы маршрутизации, в нее не попали сети, указанные в задании, а именно:
+ - 10.64.100.20/30;
+ - FD00:0:14:19::/112
+
+- Все изменения приведены [здесь.](https://github.com/Pekep97/Labs/tree/main/Lab_06/Configs) 
