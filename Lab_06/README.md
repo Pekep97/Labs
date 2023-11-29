@@ -63,7 +63,7 @@
 - Покажем пример настройки на R14:
 
 ```
-R14#sh running-config | section ospf
+R14#sh run | sec ospf
  ip ospf network point-to-point
  ipv6 ospf 1 area 0
  ipv6 ospf network point-to-point
@@ -77,6 +77,7 @@ router ospf 1
  network 10.64.100.8 0.0.0.3 area 0
 ipv6 router ospf 1
  router-id 14.14.14.14
+ passive-interface Ethernet0/2
 ```
 
 - Покажем обновленную таблицу маршрутизации:
@@ -124,7 +125,7 @@ O   FD00:0:13:15::/112 [110/20]
 - Для выполнения условия, требуется настроить зону 10 как *stub area*, пример покажем на R12:
 
 ```
-R12#sh run | section ospf
+R12#sh run | sec ospf
  ipv6 ospf 1 area 10
  ipv6 ospf 1 area 10
  ip ospf network point-to-point
@@ -133,12 +134,6 @@ R12#sh run | section ospf
  ip ospf network point-to-point
  ipv6 ospf 1 area 0
  ipv6 ospf network point-to-point
-router ospfv3 1
- router-id 12.12.12.12
- area 10 stub
- !
- address-family ipv6 unicast
- exit-address-family
 router ospf 1
  router-id 12.12.12.12
  area 10 stub
@@ -146,6 +141,11 @@ router ospf 1
  network 10.64.100.0 0.0.0.3 area 0
  network 10.64.100.4 0.0.0.3 area 0
  network 192.168.10.0 0.0.0.255 area 10
+ default-information originate
+ipv6 router ospf 1
+ router-id 12.12.12.12
+ area 10 stub
+ default-information originate
 ```
 
 - Покажем обновленную таблицу маршрутизации на примере R15:
@@ -166,11 +166,11 @@ Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP
 Gateway of last resort is not set
 
       10.0.0.0/8 is variably subnetted, 9 subnets, 3 masks
-O IA     10.58.100.0/24 [110/20] via 10.64.100.5, 00:16:05, Ethernet0/1
-O        10.64.100.0/30 [110/20] via 10.64.100.5, 04:52:36, Ethernet0/1
+O IA     10.58.100.0/24 [110/20] via 10.64.100.5, 00:13:22, Ethernet0/1
+O        10.64.100.0/30 [110/20] via 10.64.100.5, 00:13:22, Ethernet0/1
 C        10.64.100.4/30 is directly connected, Ethernet0/1
 L        10.64.100.6/32 is directly connected, Ethernet0/1
-O        10.64.100.8/30 [110/20] via 10.64.100.13, 04:56:08, Ethernet0/0
+O        10.64.100.8/30 [110/20] via 10.64.100.13, 00:13:22, Ethernet0/0
 C        10.64.100.12/30 is directly connected, Ethernet0/0
 L        10.64.100.14/32 is directly connected, Ethernet0/0
 C        10.64.100.16/30 is directly connected, Ethernet0/3
@@ -178,8 +178,8 @@ L        10.64.100.17/32 is directly connected, Ethernet0/3
       132.50.0.0/16 is variably subnetted, 2 subnets, 2 masks
 C        132.50.21.0/30 is directly connected, Ethernet0/2
 L        132.50.21.2/32 is directly connected, Ethernet0/2
-O IA  192.168.10.0/24 [110/20] via 10.64.100.13, 00:14:23, Ethernet0/0
-                      [110/20] via 10.64.100.5, 00:15:37, Ethernet0/1
+O IA  192.168.10.0/24 [110/20] via 10.64.100.13, 00:13:22, Ethernet0/0
+                      [110/20] via 10.64.100.5, 00:13:22, Ethernet0/1
 ```
 
 IPv6
@@ -232,7 +232,7 @@ L   FF00::/8 [0/0]
 
 IPv4
 ```
-R20#sh ip route
+R19#sh ip route
 Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP
        D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area
        N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2
@@ -243,17 +243,18 @@ Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP
        a - application route
        + - replicated route, % - next hop override
 
-Gateway of last resort is not set
+Gateway of last resort is 10.64.100.21 to network 0.0.0.0
 
+O*IA  0.0.0.0/0 [110/11] via 10.64.100.21, 00:01:00, Ethernet0/0
       10.0.0.0/8 is variably subnetted, 2 subnets, 2 masks
-C        10.64.100.16/30 is directly connected, Ethernet0/0
-L        10.64.100.18/32 is directly connected, Ethernet0/0
+C        10.64.100.20/30 is directly connected, Ethernet0/0
+L        10.64.100.22/32 is directly connected, Ethernet0/0
 ```
 
 IPv6
 ```
-R20#sh ipv route
-IPv6 Routing Table - default - 3 entries
+R19#sh ipv6 route
+IPv6 Routing Table - default - 4 entries
 Codes: C - Connected, L - Local, S - Static, U - Per-user Static route
        B - BGP, HA - Home Agent, MR - Mobile Router, R - RIP
        H - NHRP, I1 - ISIS L1, I2 - ISIS L2, IA - ISIS interarea
@@ -262,9 +263,11 @@ Codes: C - Connected, L - Local, S - Static, U - Per-user Static route
        O - OSPF Intra, OI - OSPF Inter, OE1 - OSPF ext 1, OE2 - OSPF ext 2
        ON1 - OSPF NSSA ext 1, ON2 - OSPF NSSA ext 2, la - LISP alt
        lr - LISP site-registrations, ld - LISP dyn-eid, a - Application
-C   FD00:0:15:20::/112 [0/0]
+OI  ::/0 [110/11]
+     via FE80::2, Ethernet0/0
+C   FD00:0:14:19::/112 [0/0]
      via Ethernet0/0, directly connected
-L   FD00:0:15:20::2/128 [0/0]
+L   FD00:0:14:19::2/128 [0/0]
      via Ethernet0/0, receive
 L   FF00::/8 [0/0]
      via Null0, receive
