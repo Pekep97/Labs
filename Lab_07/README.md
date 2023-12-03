@@ -11,7 +11,7 @@
 
 ### Решение:
 
-1. [Настроим R23 и R25 в зоне 2222;]((https://github.com/Pekep97/Labs/tree/main/Lab_07#1-%D0%BD%D0%B0%D1%81%D1%82%D1%80%D0%BE%D0%B8%D0%BC-r23-%D0%B8-r25-%D0%B2-%D0%B7%D0%BE%D0%BD%D0%B5-2222))
+1. [Настроим R23 и R25 в зоне 2222;](https://github.com/Pekep97/Labs/tree/main/Lab_07#1-%D0%BD%D0%B0%D1%81%D1%82%D1%80%D0%BE%D0%B8%D0%BC-r23-%D0%B8-r25-%D0%B2-%D0%B7%D0%BE%D0%BD%D0%B5-2222)
 2. [Настроим R24 в зоне 24;](https://github.com/Pekep97/Labs/tree/main/Lab_07#2-%D0%BD%D0%B0%D1%81%D1%82%D1%80%D0%BE%D0%B8%D0%BC-r24-%D0%B2-%D0%B7%D0%BE%D0%BD%D0%B5-24)
 3. [Настроим R26 в зоне 26 и задокументируем все изменения.](https://github.com/Pekep97/Labs/tree/main/Lab_07#3-%D0%BD%D0%B0%D1%81%D1%82%D1%80%D0%BE%D0%B8%D0%BC-r26-%D0%B2-%D0%B7%D0%BE%D0%BD%D0%B5-26-%D0%B8-%D0%B7%D0%B0%D0%BA%D0%BE%D0%BC%D0%B5%D0%BD%D1%82%D0%B8%D1%80%D1%83%D0%B5%D0%BC-%D0%B2%D1%81%D0%B5-%D0%B8%D0%B7%D0%BC%D0%B5%D0%BD%D0%B5%D0%BD%D0%B8%D1%8F)
 
