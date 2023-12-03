@@ -174,4 +174,182 @@ L   FF00::/8 [0/0]
      via Null0, receive
 ```
 
-Все изменения приведены [здесь.]()
+- Покажем вывод команды *sh isis database detail* на маршрутизаторе R24:
+
+```
+R24#sh isis database detail
+
+Tag AREA_24:
+IS-IS Level-2 Link State Database:
+LSPID                 LSP Seq Num  LSP Checksum  LSP Holdtime      ATT/P/OL
+R23.00-00             0x00000012   0x7F0E        1105              0/0/0
+  Area Address: 49.2222
+  NLPID:        0xCC 0x8E
+  Hostname: R23
+  IP Address:   10.64.52.5
+  IPv6 Address: FD00:0:23:24::1
+  Metric: 10         IS R24.02
+  Metric: 10         IS R25.01
+  Metric: 10         IP 1.1.1.0 255.255.255.252
+  Metric: 10         IP 2.2.2.0 255.255.255.252
+  Metric: 10         IP 10.64.52.0 255.255.255.252
+  Metric: 10         IP 10.64.52.4 255.255.255.252
+  Metric: 20         IP 10.64.52.12 255.255.255.252
+  Metric: 0          IP 23.100.40.0 255.255.255.252
+  Metric: 10         IPv6 FD00:0:23:25::/112
+  Metric: 10         IPv6 FD00:0:23:24::/112
+  Metric: 10         IPv6 2000:0:520:1111::/112
+  Metric: 10         IPv6 2000:0:520:2222::/112
+  Metric: 20         IPv6 FD00:0:25:26::/112
+R24.00-00           * 0x00000006   0x52EE        879               0/0/0
+  Area Address: 49.0024
+  NLPID:        0xCC 0x8E
+  Hostname: R24
+  IP Address:   24.100.40.5
+  IPv6 Address: 2000:0:520:2042::1
+  Metric: 10         IS R24.02
+  Metric: 10         IS R26.01
+  Metric: 10         IP 10.64.52.4 255.255.255.252
+  Metric: 10         IP 10.64.52.8 255.255.255.252
+  Metric: 0          IP 24.100.40.0 255.255.255.252
+  Metric: 0          IP 24.100.40.4 255.255.255.252
+  Metric: 0          IPv6 2000:0:520:301::/112
+  Metric: 10         IPv6 FD00:0:24:26::/112
+  Metric: 10         IPv6 FD00:0:23:24::/112
+  Metric: 0          IPv6 2000:0:520:2042::/112
+R24.02-00           * 0x00000002   0x274A        956               0/0/0
+  Metric: 0          IS R24.00
+  Metric: 0          IS R23.00
+R25.00-00             0x00000010   0xC518        1175              0/0/0
+  Area Address: 49.2222
+  NLPID:        0xCC 0x8E
+  Hostname: R25
+  IP Address:   2.2.2.2
+  IPv6 Address: 2000:0:520:2222::2
+  Metric: 10         IS R25.01
+  Metric: 10         IS R26.02
+  Metric: 0          IP 1.1.1.0 255.255.255.252
+  Metric: 0          IP 2.2.2.0 255.255.255.252
+  Metric: 10         IP 10.64.52.0 255.255.255.252
+  Metric: 20         IP 10.64.52.4 255.255.255.252
+  Metric: 10         IP 10.64.52.12 255.255.255.252
+  Metric: 10         IP 23.100.40.0 255.255.255.252
+  Metric: 10         IPv6 FD00:0:23:25::/112
+  Metric: 0          IPv6 2000:0:520:1111::/112
+  Metric: 10         IPv6 FD00:0:25:26::/112
+  Metric: 0          IPv6 2000:0:520:2222::/112
+  Metric: 20         IPv6 FD00:0:23:24::/112
+R25.01-00             0x00000004   0x303E        549               0/0/0
+  Metric: 0          IS R25.00
+  Metric: 0          IS R23.00
+R26.00-00             0x00000008   0x0266        1058              0/0/0
+  Area Address: 49.0026
+  NLPID:        0xCC 0x8E
+  Hostname: R26
+  IP Address:   26.100.40.1
+  IPv6 Address: 2000:0:2042:520::1
+  Metric: 10         IS R26.02
+  Metric: 10         IS R26.01
+  Metric: 0          IP 3.3.3.0 255.255.255.252
+  Metric: 10         IP 10.64.52.8 255.255.255.252
+  Metric: 10         IP 10.64.52.12 255.255.255.252
+  Metric: 0          IP 26.100.40.0 255.255.255.252
+  Metric: 10         IPv6 FD00:0:24:26::/112
+  Metric: 0          IPv6 2000:0:520:3333::/112
+  Metric: 10         IPv6 FD00:0:25:26::/112
+  Metric: 0          IPv6 2000:0:2042:520::/112
+R26.01-00             0x00000002   0x531A        874               0/0/0
+  Metric: 0          IS R26.00
+  Metric: 0          IS R24.00
+R26.02-00             0x00000002   0x6506        1152              0/0/0
+  Metric: 0          IS R26.00
+  Metric: 0          IS R25.00
+R24#sh isis database detail
+
+Tag AREA_24:
+IS-IS Level-2 Link State Database:
+LSPID                 LSP Seq Num  LSP Checksum  LSP Holdtime      ATT/P/OL
+R23.00-00             0x00000012   0x7F0E        991               0/0/0
+  Area Address: 49.2222
+  NLPID:        0xCC 0x8E
+  Hostname: R23
+  IP Address:   10.64.52.5
+  IPv6 Address: FD00:0:23:24::1
+  Metric: 10         IS R24.02
+  Metric: 10         IS R25.01
+  Metric: 10         IP 1.1.1.0 255.255.255.252
+  Metric: 10         IP 2.2.2.0 255.255.255.252
+  Metric: 10         IP 10.64.52.0 255.255.255.252
+  Metric: 10         IP 10.64.52.4 255.255.255.252
+  Metric: 20         IP 10.64.52.12 255.255.255.252
+  Metric: 0          IP 23.100.40.0 255.255.255.252
+  Metric: 10         IPv6 FD00:0:23:25::/112
+  Metric: 10         IPv6 FD00:0:23:24::/112
+  Metric: 10         IPv6 2000:0:520:1111::/112
+  Metric: 10         IPv6 2000:0:520:2222::/112
+  Metric: 20         IPv6 FD00:0:25:26::/112
+R24.00-00           * 0x00000006   0x52EE        766               0/0/0
+  Area Address: 49.0024
+  NLPID:        0xCC 0x8E
+  Hostname: R24
+  IP Address:   24.100.40.5
+  IPv6 Address: 2000:0:520:2042::1
+  Metric: 10         IS R24.02
+  Metric: 10         IS R26.01
+  Metric: 10         IP 10.64.52.4 255.255.255.252
+  Metric: 10         IP 10.64.52.8 255.255.255.252
+  Metric: 0          IP 24.100.40.0 255.255.255.252
+  Metric: 0          IP 24.100.40.4 255.255.255.252
+  Metric: 0          IPv6 2000:0:520:301::/112
+  Metric: 10         IPv6 FD00:0:24:26::/112
+  Metric: 10         IPv6 FD00:0:23:24::/112
+  Metric: 0          IPv6 2000:0:520:2042::/112
+R24.02-00           * 0x00000002   0x274A        843               0/0/0
+  Metric: 0          IS R24.00
+  Metric: 0          IS R23.00
+R25.00-00             0x00000010   0xC518        1061              0/0/0
+  Area Address: 49.2222
+  NLPID:        0xCC 0x8E
+  Hostname: R25
+  IP Address:   2.2.2.2
+  IPv6 Address: 2000:0:520:2222::2
+  Metric: 10         IS R25.01
+  Metric: 10         IS R26.02
+  Metric: 0          IP 1.1.1.0 255.255.255.252
+  Metric: 0          IP 2.2.2.0 255.255.255.252
+  Metric: 10         IP 10.64.52.0 255.255.255.252
+  Metric: 20         IP 10.64.52.4 255.255.255.252
+  Metric: 10         IP 10.64.52.12 255.255.255.252
+  Metric: 10         IP 23.100.40.0 255.255.255.252
+  Metric: 10         IPv6 FD00:0:23:25::/112
+  Metric: 0          IPv6 2000:0:520:1111::/112
+  Metric: 10         IPv6 FD00:0:25:26::/112
+  Metric: 0          IPv6 2000:0:520:2222::/112
+  Metric: 20         IPv6 FD00:0:23:24::/112
+R25.01-00             0x00000004   0x303E        435               0/0/0
+  Metric: 0          IS R25.00
+  Metric: 0          IS R23.00
+R26.00-00             0x00000008   0x0266        944               0/0/0
+  Area Address: 49.0026
+  NLPID:        0xCC 0x8E
+  Hostname: R26
+  IP Address:   26.100.40.1
+  IPv6 Address: 2000:0:2042:520::1
+  Metric: 10         IS R26.02
+  Metric: 10         IS R26.01
+  Metric: 0          IP 3.3.3.0 255.255.255.252
+  Metric: 10         IP 10.64.52.8 255.255.255.252
+  Metric: 10         IP 10.64.52.12 255.255.255.252
+  Metric: 0          IP 26.100.40.0 255.255.255.252
+  Metric: 10         IPv6 FD00:0:24:26::/112
+  Metric: 0          IPv6 2000:0:520:3333::/112
+  Metric: 10         IPv6 FD00:0:25:26::/112
+  Metric: 0          IPv6 2000:0:2042:520::/112
+R26.01-00             0x00000002   0x531A        760               0/0/0
+  Metric: 0          IS R26.00
+  Metric: 0          IS R24.00
+R26.02-00             0x00000002   0x6506        1038              0/0/0
+  Metric: 0          IS R26.00
+  Metric: 0          IS R25.00
+```
+- Все изменения приведены [здесь.]()
