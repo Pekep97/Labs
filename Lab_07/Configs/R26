@@ -1,0 +1,112 @@
+R26#sh run
+Building configuration...
+
+Current configuration : 2132 bytes
+!
+! Last configuration change at 19:46:23 MSK Sun Dec 3 2023 by admin
+!
+version 15.4
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname R26
+!
+boot-start-marker
+boot-end-marker
+!
+enable secret 5 $1$/yqZ$WE/0YR0XnODtDBsZeUD1j/
+!
+no aaa new-model
+clock timezone MSK 3 0
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+multilink bundle-name authenticated
+!
+username admin privilege 15 secret 5 $1$U/Md$PI1HGnXQGVMa2VSKDea6M.
+!
+redundancy
+!
+interface Ethernet0/0
+ description l3:to-R24
+ ip address 10.64.52.10 255.255.255.252
+ ip router isis AREA_26
+ ipv6 address FE80::1 link-local
+ ipv6 address FD00:0:24:26::2/112
+ ipv6 enable
+ ipv6 router isis AREA_26
+!
+interface Ethernet0/1
+ description l3:to-CHKR
+ ip address 3.3.3.2 255.255.255.252
+ ipv6 address FE80::1 link-local
+ ipv6 address 2000:0:520:3333::2/112
+ ipv6 enable
+!
+interface Ethernet0/2
+ description l3:to-R25
+ ip address 10.64.52.14 255.255.255.252
+ ip router isis AREA_26
+ ipv6 address FE80::1 link-local
+ ipv6 address FD00:0:25:26::2/112
+ ipv6 enable
+ ipv6 router isis AREA_26
+!
+interface Ethernet0/3
+ description l3:to-AS-2042
+ ip address 26.100.40.1 255.255.255.252
+ ipv6 address FE80::1 link-local
+ ipv6 address 2000:0:2042:520::1/112
+ ipv6 enable
+!
+interface Ethernet1/0
+ no ip address
+ shutdown
+!
+interface Ethernet1/1
+ no ip address
+ shutdown
+!
+interface Ethernet1/2
+ no ip address
+ shutdown
+!
+interface Ethernet1/3
+ no ip address
+ shutdown
+!
+router isis AREA_26
+ net 49.0026.0000.0000.0026.00
+ is-type level-2-only
+ passive-interface Ethernet0/1
+ passive-interface Ethernet0/3
+!
+ip forward-protocol nd
+!
+no ip http server
+no ip http secure-server
+ip route 10.58.10.0 255.255.255.0 3.3.3.1
+ip route 192.168.100.0 255.255.255.0 3.3.3.1
+!
+control-plane
+!
+banner motd ^C unauthorized access prohibited ^C
+!
+line con 0
+ password cisco
+ logging synchronous
+ login local
+line aux 0
+line vty 0 4
+ password cisco
+ login
+ transport input none
+!
+end
