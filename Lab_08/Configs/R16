@@ -1,9 +1,9 @@
 R16#sh run
 Building configuration...
 
-Current configuration : 3054 bytes
+Current configuration : 2825 bytes
 !
-! Last configuration change at 16:08:10 UTC Tue Dec 19 2023 by admin
+! Last configuration change at 12:32:06 UTC Thu Dec 21 2023 by admin
 !
 version 15.4
 service timestamps debug datetime msec
@@ -88,10 +88,6 @@ router eigrp NAMED
  !
  address-family ipv4 unicast autonomous-system 1
   !
-  af-interface Ethernet0/3
-   summary-address 0.0.0.0 0.0.0.0
-  exit-af-interface
-  !
   af-interface Ethernet0/1
    no next-hop-self
   exit-af-interface
@@ -111,10 +107,6 @@ router eigrp NAMED_v6
  !
  address-family ipv6 unicast autonomous-system 1
   !
-  af-interface Ethernet0/3
-   summary-address ::/0
-  exit-af-interface
-  !
   topology base
    distribute-list prefix-list R32_v6 out Ethernet0/3
   exit-af-topology
@@ -125,10 +117,8 @@ ip forward-protocol nd
 !
 no ip http server
 no ip http secure-server
-ip route 0.0.0.0 0.0.0.0 10.64.20.5
 !
 ip prefix-list R32 seq 10 permit 0.0.0.0/0
-ipv6 route ::/0 FD00:0:16:18::1
 !
 ipv6 prefix-list R32_v6 seq 5 permit ::/0
 !
