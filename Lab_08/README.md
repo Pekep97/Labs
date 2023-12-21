@@ -48,9 +48,11 @@
 
 - Для реализации выполнения условия, требуется:
   * создать *prefix-list R32* на маршрутизаторе R16;
-  * анонсировать маршрут по умолчанию в протокол EIGRP, сделаем это на маршрутизаторе R16;
+  * анонсировать маршрут по умолчанию в протокол EIGRP, сделаем это на маршрутизаторе R18;
  
-- Покажем конфигурацию на R16:
+- Покажем конфигурацию на R16, R18:
+
+*R16_IPv4*
 ```
 R16#sh run | sec eigrp
  ipv6 eigrp 1
@@ -58,8 +60,8 @@ router eigrp NAMED
  !
  address-family ipv4 unicast autonomous-system 1
   !
-  af-interface Ethernet0/3
-   summary-address 0.0.0.0 0.0.0.0
+  af-interface Ethernet0/1
+   no next-hop-self
   exit-af-interface
   !
   topology base
@@ -72,30 +74,82 @@ router eigrp NAMED
   network 192.168.20.0
   eigrp router-id 16.16.16.16
  exit-address-family
+ !
+ ip prefix-list R32 seq 10 permit 0.0.0.0/0
+```
+
+*R16_IPv6*
+```
 router eigrp NAMED_v6
  !
  address-family ipv6 unicast autonomous-system 1
   !
-  af-interface Ethernet0/3
-   summary-address ::/0
-  exit-af-interface
-  !
   topology base
    distribute-list prefix-list R32_v6 out Ethernet0/3
   exit-af-topology
+  eigrp router-id 16.16.16.16
  exit-address-family
 !
-ipv6 route ::/0 FD00:0:16:18::1
-!
-ip route 0.0.0.0 0.0.0.0 10.64.20.7
-!
 ipv6 prefix-list R32_v6 seq 5 permit ::/0
-!
-ip prefix-list R32 seq 10 permit 0.0.0.0/0
+```
+
+*R18_IPv4*
+```
+R18#sh run | section eigrp
+router eigrp NAMED
+ !
+ address-family ipv4 unicast autonomous-system 1
+  !
+  af-interface Ethernet0/0
+   summary-address 0.0.0.0 0.0.0.0
+  exit-af-interface
+  !
+  af-interface Ethernet0/1
+   summary-address 0.0.0.0 0.0.0.0
+  exit-af-interface
+  !
+  topology base
+  exit-af-topology
+  network 10.64.20.0 0.0.0.3
+  eigrp router-id 18.18.18.18
+ exit-address-family
+```
+
+*R18_IPv6*
+```
+router eigrp NAMED_v6
+ !
+ address-family ipv6 unicast autonomous-system 1
+  !
+  af-interface default
+   shutdown
+  exit-af-interface
+  !
+  af-interface Ethernet0/2
+   passive-interface
+  exit-af-interface
+  !
+  af-interface Ethernet0/3
+   passive-interface
+  exit-af-interface
+  !
+  af-interface Ethernet0/0
+   summary-address ::/0
+   no shutdown
+  exit-af-interface
+  !
+  af-interface Ethernet0/1
+   summary-address ::/0
+   no shutdown
+  exit-af-interface
+  !
+  topology base
+  exit-af-topology
+  eigrp router-id 18.18.18.18
+ exit-address-family
 ```
 
 - покажем таблицу маршрутизации на R32:
-
 ```
 R32#sh ip route eigrp
 Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP
@@ -120,7 +174,7 @@ D*    0.0.0.0/0 [90/1536000] via 10.64.20.9, 01:02:15, Ethernet0/0
 - на маршрутизаторах R16-17 для решения поставленной задачи требуется прописать команду *auto-summary* в режиме настройки EIGRP (суммаризация работает только в версии IPv4)
 - покажем, для примера, конфигурацию R17:
 ```
-R17#sh run | se eigrp
+R17#sh run | sec eigrp
 router eigrp NAMED
  !
  address-family ipv4 unicast autonomous-system 1
@@ -210,18 +264,32 @@ Routing Protocol is "eigrp 1"
   Distance: internal 90 external 170
 ```
 
-- настройка маршрутизатора R18 выполнялась без каких-либо модификаций, покажем ее:
+- настройка маршрутизатора R18 выполнялась с учетом того, что это пограничный маршрутизатор, покажем ее:
+
+*R18_IPv4*
 ```
 R18#sh run | sec eigrp
 router eigrp NAMED
  !
  address-family ipv4 unicast autonomous-system 1
   !
+  af-interface Ethernet0/0
+   summary-address 0.0.0.0 0.0.0.0
+  exit-af-interface
+  !
+  af-interface Ethernet0/1
+   summary-address 0.0.0.0 0.0.0.0
+  exit-af-interface
+  !
   topology base
   exit-af-topology
   network 10.64.20.0 0.0.0.3
   eigrp router-id 18.18.18.18
  exit-address-family
+```
+
+*R18_IPv6
+```
 router eigrp NAMED_v6
  !
  address-family ipv6 unicast autonomous-system 1
@@ -239,10 +307,12 @@ router eigrp NAMED_v6
   exit-af-interface
   !
   af-interface Ethernet0/0
+   summary-address ::/0
    no shutdown
   exit-af-interface
   !
   af-interface Ethernet0/1
+   summary-address ::/0
    no shutdown
   exit-af-interface
   !
