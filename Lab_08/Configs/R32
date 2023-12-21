@@ -3,7 +3,7 @@ Building configuration...
 
 Current configuration : 1614 bytes
 !
-! Last configuration change at 18:04:42 MSK Tue Dec 19 2023 by admin
+! Last configuration change at 14:54:06 MSK Thu Dec 21 2023 by admin
 !
 version 15.4
 service timestamps debug datetime msec
@@ -14,7 +14,6 @@ hostname R32
 !
 boot-start-marker
 boot-end-marker
-!
 !
 enable secret 5 $1$/yqZ$WE/0YR0XnODtDBsZeUD1j/
 !
