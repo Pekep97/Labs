@@ -1,9 +1,9 @@
 R18#sh run
 Building configuration...
 
-Current configuration : 2352 bytes
+Current configuration : 2572 bytes
 !
-! Last configuration change at 18:53:57 MSK Tue Dec 19 2023 by admin
+! Last configuration change at 15:31:58 MSK Thu Dec 21 2023 by admin
 !
 version 15.4
 service timestamps debug datetime msec
@@ -67,6 +67,14 @@ router eigrp NAMED
  !
  address-family ipv4 unicast autonomous-system 1
   !
+  af-interface Ethernet0/0
+   summary-address 0.0.0.0 0.0.0.0
+  exit-af-interface
+  !
+  af-interface Ethernet0/1
+   summary-address 0.0.0.0 0.0.0.0
+  exit-af-interface
+  !
   topology base
   exit-af-topology
   network 10.64.20.0 0.0.0.3
@@ -90,10 +98,12 @@ router eigrp NAMED_v6
   exit-af-interface
   !
   af-interface Ethernet0/0
+   summary-address ::/0
    no shutdown
   exit-af-interface
   !
   af-interface Ethernet0/1
+   summary-address ::/0
    no shutdown
   exit-af-interface
   !
