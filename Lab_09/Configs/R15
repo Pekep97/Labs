@@ -1,0 +1,126 @@
+R15#sh run
+Building configuration...
+
+Current configuration : 2826 bytes
+!
+! Last configuration change at 16:12:11 UTC Wed Jan 3 2024 by admin
+!
+version 15.4
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname R15
+!
+boot-start-marker
+boot-end-marker
+!
+enable secret 5 $1$/yqZ$WE/0YR0XnODtDBsZeUD1j/
+!
+no aaa new-model
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+multilink bundle-name authenticated
+!
+username admin privilege 15 secret 5 $1$U/Md$PI1HGnXQGVMa2VSKDea6M.
+!
+redundancy
+!
+interface Ethernet0/0
+ description l3:to-R13
+ ip address 10.64.100.14 255.255.255.252
+ ip ospf network point-to-point
+ ipv6 address FE80::2 link-local
+ ipv6 address FD00:0:13:15::2/112
+ ipv6 enable
+ ipv6 ospf 1 area 0
+ ipv6 ospf network point-to-point
+!
+interface Ethernet0/1
+ description l3:to-R12
+ ip address 10.64.100.6 255.255.255.252
+ ip ospf network point-to-point
+ ipv6 address FE80::2 link-local
+ ipv6 address FD00:0:12:15::2/112
+ ipv6 enable
+ ipv6 ospf 1 area 0
+ ipv6 ospf network point-to-point
+!
+interface Ethernet0/2
+ description l3:to-AS-301
+ ip address 132.50.21.2 255.255.255.252
+ ipv6 address FE80::2 link-local
+ ipv6 address 2000:0:1001:301::2/112
+ ipv6 enable
+!
+interface Ethernet0/3
+ description l3:to-R20
+ ip address 10.64.100.17 255.255.255.252
+ ip ospf network point-to-point
+ ipv6 address FE80::2 link-local
+ ipv6 address FD00:0:15:20::1/112
+ ipv6 enable
+ ipv6 ospf 1 area 102
+ ipv6 ospf network point-to-point
+!
+router ospf 1
+ router-id 15.15.15.15
+ area 102 filter-list prefix area_101_deny in
+ passive-interface Ethernet0/2
+ network 10.64.100.4 0.0.0.3 area 0
+ network 10.64.100.12 0.0.0.3 area 0
+ network 10.64.100.16 0.0.0.3 area 102
+!
+router bgp 1001
+ bgp router-id 15.15.15.15
+ bgp log-neighbor-changes
+ neighbor 2000:0:1001:301::1 remote-as 301
+ neighbor 132.50.21.1 remote-as 301
+ !
+ address-family ipv4
+  no neighbor 2000:0:1001:301::1 activate
+  neighbor 132.50.21.1 activate
+  neighbor 132.50.21.1 next-hop-self
+ exit-address-family
+ !
+ address-family ipv6
+  neighbor 2000:0:1001:301::1 activate
+ exit-address-family
+!
+ip forward-protocol nd
+!
+no ip http server
+no ip http secure-server
+!
+ip prefix-list area_101_deny seq 5 deny 10.64.100.20/30
+ip prefix-list area_101_deny seq 10 permit 0.0.0.0/0 le 32
+ipv6 router ospf 1
+ router-id 15.15.15.15
+ area 102 filter-list prefix area_101_deny in
+ passive-interface Ethernet0/2
+!
+ipv6 prefix-list area_101_deny seq 5 deny FD00:0:14:19::/112
+ipv6 prefix-list area_101_deny seq 10 permit ::/0 le 128
+!
+control-plane
+!
+banner motd ^C unauthorized access prohibited ^C
+!
+line con 0
+ password cisco
+ logging synchronous
+ login local
+line aux 0
+line vty 0 4
+ password cisco
+ login
+ transport input none
+!
+end
