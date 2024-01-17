@@ -132,8 +132,120 @@
 | Чокурдах     | 10     | DHCP_CHKR       |
 |              | 100    | MANAGEMENT_CHKR |
 
-- Для организации сессий iBGP на маршрутизаторах создадим интерфейсы ***Loopback0*** и назначим IP-адреса согласно [таблице](https://github.com/Pekep97/Labs/tree/main/Lab_10#%D1%82%D0%B0%D0%B1%D0%BB%D0%B8%D1%86%D0%B0-%D0%B0%D0%B4%D1%80%D0%B5%D1%81%D0%BD%D0%BE%D0%B3%D0%BE-%D0%BF%D1%80%D0%BE%D1%81%D1%82%D1%80%D0%B0%D0%BD%D1%81%D1%82%D0%B2%D0%B0) для реализации отказоустойчивости, добавим назначенные сети в IGP протоколы офиса Москва и провайдера Триада. 
+- Для организации сессий iBGP на маршрутизаторах создадим интерфейсы ***Loopback0*** и назначим IP-адреса согласно [таблице](https://github.com/Pekep97/Labs/tree/main/Lab_10#%D1%82%D0%B0%D0%B1%D0%BB%D0%B8%D1%86%D0%B0-%D0%B0%D0%B4%D1%80%D0%B5%D1%81%D0%BD%D0%BE%D0%B3%D0%BE-%D0%BF%D1%80%D0%BE%D1%81%D1%82%D1%80%D0%B0%D0%BD%D1%81%D1%82%D0%B2%D0%B0) для реализации отказоустойчивости, добавим назначенные сети в IGP протоколы офиса Москва. 
 - Настроим iBGP в офисе Москва между маршрутизаторами R14 и R15, покажем настройку на R14:
+
+***R14***
+```
+R14#sh run | sec bgp
+router bgp 1001
+ bgp router-id 14.14.14.14
+ bgp log-neighbor-changes
+ neighbor 15.15.15.15 remote-as 1001
+ neighbor 15.15.15.15 update-source Loopback0
+ neighbor 2000:0:1001:101::1 remote-as 101
+ neighbor 85.10.22.1 remote-as 101
+ neighbor FD00:15:15:15::15 remote-as 1001
+ neighbor FD00:15:15:15::15 update-source Loopback0
+ !
+ address-family ipv4
+  neighbor 15.15.15.15 activate
+  no neighbor 2000:0:1001:101::1 activate
+  neighbor 85.10.22.1 activate
+  neighbor 85.10.22.1 next-hop-self
+  no neighbor FD00:15:15:15::15 activate
+ exit-address-family
+ !
+ address-family ipv6
+  neighbor 2000:0:1001:101::1 activate
+  neighbor 2000:0:1001:101::1 next-hop-self
+  neighbor FD00:15:15:15::15 activate
+ exit-address-family
 ```
 
+- Покажем часть вывода команды ***sh ip bgp neighbors 15.15.15.15*** на маршрутизаторе R14:
+
+***R14***
 ```
+R14#sh ip bgp neighbors 15.15.15.15
+BGP neighbor is 15.15.15.15,  remote AS 1001, internal link
+  BGP version 4, remote router ID 15.15.15.15
+  BGP state = Established, up for 2d21h
+  Last read 00:00:19, last write 00:00:16, hold time is 180, keepalive interval is 60 seconds
+  Neighbor sessions:
+    1 active, is not multisession capable (disabled)
+  Neighbor capabilities:
+    Route refresh: advertised and received(new)
+    Four-octets ASN Capability: advertised and received
+    Address family IPv4 Unicast: advertised and received
+    Enhanced Refresh Capability: advertised and received
+    Multisession Capability:
+    Stateful switchover support enabled: NO for session 1
+  Message statistics:
+    InQ depth is 0
+    OutQ depth is 0
+
+                         Sent       Rcvd
+    Opens:                  1          1
+    Notifications:          0          0
+    Updates:               18         14
+    Keepalives:          4564       4571
+    Route Refresh:          0          0
+    Total:               4583       4586
+  Default minimum time between advertisement runs is 0 second
+```
+
+### 2. Настройте iBGP в провайдере Триада, с использованием RR:
+
+- Для организации сессий iBGP на маршрутизаторах создадим интерфейсы ***Loopback0*** и назначим IP-адреса согласно [таблице](https://github.com/Pekep97/Labs/tree/main/Lab_10#%D1%82%D0%B0%D0%B1%D0%BB%D0%B8%D1%86%D0%B0-%D0%B0%D0%B4%D1%80%D0%B5%D1%81%D0%BD%D0%BE%D0%B3%D0%BE-%D0%BF%D1%80%D0%BE%D1%81%D1%82%D1%80%D0%B0%D0%BD%D1%81%D1%82%D0%B2%D0%B0) для реализации отказоустойчивости, добавим назначенные сети в IGP протоколы офиса Триада.
+- Пусть RR будет маршрутизатор R23, так как он имеет наименьший ***BGP-router ID***. Покажем его конфигурацию, так как настройка остальных маршрутизаторов не покажет наличие в сети RR:
+
+***R23***
+```
+R23#sh run | sec bgp
+router bgp 520
+ bgp router-id 23.23.23.23
+ bgp cluster-id 23.23.23.23
+ bgp log-neighbor-changes
+ neighbor 23.100.40.2 remote-as 101
+ neighbor 24.24.24.24 remote-as 520
+ neighbor 24.24.24.24 update-source Loopback0
+ neighbor 25.25.25.25 remote-as 520
+ neighbor 25.25.25.25 update-source Loopback0
+ neighbor 26.26.26.26 remote-as 520
+ neighbor 26.26.26.26 update-source Loopback0
+ neighbor 2000:0:520:101::2 remote-as 101
+ neighbor FD00:24:24:24::24 remote-as 520
+ neighbor FD00:24:24:24::24 update-source Loopback0
+ neighbor FD00:25:25:25::25 remote-as 520
+ neighbor FD00:25:25:25::25 update-source Loopback0
+ neighbor FD00:26:26:26::26 remote-as 520
+ neighbor FD00:26:26:26::26 update-source Loopback0
+ !
+ address-family ipv4
+  neighbor 23.100.40.2 activate
+  neighbor 23.100.40.2 next-hop-self
+  neighbor 24.24.24.24 activate
+  neighbor 24.24.24.24 route-reflector-client
+  neighbor 25.25.25.25 activate
+  neighbor 25.25.25.25 route-reflector-client
+  neighbor 26.26.26.26 activate
+  neighbor 26.26.26.26 route-reflector-client
+  no neighbor 2000:0:520:101::2 activate
+  no neighbor FD00:24:24:24::24 activate
+  no neighbor FD00:25:25:25::25 activate
+  no neighbor FD00:26:26:26::26 activate
+ exit-address-family
+ !
+ address-family ipv6
+  neighbor 2000:0:520:101::2 activate
+  neighbor 2000:0:520:101::2 next-hop-self
+  neighbor FD00:24:24:24::24 activate
+  neighbor FD00:24:24:24::24 route-reflector-client
+  neighbor FD00:25:25:25::25 activate
+  neighbor FD00:25:25:25::25 route-reflector-client
+  neighbor FD00:26:26:26::26 activate
+  neighbor FD00:26:26:26::26 route-reflector-client
+ exit-address-family
+```
+
