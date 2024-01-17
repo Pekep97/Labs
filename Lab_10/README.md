@@ -249,3 +249,26 @@ router bgp 520
  exit-address-family
 ```
 
+- Покажем результат выполнения команды ***sh ip bgp summary*** на маршрутизаторе R23:
+
+***R23***
+```
+R23#sh ip bgp summary
+BGP router identifier 23.23.23.23, local AS number 520
+BGP table version is 14, main routing table version 14
+13 network entries using 1820 bytes of memory
+13 path entries using 1040 bytes of memory
+4/4 BGP path/bestpath attribute entries using 576 bytes of memory
+3 BGP AS-PATH entries using 72 bytes of memory
+0 BGP route-map cache entries using 0 bytes of memory
+0 BGP filter-list cache entries using 0 bytes of memory
+BGP using 3508 total bytes of memory
+BGP activity 26/0 prefixes, 26/0 paths, scan interval 60 secs
+
+Neighbor        V           AS MsgRcvd MsgSent   TblVer  InQ OutQ Up/Down  State/PfxRcd
+23.100.40.2     4          101       0       0        1    0    0 never    Idle
+24.24.24.24     4          520    1716    1713       14    0    0 1d01h          13
+25.25.25.25     4          520     191     195       14    0    0 02:50:29        0
+26.26.26.26     4          520     166     172       14    0    0 02:27:54        0
+```
+
