@@ -214,44 +214,44 @@ router bgp 520
  bgp cluster-id 23.23.23.23
  bgp log-neighbor-changes
  neighbor 23.100.40.2 remote-as 101
- neighbor 24.24.24.24 remote-as 520
- neighbor 24.24.24.24 update-source Loopback0
- neighbor 25.25.25.25 remote-as 520
- neighbor 25.25.25.25 update-source Loopback0
- neighbor 26.26.26.26 remote-as 520
- neighbor 26.26.26.26 update-source Loopback0
  neighbor 2000:0:520:101::2 remote-as 101
- neighbor FD00:24:24:24::24 remote-as 520
- neighbor FD00:24:24:24::24 update-source Loopback0
- neighbor FD00:25:25:25::25 remote-as 520
- neighbor FD00:25:25:25::25 update-source Loopback0
- neighbor FD00:26:26:26::26 remote-as 520
- neighbor FD00:26:26:26::26 update-source Loopback0
+ neighbor 172.16.255.24 remote-as 520
+ neighbor 172.16.255.24 update-source Loopback0
+ neighbor 172.16.255.25 remote-as 520
+ neighbor 172.16.255.25 update-source Loopback0
+ neighbor 172.16.255.26 remote-as 520
+ neighbor 172.16.255.26 update-source Loopback0
+ neighbor FD00:172:16:255::24 remote-as 520
+ neighbor FD00:172:16:255::24 update-source Loopback0
+ neighbor FD00:172:16:255::25 remote-as 520
+ neighbor FD00:172:16:255::25 update-source Loopback0
+ neighbor FD00:172:16:255::26 remote-as 520
+ neighbor FD00:172:16:255::26 update-source Loopback0
  !
  address-family ipv4
   neighbor 23.100.40.2 activate
   neighbor 23.100.40.2 next-hop-self
-  neighbor 24.24.24.24 activate
-  neighbor 24.24.24.24 route-reflector-client
-  neighbor 25.25.25.25 activate
-  neighbor 25.25.25.25 route-reflector-client
-  neighbor 26.26.26.26 activate
-  neighbor 26.26.26.26 route-reflector-client
   no neighbor 2000:0:520:101::2 activate
-  no neighbor FD00:24:24:24::24 activate
-  no neighbor FD00:25:25:25::25 activate
-  no neighbor FD00:26:26:26::26 activate
+  neighbor 172.16.255.24 activate
+  neighbor 172.16.255.24 route-reflector-client
+  neighbor 172.16.255.25 activate
+  neighbor 172.16.255.25 route-reflector-client
+  neighbor 172.16.255.26 activate
+  neighbor 172.16.255.26 route-reflector-client
+  no neighbor FD00:172:16:255::24 activate
+  no neighbor FD00:172:16:255::25 activate
+  no neighbor FD00:172:16:255::26 activate
  exit-address-family
  !
  address-family ipv6
   neighbor 2000:0:520:101::2 activate
   neighbor 2000:0:520:101::2 next-hop-self
-  neighbor FD00:24:24:24::24 activate
-  neighbor FD00:24:24:24::24 route-reflector-client
-  neighbor FD00:25:25:25::25 activate
-  neighbor FD00:25:25:25::25 route-reflector-client
-  neighbor FD00:26:26:26::26 activate
-  neighbor FD00:26:26:26::26 route-reflector-client
+  neighbor FD00:172:16:255::24 activate
+  neighbor FD00:172:16:255::24 route-reflector-client
+  neighbor FD00:172:16:255::25 activate
+  neighbor FD00:172:16:255::25 route-reflector-client
+  neighbor FD00:172:16:255::26 activate
+  neighbor FD00:172:16:255::26 route-reflector-client
  exit-address-family
 ```
 
@@ -261,21 +261,21 @@ router bgp 520
 ```
 R23#sh ip bgp summary
 BGP router identifier 23.23.23.23, local AS number 520
-BGP table version is 14, main routing table version 14
-13 network entries using 1820 bytes of memory
-13 path entries using 1040 bytes of memory
-4/4 BGP path/bestpath attribute entries using 576 bytes of memory
-3 BGP AS-PATH entries using 72 bytes of memory
+BGP table version is 283, main routing table version 283
+35 network entries using 4900 bytes of memory
+73 path entries using 5840 bytes of memory
+17/14 BGP path/bestpath attribute entries using 2448 bytes of memory
+8 BGP AS-PATH entries using 192 bytes of memory
 0 BGP route-map cache entries using 0 bytes of memory
 0 BGP filter-list cache entries using 0 bytes of memory
-BGP using 3508 total bytes of memory
-BGP activity 26/0 prefixes, 26/0 paths, scan interval 60 secs
+BGP using 13380 total bytes of memory
+BGP activity 154/90 prefixes, 330/205 paths, scan interval 60 secs
 
 Neighbor        V           AS MsgRcvd MsgSent   TblVer  InQ OutQ Up/Down  State/PfxRcd
-23.100.40.2     4          101       0       0        1    0    0 never    Idle
-24.24.24.24     4          520    1716    1713       14    0    0 1d01h          13
-25.25.25.25     4          520     191     195       14    0    0 02:50:29        0
-26.26.26.26     4          520     166     172       14    0    0 02:27:54        0
+23.100.40.2     4          101   11727   11744      283    0    0 1w0d           15
+172.16.255.24   4          520      94      98      283    0    0 01:10:25       22
+172.16.255.25   4          520      74      90      283    0    0 00:58:14        9
+172.16.255.26   4          520      44      52      283    0    0 00:24:51       19
 ```
 
 ### 3. Настроим офис Москва так, чтобы приоритетным провайдером стал Ламас:
@@ -390,32 +390,41 @@ B   2000:0:1001:301::/112 [200/0]
 
 ### 4. Настроим офис С.-Петербург так, чтобы трафик до любого офиса распределялся по двум линкам одновременно:
 
-- Для выполнения этого условия требуется на маршрутизаторе R18 прописать команду *maximum-paths 2* которая автоматически распределяет между несколькими линками трафик (в нашем случае - 2), направленный в одну сеть. Покажем конфигурацию R18:
+- Для выполнения этого условия требуется на маршрутизаторе R18 прописать команду ***maximum-paths 2*** которая автоматически распределяет между несколькими линками трафик (в нашем случае - 2), направленный в одну сеть. Покажем конфигурацию R18:
 
 ***R18***
 ```
-R18#sh run | sec bgp
+R18(config-router)#do sh run | sec bgp
 router bgp 2042
  bgp router-id 18.18.18.18
  bgp log-neighbor-changes
  neighbor 24.100.40.5 remote-as 520
  neighbor 26.100.40.1 remote-as 520
  neighbor 2000:0:520:2042::1 remote-as 520
+ neighbor 2000:0:2042:520::1 remote-as 520
  !
  address-family ipv4
+  network 26.100.40.0 mask 255.255.255.252
+  network 26.100.40.4 mask 255.255.255.252
   redistribute eigrp 1
   neighbor 24.100.40.5 activate
   neighbor 24.100.40.5 next-hop-self
   neighbor 26.100.40.1 activate
   neighbor 26.100.40.1 next-hop-self
   no neighbor 2000:0:520:2042::1 activate
+  no neighbor 2000:0:2042:520::1 activate
   maximum-paths 2
  exit-address-family
  !
  address-family ipv6
+  redistribute eigrp 1
   maximum-paths 2
+  network 2000:0:520:2042::/112
+  network 2000:0:2042:520::/112
   neighbor 2000:0:520:2042::1 activate
   neighbor 2000:0:520:2042::1 next-hop-self
+  neighbor 2000:0:2042:520::1 activate
+  neighbor 2000:0:2042:520::1 next-hop-self
  exit-address-family
 ```
 
