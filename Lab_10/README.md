@@ -143,37 +143,41 @@ R14#sh run | sec bgp
 router bgp 1001
  bgp router-id 14.14.14.14
  bgp log-neighbor-changes
- neighbor 15.15.15.15 remote-as 1001
- neighbor 15.15.15.15 update-source Loopback0
  neighbor 2000:0:1001:101::1 remote-as 101
  neighbor 85.10.22.1 remote-as 101
- neighbor FD00:15:15:15::15 remote-as 1001
- neighbor FD00:15:15:15::15 update-source Loopback0
+ neighbor 172.16.255.15 remote-as 1001
+ neighbor 172.16.255.15 update-source Loopback0
+ neighbor FD00:172:16:255::15 remote-as 1001
+ neighbor FD00:172:16:255::15 update-source Loopback0
  !
  address-family ipv4
-  neighbor 15.15.15.15 activate
+  redistribute ospf 1
   no neighbor 2000:0:1001:101::1 activate
   neighbor 85.10.22.1 activate
   neighbor 85.10.22.1 next-hop-self
-  no neighbor FD00:15:15:15::15 activate
+  neighbor 172.16.255.15 activate
+  neighbor 172.16.255.15 next-hop-self
+  no neighbor FD00:172:16:255::15 activate
  exit-address-family
  !
  address-family ipv6
+  redistribute ospf 1
   neighbor 2000:0:1001:101::1 activate
   neighbor 2000:0:1001:101::1 next-hop-self
-  neighbor FD00:15:15:15::15 activate
+  neighbor FD00:172:16:255::15 activate
+  neighbor FD00:172:16:255::15 next-hop-self
  exit-address-family
 ```
 
-- Покажем часть вывода команды ***sh ip bgp neighbors 15.15.15.15*** на маршрутизаторе R14:
+- Покажем часть вывода команды ***sh ip bgp neighbors 172.16.255.15*** на маршрутизаторе R14:
 
 ***R14***
 ```
-R14#sh ip bgp neighbors 15.15.15.15
-BGP neighbor is 15.15.15.15,  remote AS 1001, internal link
+R14#sh ip bgp neighbors 172.16.255.15
+BGP neighbor is 172.16.255.15,  remote AS 1001, internal link
   BGP version 4, remote router ID 15.15.15.15
-  BGP state = Established, up for 2d21h
-  Last read 00:00:19, last write 00:00:16, hold time is 180, keepalive interval is 60 seconds
+  BGP state = Established, up for 00:05:21
+  Last read 00:00:30, last write 00:00:35, hold time is 180, keepalive interval is 60 seconds
   Neighbor sessions:
     1 active, is not multisession capable (disabled)
   Neighbor capabilities:
@@ -190,11 +194,11 @@ BGP neighbor is 15.15.15.15,  remote AS 1001, internal link
                          Sent       Rcvd
     Opens:                  1          1
     Notifications:          0          0
-    Updates:               18         14
-    Keepalives:          4564       4571
+    Updates:               25         20
+    Keepalives:             7          7
     Route Refresh:          0          0
-    Total:               4583       4586
-  Default minimum time between advertisement runs is 0 second
+    Total:                 33         28
+  Default minimum time between advertisement runs is 0 seconds
 ```
 
 ### 2. Настройте iBGP в провайдере Триада, с использованием RR:
