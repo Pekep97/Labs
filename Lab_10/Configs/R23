@@ -1,0 +1,168 @@
+R23#sh run
+Building configuration...
+
+Current configuration : 4057 bytes
+!
+! Last configuration change at 10:33:10 MSK Thu Feb 1 2024 by admin
+!
+version 15.4
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname R23
+!
+boot-start-marker
+boot-end-marker
+!
+enable secret 5 $1$/yqZ$WE/0YR0XnODtDBsZeUD1j/
+!
+no aaa new-model
+clock timezone MSK 3 0
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+multilink bundle-name authenticated
+!
+username admin privilege 15 secret 5 $1$U/Md$PI1HGnXQGVMa2VSKDea6M.
+!
+redundancy
+!
+interface Loopback0
+ ip address 172.16.255.23 255.255.255.255
+ ip router isis AREA_2222
+ ipv6 address FE80::1 link-local
+ ipv6 address FD00:172:16:255::23/128
+ ipv6 enable
+ ipv6 router isis AREA_2222
+!
+interface Ethernet0/0
+ description l3:to-AS-101
+ ip address 23.100.40.1 255.255.255.252
+ ipv6 address FE80::2 link-local
+ ipv6 address 2000:0:520:101::1/112
+ ipv6 enable
+!
+interface Ethernet0/1
+ description l3:to-R25
+ ip address 10.64.52.1 255.255.255.252
+ ip router isis AREA_2222
+ ipv6 address FE80::1 link-local
+ ipv6 address FD00:0:23:25::1/112
+ ipv6 enable
+ ipv6 router isis AREA_2222
+!
+interface Ethernet0/2
+ description l3:to-R24
+ ip address 10.64.52.5 255.255.255.252
+ ip router isis AREA_2222
+ ipv6 address FE80::1 link-local
+ ipv6 address FD00:0:23:24::1/112
+ ipv6 enable
+ ipv6 router isis AREA_2222
+!
+interface Ethernet0/3
+ no ip address
+ shutdown
+!
+interface Ethernet1/0
+ no ip address
+ shutdown
+!
+interface Ethernet1/1
+ no ip address
+ shutdown
+!
+interface Ethernet1/2
+ no ip address
+ shutdown
+!
+interface Ethernet1/3
+ no ip address
+ shutdown
+!
+router isis AREA_2222
+ net 49.2222.0000.0000.0023.00
+ passive-interface Ethernet0/0
+!
+router isis
+!
+router bgp 520
+ bgp router-id 23.23.23.23
+ bgp cluster-id 23.23.23.23
+ bgp log-neighbor-changes
+ neighbor 23.100.40.2 remote-as 101
+ neighbor 2000:0:520:101::2 remote-as 101
+ neighbor 172.16.255.24 remote-as 520
+ neighbor 172.16.255.24 update-source Loopback0
+ neighbor 172.16.255.25 remote-as 520
+ neighbor 172.16.255.25 update-source Loopback0
+ neighbor 172.16.255.26 remote-as 520
+ neighbor 172.16.255.26 update-source Loopback0
+ neighbor FD00:172:16:255::24 remote-as 520
+ neighbor FD00:172:16:255::24 update-source Loopback0
+ neighbor FD00:172:16:255::25 remote-as 520
+ neighbor FD00:172:16:255::25 update-source Loopback0
+ neighbor FD00:172:16:255::26 remote-as 520
+ neighbor FD00:172:16:255::26 update-source Loopback0
+ !
+ address-family ipv4
+  network 10.64.52.0 mask 255.255.255.252
+  network 10.64.52.4 mask 255.255.255.252
+  network 23.100.40.0 mask 255.255.255.252
+  network 172.16.255.23 mask 255.255.255.255
+  neighbor 23.100.40.2 activate
+  neighbor 23.100.40.2 next-hop-self
+  no neighbor 2000:0:520:101::2 activate
+  neighbor 172.16.255.24 activate
+  neighbor 172.16.255.24 route-reflector-client
+  neighbor 172.16.255.25 activate
+  neighbor 172.16.255.25 route-reflector-client
+  neighbor 172.16.255.26 activate
+  neighbor 172.16.255.26 route-reflector-client
+  no neighbor FD00:172:16:255::24 activate
+  no neighbor FD00:172:16:255::25 activate
+  no neighbor FD00:172:16:255::26 activate
+ exit-address-family
+ !
+ address-family ipv6
+  network 2000:0:520:101::/112
+  network FD00:0:23:24::/112
+  network FD00:0:23:25::/112
+  network FD00:172:16:255::23/128
+  neighbor 2000:0:520:101::2 activate
+  neighbor 2000:0:520:101::2 next-hop-self
+  neighbor FD00:172:16:255::24 activate
+  neighbor FD00:172:16:255::24 route-reflector-client
+  neighbor FD00:172:16:255::25 activate
+  neighbor FD00:172:16:255::25 route-reflector-client
+  neighbor FD00:172:16:255::26 activate
+  neighbor FD00:172:16:255::26 route-reflector-client
+ exit-address-family
+!
+ip forward-protocol nd
+!
+no ip http server
+no ip http secure-server
+!
+control-plane
+!
+banner motd ^C unauthorized access prohibited ^C
+!
+line con 0
+ password cisco
+ logging synchronous
+ login local
+line aux 0
+line vty 0 4
+ password cisco
+ login
+ transport input none
+!
+end
