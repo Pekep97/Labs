@@ -405,7 +405,6 @@ R14#sh run | sec route-map
 
 ***R14_IPv4***
 ```
-R14#sh ip route bgp
 R14#sh ip rou bgp
 Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP
        D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area
@@ -417,49 +416,50 @@ Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP
        a - application route
        + - replicated route, % - next hop override
 
-Gateway of last resort is 85.10.22.1 to network 0.0.0.0
+Gateway of last resort is not set
 
       1.0.0.0/30 is subnetted, 1 subnets
-B        1.1.1.0 [200/0] via 172.16.255.15, 13:49:18
+B        1.1.1.0 [200/0] via 172.16.255.15, 00:35:00
       2.0.0.0/30 is subnetted, 1 subnets
-B        2.2.2.0 [200/0] via 172.16.255.15, 13:49:18
+B        2.2.2.0 [200/0] via 172.16.255.15, 00:35:00
       3.0.0.0/30 is subnetted, 1 subnets
-B        3.3.3.0 [200/0] via 172.16.255.15, 13:49:18
-      10.0.0.0/8 is variably subnetted, 18 subnets, 3 masks
-B        10.58.10.0/24 [200/0] via 172.16.255.15, 13:49:18
-B        10.58.200.0/24 [200/0] via 172.16.255.15, 02:46:07
-B        10.64.20.0/30 [200/0] via 172.16.255.15, 02:46:07
-B        10.64.20.8/30 [200/0] via 172.16.255.15, 02:46:07
-B        10.64.52.0/30 [200/0] via 172.16.255.15, 01:57:30
-B        10.64.52.4/30 [200/0] via 172.16.255.15, 02:02:06
-B        10.64.52.8/30 [200/0] via 172.16.255.15, 02:01:36
-B        10.64.52.12/30 [200/0] via 172.16.255.15, 01:32:00
+B        3.3.3.0 [200/0] via 172.16.255.15, 00:35:00
+      10.0.0.0/8 is variably subnetted, 19 subnets, 3 masks
+B        10.58.10.0/24 [200/0] via 172.16.255.15, 00:35:00
+B        10.58.200.0/24 [200/0] via 172.16.255.15, 00:15:52
+B        10.64.20.0/30 [200/0] via 172.16.255.15, 00:16:53
+B        10.64.20.4/30 [200/0] via 172.16.255.15, 00:16:22
+B        10.64.20.8/30 [200/0] via 172.16.255.15, 00:16:22
+B        10.64.52.0/30 [200/0] via 172.16.255.15, 00:35:00
+B        10.64.52.4/30 [200/0] via 172.16.255.15, 00:35:00
+B        10.64.52.8/30 [200/0] via 172.16.255.15, 00:35:00
+B        10.64.52.12/30 [200/0] via 172.16.255.15, 00:35:00
       21.0.0.0/30 is subnetted, 1 subnets
-B        21.22.100.0 [200/0] via 172.16.255.15, 13:49:18
+B        21.22.100.0 [200/0] via 172.16.255.15, 00:35:00
       23.0.0.0/30 is subnetted, 1 subnets
-B        23.100.40.0 [200/0] via 172.16.255.15, 13:49:18
+B        23.100.40.0 [200/0] via 172.16.255.15, 00:35:00
       24.0.0.0/30 is subnetted, 2 subnets
-B        24.100.40.0 [200/0] via 172.16.255.15, 13:49:18
-B        24.100.40.4 [200/0] via 172.16.255.15, 13:49:18
+B        24.100.40.0 [200/0] via 172.16.255.15, 00:35:00
+B        24.100.40.4 [200/0] via 172.16.255.15, 00:35:00
       26.0.0.0/30 is subnetted, 1 subnets
-B        26.100.40.0 [200/0] via 172.16.255.15, 13:49:18
+B        26.100.40.0 [200/0] via 172.16.255.15, 00:35:00
       132.50.0.0/30 is subnetted, 1 subnets
-B        132.50.21.0 [200/0] via 172.16.255.15, 00:35:54
+B        132.50.21.0 [200/0] via 172.16.255.15, 00:35:00
       172.16.0.0/32 is subnetted, 8 subnets
-B        172.16.255.23 [200/0] via 172.16.255.15, 01:15:42
-B        172.16.255.24 [200/0] via 172.16.255.15, 01:18:28
-B        172.16.255.25 [200/0] via 172.16.255.15, 01:13:52
-B        172.16.255.26 [200/0] via 172.16.255.15, 01:19:12
-B        172.16.255.27 [200/0] via 172.16.255.15, 02:21:47
-B        172.16.255.28 [200/0] via 172.16.255.15, 13:49:18
-B     192.168.20.0/24 [200/0] via 172.16.255.15, 02:46:07
-B     192.168.100.0/24 [200/0] via 172.16.255.15, 13:49:18
+B        172.16.255.23 [200/0] via 172.16.255.15, 00:35:00
+B        172.16.255.24 [200/0] via 172.16.255.15, 00:35:00
+B        172.16.255.25 [200/0] via 172.16.255.15, 00:35:00
+B        172.16.255.26 [200/0] via 172.16.255.15, 00:35:00
+B        172.16.255.27 [200/0] via 172.16.255.15, 00:35:00
+B        172.16.255.28 [200/0] via 172.16.255.15, 00:35:00
+B     192.168.20.0/24 [200/0] via 172.16.255.15, 00:15:52
+B     192.168.100.0/24 [200/0] via 172.16.255.15, 00:35:00
 ```
 
 ***R14_IPv6***
 ```
-R14#sh ipv6 route bgp
-IPv6 Routing Table - default - 41 entries
+R14#sh ipv6 rou bgp
+IPv6 Routing Table - default - 42 entries
 Codes: C - Connected, L - Local, S - Static, U - Per-user Static route
        B - BGP, HA - Home Agent, MR - Mobile Router, R - RIP
        H - NHRP, I1 - ISIS L1, I2 - ISIS L2, IA - ISIS interarea
@@ -486,7 +486,11 @@ B   2000:0:1001:301::/112 [200/0]
      via FD00:172:16:255::15
 B   2000:0:2042:520::/112 [200/0]
      via FD00:172:16:255::15
+B   FD00:0:16:18::/112 [200/0]
+     via FD00:172:16:255::15
 B   FD00:0:16:32::/112 [200/0]
+     via FD00:172:16:255::15
+B   FD00:0:17:18::/112 [200/0]
      via FD00:172:16:255::15
 B   FD00:0:23:24::/112 [200/0]
      via FD00:172:16:255::15
@@ -515,8 +519,6 @@ B   FD00:172:16:255::28/128 [200/0]
 B   FD00:192:168:20::/64 [200/0]
      via FD00:172:16:255::15
 B   FD00:192:168:100::/64 [200/0]
-     via FD00:172:16:255::15
-B   FD00:192:168:200::/64 [200/0]
      via FD00:172:16:255::15
 ```
 
@@ -600,9 +602,13 @@ router bgp 2042
  neighbor 2000:0:2042:520::1 remote-as 520
  !
  address-family ipv4
+  network 10.58.200.0 mask 255.255.255.0
+  network 10.64.20.0 mask 255.255.255.252
+  network 10.64.20.4 mask 255.255.255.252
+  network 10.64.20.8 mask 255.255.255.252
   network 24.100.40.4 mask 255.255.255.252
   network 26.100.40.0 mask 255.255.255.252
-  redistribute eigrp 1
+  network 192.168.20.0
   neighbor 24.100.40.5 activate
   neighbor 24.100.40.5 next-hop-self
   neighbor 26.100.40.1 activate
@@ -613,10 +619,14 @@ router bgp 2042
  exit-address-family
  !
  address-family ipv6
-  redistribute eigrp 1
   maximum-paths 2
   network 2000:0:520:2042::/112
   network 2000:0:2042:520::/112
+  network FD00:0:16:18::/112
+  network FD00:0:16:32::/112
+  network FD00:0:17:18::/112
+  network FD00:10:58:200::/64
+  network FD00:192:168:20::/64
   neighbor 2000:0:520:2042::1 activate
   neighbor 2000:0:520:2042::1 next-hop-self
   neighbor 2000:0:2042:520::1 activate
@@ -816,10 +826,155 @@ B   FD00:192:168:100::/64 [20/0]
 
   ### 5. Проверим все сети в лабораторной работе на IP связность и задокументируем все изменения:
 
+  - Проанонсируем все сети в протокол BGP на всех маршрутизаторах учавствующих в процессе BGP;
   - Добавим офисы Чокурдах и Лабытнанги в процесс BGP присвоив им номера AS и добавив интерфейс ***Loopback0*** на маршрутизаторах офисов для демонстрации IP-связности:
     * Чокурдах - *AS2222* (***Loopback0_IPv4 172.16.255.28/32***, ***Loopback0_IPv6 FD00:172:16:255::28/128***);
     * ЛАбытнанги - *AS1111* (***Loopback0_IPv4 172.16.255.27***, ***Loopback0_IPv6 FD00:172:16:255::27/128***).
    
-  - Продемонстрируем IP-связность между 
+  - Продемонстрируем IP-связность показав полную таблицу маршрутизации на R27, так как он наиболее отдален от всех AS:
 
-  
+***R27_IPv4***
+``` 
+R27#sh ip rou bgp
+Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP
+       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area
+       N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2
+       E1 - OSPF external type 1, E2 - OSPF external type 2
+       i - IS-IS, su - IS-IS summary, L1 - IS-IS level-1, L2 - IS-IS level-2
+       ia - IS-IS inter area, * - candidate default, U - per-user static route
+       o - ODR, P - periodic downloaded static route, H - NHRP, l - LISP
+       a - application route
+       + - replicated route, % - next hop override
+
+Gateway of last resort is not set
+
+      2.0.0.0/30 is subnetted, 1 subnets
+B        2.2.2.0 [20/0] via 1.1.1.2, 06:28:12
+      3.0.0.0/30 is subnetted, 1 subnets
+B        3.3.3.0 [20/0] via 1.1.1.2, 06:28:12
+      10.0.0.0/8 is variably subnetted, 16 subnets, 2 masks
+B        10.58.10.0/24 [20/0] via 1.1.1.2, 06:28:12
+B        10.58.100.0/24 [20/0] via 1.1.1.2, 00:27:46
+B        10.58.200.0/24 [20/0] via 1.1.1.2, 00:10:09
+B        10.64.20.0/30 [20/0] via 1.1.1.2, 00:11:10
+B        10.64.20.4/30 [20/0] via 1.1.1.2, 00:10:40
+B        10.64.20.8/30 [20/0] via 1.1.1.2, 00:10:40
+B        10.64.52.0/30 [20/0] via 1.1.1.2, 05:44:48
+B        10.64.52.4/30 [20/0] via 1.1.1.2, 06:06:35
+B        10.64.52.8/30 [20/0] via 1.1.1.2, 06:06:04
+B        10.64.52.12/30 [20/0] via 1.1.1.2, 05:36:59
+B        10.64.100.0/30 [20/0] via 1.1.1.2, 00:27:46
+B        10.64.100.4/30 [20/0] via 1.1.1.2, 00:27:46
+B        10.64.100.8/30 [20/0] via 1.1.1.2, 00:27:46
+B        10.64.100.12/30 [20/0] via 1.1.1.2, 00:27:46
+B        10.64.100.16/30 [20/0] via 1.1.1.2, 00:27:46
+B        10.64.100.20/30 [20/0] via 1.1.1.2, 00:27:46
+      21.0.0.0/30 is subnetted, 1 subnets
+B        21.22.100.0 [20/0] via 1.1.1.2, 06:28:12
+      23.0.0.0/30 is subnetted, 1 subnets
+B        23.100.40.0 [20/0] via 1.1.1.2, 06:28:12
+      24.0.0.0/30 is subnetted, 2 subnets
+B        24.100.40.0 [20/0] via 1.1.1.2, 06:28:12
+B        24.100.40.4 [20/0] via 1.1.1.2, 06:28:12
+      26.0.0.0/30 is subnetted, 1 subnets
+B        26.100.40.0 [20/0] via 1.1.1.2, 06:28:12
+      85.0.0.0/30 is subnetted, 1 subnets
+B        85.10.22.0 [20/0] via 1.1.1.2, 06:28:12
+      132.50.0.0/30 is subnetted, 1 subnets
+B        132.50.21.0 [20/0] via 1.1.1.2, 06:28:12
+      172.16.0.0/32 is subnetted, 8 subnets
+B        172.16.255.14 [20/0] via 1.1.1.2, 00:27:46
+B        172.16.255.15 [20/0] via 1.1.1.2, 00:27:46
+B        172.16.255.23 [20/0] via 1.1.1.2, 05:20:10
+B        172.16.255.24 [20/0] via 1.1.1.2, 05:22:57
+B        172.16.255.25 [20/0] via 1.1.1.2, 05:18:20
+B        172.16.255.26 [20/0] via 1.1.1.2, 05:24:11
+B        172.16.255.28 [20/0] via 1.1.1.2, 06:28:12
+B     192.168.10.0/24 [20/0] via 1.1.1.2, 00:27:46
+B     192.168.20.0/24 [20/0] via 1.1.1.2, 00:10:09
+B     192.168.100.0/24 [20/0] via 1.1.1.2, 06:28:12
+```
+
+***R27_IPv6***
+```
+R27#sh ipv6 rou bgp
+IPv6 Routing Table - default - 39 entries
+Codes: C - Connected, L - Local, S - Static, U - Per-user Static route
+       B - BGP, HA - Home Agent, MR - Mobile Router, R - RIP
+       H - NHRP, I1 - ISIS L1, I2 - ISIS L2, IA - ISIS interarea
+       IS - ISIS summary, D - EIGRP, EX - EIGRP external, NM - NEMO
+       ND - ND Default, NDp - ND Prefix, DCE - Destination, NDr - Redirect
+       O - OSPF Intra, OI - OSPF Inter, OE1 - OSPF ext 1, OE2 - OSPF ext 2
+       ON1 - OSPF NSSA ext 1, ON2 - OSPF NSSA ext 2, la - LISP alt
+       lr - LISP site-registrations, ld - LISP dyn-eid, a - Application
+B   2000:0:301:101::/112 [20/0]
+     via FE80::2, Ethernet0/0
+B   2000:0:520:101::/112 [20/0]
+     via FE80::2, Ethernet0/0
+B   2000:0:520:301::/112 [20/20]
+     via FE80::2, Ethernet0/0
+B   2000:0:520:2042::/112 [20/20]
+     via FE80::2, Ethernet0/0
+B   2000:0:520:2222::/112 [20/0]
+     via FE80::2, Ethernet0/0
+B   2000:0:520:3333::/112 [20/10]
+     via FE80::2, Ethernet0/0
+B   2000:0:1001:101::/112 [20/0]
+     via FE80::2, Ethernet0/0
+B   2000:0:1001:301::/112 [20/0]
+     via FE80::2, Ethernet0/0
+B   2000:0:2042:520::/112 [20/10]
+     via FE80::2, Ethernet0/0
+B   FD00:0:12:14::/112 [20/0]
+     via FE80::2, Ethernet0/0
+B   FD00:0:12:15::/112 [20/0]
+     via FE80::2, Ethernet0/0
+B   FD00:0:13:14::/112 [20/0]
+     via FE80::2, Ethernet0/0
+B   FD00:0:13:15::/112 [20/0]
+     via FE80::2, Ethernet0/0
+B   FD00:0:14:19::/112 [20/0]
+     via FE80::2, Ethernet0/0
+B   FD00:0:15:20::/112 [20/0]
+     via FE80::2, Ethernet0/0
+B   FD00:0:16:18::/112 [20/0]
+     via FE80::2, Ethernet0/0
+B   FD00:0:16:32::/112 [20/0]
+     via FE80::2, Ethernet0/0
+B   FD00:0:17:18::/112 [20/0]
+     via FE80::2, Ethernet0/0
+B   FD00:0:23:24::/112 [20/0]
+     via FE80::2, Ethernet0/0
+B   FD00:0:23:25::/112 [20/0]
+     via FE80::2, Ethernet0/0
+B   FD00:0:24:26::/112 [20/20]
+     via FE80::2, Ethernet0/0
+B   FD00:0:25:26::/112 [20/0]
+     via FE80::2, Ethernet0/0
+B   FD00:10:58:10::/64 [20/0]
+     via FE80::2, Ethernet0/0
+B   FD00:10:58:100::/64 [20/0]
+     via FE80::2, Ethernet0/0
+B   FD00:10:58:200::/64 [20/0]
+     via FE80::2, Ethernet0/0
+B   FD00:172:16:255::14/128 [20/0]
+     via FE80::2, Ethernet0/0
+B   FD00:172:16:255::15/128 [20/0]
+     via FE80::2, Ethernet0/0
+B   FD00:172:16:255::23/128 [20/0]
+     via FE80::2, Ethernet0/0
+B   FD00:172:16:255::24/128 [20/30]
+     via FE80::2, Ethernet0/0
+B   FD00:172:16:255::25/128 [20/0]
+     via FE80::2, Ethernet0/0
+B   FD00:172:16:255::26/128 [20/20]
+     via FE80::2, Ethernet0/0
+B   FD00:172:16:255::28/128 [20/0]
+     via FE80::2, Ethernet0/0
+B   FD00:192:168:10::/64 [20/0]
+     via FE80::2, Ethernet0/0
+B   FD00:192:168:20::/64 [20/0]
+     via FE80::2, Ethernet0/0
+B   FD00:192:168:100::/64 [20/0]
+     via FE80::2, Ethernet0/0
+  ```
