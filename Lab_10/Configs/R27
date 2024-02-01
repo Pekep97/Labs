@@ -1,0 +1,121 @@
+R27#sh run
+Building configuration...
+
+Current configuration : 2228 bytes
+!
+! Last configuration change at 09:13:06 MSK Thu Feb 1 2024 by admin
+!
+version 15.4
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname R27
+!
+boot-start-marker
+boot-end-marker
+!
+enable secret 5 $1$/yqZ$WE/0YR0XnODtDBsZeUD1j/
+!
+no aaa new-model
+clock timezone MSK 3 0
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+multilink bundle-name authenticated
+!
+username admin privilege 15 secret 5 $1$U/Md$PI1HGnXQGVMa2VSKDea6M.
+!
+redundancy
+!
+interface Loopback0
+ ip address 172.16.255.27 255.255.255.255
+ ipv6 address FE80::1 link-local
+ ipv6 address FD00:172:16:255::27/128
+ ipv6 enable
+!
+interface Ethernet0/0
+ description l3:to-AS-520
+ ip address 1.1.1.1 255.255.255.252
+ ipv6 address FE80::1 link-local
+ ipv6 address 2000:0:520:1111::1/112
+ ipv6 enable
+!
+interface Ethernet0/1
+ no ip address
+ shutdown
+!
+interface Ethernet0/2
+ no ip address
+ shutdown
+!
+interface Ethernet0/3
+ no ip address
+ shutdown
+!
+interface Ethernet1/0
+ no ip address
+ shutdown
+!
+interface Ethernet1/1
+ no ip address
+ shutdown
+!
+interface Ethernet1/2
+ no ip address
+ shutdown
+!
+interface Ethernet1/3
+ no ip address
+ shutdown
+!
+router bgp 1111
+ bgp router-id 27.27.27.27
+ bgp log-neighbor-changes
+ neighbor 1.1.1.2 remote-as 520
+ neighbor 2000:0:520:1111::2 remote-as 520
+ !
+ address-family ipv4
+  network 172.16.255.27 mask 255.255.255.255
+  neighbor 1.1.1.2 activate
+  neighbor 1.1.1.2 next-hop-self
+  no neighbor 2000:0:520:1111::2 activate
+ exit-address-family
+ !
+ address-family ipv6
+  network FD00:172:16:255::27/128
+  neighbor 2000:0:520:1111::2 activate
+  neighbor 2000:0:520:1111::2 next-hop-self
+ exit-address-family
+!
+ip local policy route-map default-route
+ip forward-protocol nd
+!
+no ip http server
+no ip http secure-server
+!
+route-map default-route permit 10
+ match interface Ethernet0/0
+ set ip next-hop 1.1.1.2
+!
+control-plane
+!
+banner motd ^C unauthorized access prohibited ^C
+!
+line con 0
+ password cisco
+ logging synchronous
+ login local
+line aux 0
+line vty 0 4
+ password cisco
+ login
+ transport input none
+!
+end
