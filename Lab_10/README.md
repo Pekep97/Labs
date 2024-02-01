@@ -151,19 +151,40 @@ router bgp 1001
  neighbor FD00:172:16:255::15 update-source Loopback0
  !
  address-family ipv4
-  redistribute ospf 1
+  network 10.58.100.0 mask 255.255.255.0
+  network 10.64.100.0 mask 255.255.255.224
+  network 10.64.100.0 mask 255.255.255.252
+  network 10.64.100.4 mask 255.255.255.252
+  network 10.64.100.8 mask 255.255.255.252
+  network 10.64.100.12 mask 255.255.255.252
+  network 10.64.100.16 mask 255.255.255.252
+  network 10.64.100.20 mask 255.255.255.252
+  network 85.10.22.0 mask 255.255.255.252
+  network 172.16.255.14 mask 255.255.255.255
+  network 192.168.10.0
   no neighbor 2000:0:1001:101::1 activate
   neighbor 85.10.22.1 activate
   neighbor 85.10.22.1 next-hop-self
+  neighbor 85.10.22.1 route-map AS_PATH_1001_x3 out
   neighbor 172.16.255.15 activate
   neighbor 172.16.255.15 next-hop-self
   no neighbor FD00:172:16:255::15 activate
  exit-address-family
  !
  address-family ipv6
-  redistribute ospf 1
+  network 2000:0:1001:101::/112
+  network FD00:0:12:14::/112
+  network FD00:0:12:15::/112
+  network FD00:0:13:14::/112
+  network FD00:0:13:15::/112
+  network FD00:0:14:19::/112
+  network FD00:0:15:20::/112
+  network FD00:10:58:100::/64
+  network FD00:172:16:255::14/128
+  network FD00:192:168:10::/64
   neighbor 2000:0:1001:101::1 activate
   neighbor 2000:0:1001:101::1 next-hop-self
+  neighbor 2000:0:1001:101::1 route-map AS_PATH_1001_x3 out
   neighbor FD00:172:16:255::15 activate
   neighbor FD00:172:16:255::15 next-hop-self
  exit-address-family
@@ -176,8 +197,8 @@ router bgp 1001
 R14#sh ip bgp neighbors 172.16.255.15
 BGP neighbor is 172.16.255.15,  remote AS 1001, internal link
   BGP version 4, remote router ID 15.15.15.15
-  BGP state = Established, up for 00:05:21
-  Last read 00:00:30, last write 00:00:35, hold time is 180, keepalive interval is 60 seconds
+  BGP state = Established, up for 01:12:09
+  Last read 00:00:30, last write 00:00:04, hold time is 180, keepalive interval is 60 seconds
   Neighbor sessions:
     1 active, is not multisession capable (disabled)
   Neighbor capabilities:
@@ -194,10 +215,10 @@ BGP neighbor is 172.16.255.15,  remote AS 1001, internal link
                          Sent       Rcvd
     Opens:                  1          1
     Notifications:          0          0
-    Updates:               25         20
-    Keepalives:             7          7
+    Updates:               23         15
+    Keepalives:            79         78
     Route Refresh:          0          0
-    Total:                 33         28
+    Total:                103         94
   Default minimum time between advertisement runs is 0 seconds
 ```
 
