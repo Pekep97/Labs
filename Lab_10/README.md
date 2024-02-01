@@ -281,10 +281,11 @@ Neighbor        V           AS MsgRcvd MsgSent   TblVer  InQ OutQ Up/Down  State
 ### 3. Настроим офис Москва так, чтобы приоритетным провайдером стал Ламас:
 
 - Для выполнения этого условия "заставим" протокол BGP работающий на маршрутизаторе R14 принудительно отправлять весь трафик через маршрутизатор R15 выполнив следующее:
- *  увеличим ***Local Preference*** на R15 на маршруты приходящие от маршрутизатора R21;
- *  выполним команду *neighbor x.x.x.x next-hop-self* на маршрутизаторах R14-15 друг на друга;
+ *  увеличим ***Local Preference*** на R15 на маршруты приходящие от маршрутизатора R21 для приоритизации исходящего трафика из AS;
+ *  выполним команду ***neighbor x.x.x.x next-hop-self*** на маршрутизаторах R14-15 друг на друга;
+ *  увеличим ***AS-PATH*** на R14 в сторону маршрутизатора R22 для приоритизации входящего трафика в AS.
 
- - Покажем конфигурацию R15 и таблицу BGP на R14:
+ - Покажем конфигурацию R14, R15 и таблицу BGP на R14 и R22:
 
 ***R15***
 ```
@@ -292,31 +293,47 @@ R15#sh run | sec bgp
 router bgp 1001
  bgp router-id 15.15.15.15
  bgp log-neighbor-changes
- neighbor 14.14.14.14 remote-as 1001
- neighbor 14.14.14.14 update-source Loopback0
  neighbor 2000:0:1001:301::1 remote-as 301
  neighbor 132.50.21.1 remote-as 301
- neighbor FD00:14:14:14::14 remote-as 1001
- neighbor FD00:14:14:14::14 update-source Loopback0
+ neighbor 172.16.255.14 remote-as 1001
+ neighbor FD00:172:16:255::14 remote-as 1001
  !
  address-family ipv4
-  redistribute ospf 1
-  neighbor 14.14.14.14 activate
-  neighbor 14.14.14.14 next-hop-self
+  network 10.58.100.0 mask 255.255.255.0
+  network 10.64.100.0 mask 255.255.255.252
+  network 10.64.100.4 mask 255.255.255.252
+  network 10.64.100.8 mask 255.255.255.252
+  network 10.64.100.12 mask 255.255.255.252
+  network 10.64.100.16 mask 255.255.255.252
+  network 10.64.100.20 mask 255.255.255.252
+  network 132.50.21.0 mask 255.255.255.252
+  network 172.16.255.15 mask 255.255.255.255
+  network 192.168.10.0
   no neighbor 2000:0:1001:301::1 activate
   neighbor 132.50.21.1 activate
   neighbor 132.50.21.1 next-hop-self
   neighbor 132.50.21.1 route-map LP_200 in
-  no neighbor FD00:14:14:14::14 activate
+  neighbor 172.16.255.14 activate
+  neighbor 172.16.255.14 next-hop-self
+  no neighbor FD00:172:16:255::14 activate
  exit-address-family
  !
  address-family ipv6
-  redistribute ospf 1
+  network 2000:0:1001:301::/112
+  network FD00:0:12:14::/112
+  network FD00:0:12:15::/112
+  network FD00:0:13:14::/112
+  network FD00:0:13:15::/112
+  network FD00:0:14:19::/112
+  network FD00:0:15:20::/112
+  network FD00:10:58:100::/64
+  network FD00:172:16:255::15/128
+  network FD00:192:168:10::/64
   neighbor 2000:0:1001:301::1 activate
   neighbor 2000:0:1001:301::1 next-hop-self
   neighbor 2000:0:1001:301::1 route-map LP_200 in
-  neighbor FD00:14:14:14::14 activate
-  neighbor FD00:14:14:14::14 next-hop-self
+  neighbor FD00:172:16:255::14 activate
+  neighbor FD00:172:16:255::14 next-hop-self
  exit-address-family
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -326,9 +343,70 @@ R15#sh run | sec LP_200
   set local-preference 200
 ```
 
+***R14***
+```
+R14#sh run | sec bgp
+router bgp 1001
+ bgp router-id 14.14.14.14
+ bgp log-neighbor-changes
+ neighbor 2000:0:1001:101::1 remote-as 101
+ neighbor 85.10.22.1 remote-as 101
+ neighbor 172.16.255.15 remote-as 1001
+ neighbor 172.16.255.15 update-source Loopback0
+ neighbor FD00:172:16:255::15 remote-as 1001
+ neighbor FD00:172:16:255::15 update-source Loopback0
+ !
+ address-family ipv4
+  network 10.58.100.0 mask 255.255.255.0
+  network 10.64.100.0 mask 255.255.255.224
+  network 10.64.100.0 mask 255.255.255.252
+  network 10.64.100.4 mask 255.255.255.252
+  network 10.64.100.8 mask 255.255.255.252
+  network 10.64.100.12 mask 255.255.255.252
+  network 10.64.100.16 mask 255.255.255.252
+  network 10.64.100.20 mask 255.255.255.252
+  network 85.10.22.0 mask 255.255.255.252
+  network 172.16.255.14 mask 255.255.255.255
+  network 192.168.10.0
+  no neighbor 2000:0:1001:101::1 activate
+  neighbor 85.10.22.1 activate
+  neighbor 85.10.22.1 next-hop-self
+  neighbor 85.10.22.1 route-map AS_PATH_1001_x3 out
+  neighbor 172.16.255.15 activate
+  neighbor 172.16.255.15 next-hop-self
+  no neighbor FD00:172:16:255::15 activate
+ exit-address-family
+ !
+ address-family ipv6
+  redistribute ospf 1
+  network 2000:0:1001:101::/112
+  network FD00:0:12:14::/112
+  network FD00:0:12:15::/112
+  network FD00:0:13:14::/112
+  network FD00:0:13:15::/112
+  network FD00:0:14:19::/112
+  network FD00:0:15:20::/112
+  network FD00:10:58:100::/64
+  network FD00:172:16:255::14/128
+  network FD00:192:168:10::/64
+  neighbor 2000:0:1001:101::1 activate
+  neighbor 2000:0:1001:101::1 next-hop-self
+  neighbor 2000:0:1001:101::1 route-map AS_PATH_1001_x3 out
+  neighbor FD00:172:16:255::15 activate
+  neighbor FD00:172:16:255::15 next-hop-self
+ exit-address-family
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+R14#sh run | sec route-map
+ route-map AS_PATH_1001_x3 permit 10
+  set as-path prepend 1001 1001 1001
+```
+
 ***R14_IPv4***
 ```
 R14#sh ip route bgp
+R14#sh ip rou bgp
 Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP
        D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area
        N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2
@@ -342,36 +420,46 @@ Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP
 Gateway of last resort is 85.10.22.1 to network 0.0.0.0
 
       1.0.0.0/30 is subnetted, 1 subnets
-B        1.1.1.0 [200/0] via 15.15.15.15, 00:14:03
+B        1.1.1.0 [200/0] via 172.16.255.15, 13:49:18
       2.0.0.0/30 is subnetted, 1 subnets
-B        2.2.2.0 [200/0] via 15.15.15.15, 00:14:03
+B        2.2.2.0 [200/0] via 172.16.255.15, 13:49:18
       3.0.0.0/30 is subnetted, 1 subnets
-B        3.3.3.0 [200/0] via 15.15.15.15, 00:14:03
-      10.0.0.0/8 is variably subnetted, 17 subnets, 3 masks
-B        10.58.200.0/24 [200/0] via 15.15.15.15, 00:14:03
-B        10.64.20.0/30 [200/0] via 15.15.15.15, 00:14:03
-B        10.64.20.8/30 [200/0] via 15.15.15.15, 00:14:03
-B        10.64.52.0/30 [200/0] via 15.15.15.15, 00:14:03
-B        10.64.52.4/30 [200/0] via 15.15.15.15, 00:14:03
-B        10.64.52.8/30 [200/0] via 15.15.15.15, 00:14:03
-B        10.64.52.12/30 [200/0] via 15.15.15.15, 00:14:03
+B        3.3.3.0 [200/0] via 172.16.255.15, 13:49:18
+      10.0.0.0/8 is variably subnetted, 18 subnets, 3 masks
+B        10.58.10.0/24 [200/0] via 172.16.255.15, 13:49:18
+B        10.58.200.0/24 [200/0] via 172.16.255.15, 02:46:07
+B        10.64.20.0/30 [200/0] via 172.16.255.15, 02:46:07
+B        10.64.20.8/30 [200/0] via 172.16.255.15, 02:46:07
+B        10.64.52.0/30 [200/0] via 172.16.255.15, 01:57:30
+B        10.64.52.4/30 [200/0] via 172.16.255.15, 02:02:06
+B        10.64.52.8/30 [200/0] via 172.16.255.15, 02:01:36
+B        10.64.52.12/30 [200/0] via 172.16.255.15, 01:32:00
       21.0.0.0/30 is subnetted, 1 subnets
-B        21.22.100.0 [200/0] via 15.15.15.15, 00:14:03
+B        21.22.100.0 [200/0] via 172.16.255.15, 13:49:18
       23.0.0.0/30 is subnetted, 1 subnets
-B        23.100.40.0 [200/0] via 15.15.15.15, 00:14:03
+B        23.100.40.0 [200/0] via 172.16.255.15, 13:49:18
       24.0.0.0/30 is subnetted, 2 subnets
-B        24.100.40.0 [200/0] via 15.15.15.15, 00:14:03
-B        24.100.40.4 [200/0] via 15.15.15.15, 00:14:03
+B        24.100.40.0 [200/0] via 172.16.255.15, 13:49:18
+B        24.100.40.4 [200/0] via 172.16.255.15, 13:49:18
       26.0.0.0/30 is subnetted, 1 subnets
-B        26.100.40.0 [200/0] via 15.15.15.15, 00:14:03
+B        26.100.40.0 [200/0] via 172.16.255.15, 13:49:18
       132.50.0.0/30 is subnetted, 1 subnets
-B        132.50.21.0 [200/0] via 15.15.15.15, 00:14:03
-B     192.168.20.0/24 [200/0] via 15.15.15.15, 00:14:03
+B        132.50.21.0 [200/0] via 172.16.255.15, 00:35:54
+      172.16.0.0/32 is subnetted, 8 subnets
+B        172.16.255.23 [200/0] via 172.16.255.15, 01:15:42
+B        172.16.255.24 [200/0] via 172.16.255.15, 01:18:28
+B        172.16.255.25 [200/0] via 172.16.255.15, 01:13:52
+B        172.16.255.26 [200/0] via 172.16.255.15, 01:19:12
+B        172.16.255.27 [200/0] via 172.16.255.15, 02:21:47
+B        172.16.255.28 [200/0] via 172.16.255.15, 13:49:18
+B     192.168.20.0/24 [200/0] via 172.16.255.15, 02:46:07
+B     192.168.100.0/24 [200/0] via 172.16.255.15, 13:49:18
 ```
+
 ***R14_IPv6***
 ```
 R14#sh ipv6 route bgp
-IPv6 Routing Table - default - 18 entries
+IPv6 Routing Table - default - 41 entries
 Codes: C - Connected, L - Local, S - Static, U - Per-user Static route
        B - BGP, HA - Home Agent, MR - Mobile Router, R - RIP
        H - NHRP, I1 - ISIS L1, I2 - ISIS L2, IA - ISIS interarea
@@ -380,13 +468,121 @@ Codes: C - Connected, L - Local, S - Static, U - Per-user Static route
        O - OSPF Intra, OI - OSPF Inter, OE1 - OSPF ext 1, OE2 - OSPF ext 2
        ON1 - OSPF NSSA ext 1, ON2 - OSPF NSSA ext 2, la - LISP alt
        lr - LISP site-registrations, ld - LISP dyn-eid, a - Application
+B   2000:0:301:101::/112 [200/0]
+     via FD00:172:16:255::15
+B   2000:0:520:101::/112 [200/0]
+     via FD00:172:16:255::15
+B   2000:0:520:301::/112 [200/0]
+     via FD00:172:16:255::15
+B   2000:0:520:1111::/112 [200/0]
+     via FD00:172:16:255::15
 B   2000:0:520:2042::/112 [200/0]
-     via FD00:15:15:15::15
+     via FD00:172:16:255::15
+B   2000:0:520:2222::/112 [200/0]
+     via FD00:172:16:255::15
+B   2000:0:520:3333::/112 [200/0]
+     via FD00:172:16:255::15
 B   2000:0:1001:301::/112 [200/0]
-     via FD00:15:15:15::15
+     via FD00:172:16:255::15
+B   2000:0:2042:520::/112 [200/0]
+     via FD00:172:16:255::15
+B   FD00:0:16:32::/112 [200/0]
+     via FD00:172:16:255::15
+B   FD00:0:23:24::/112 [200/0]
+     via FD00:172:16:255::15
+B   FD00:0:23:25::/112 [200/0]
+     via FD00:172:16:255::15
+B   FD00:0:24:26::/112 [200/0]
+     via FD00:172:16:255::15
+B   FD00:0:25:26::/112 [200/0]
+     via FD00:172:16:255::15
+B   FD00:10:58:10::/64 [200/0]
+     via FD00:172:16:255::15
+B   FD00:10:58:200::/64 [200/0]
+     via FD00:172:16:255::15
+B   FD00:172:16:255::23/128 [200/0]
+     via FD00:172:16:255::15
+B   FD00:172:16:255::24/128 [200/0]
+     via FD00:172:16:255::15
+B   FD00:172:16:255::25/128 [200/0]
+     via FD00:172:16:255::15
+B   FD00:172:16:255::26/128 [200/0]
+     via FD00:172:16:255::15
+B   FD00:172:16:255::27/128 [200/0]
+     via FD00:172:16:255::15
+B   FD00:172:16:255::28/128 [200/0]
+     via FD00:172:16:255::15
+B   FD00:192:168:20::/64 [200/0]
+     via FD00:172:16:255::15
+B   FD00:192:168:100::/64 [200/0]
+     via FD00:172:16:255::15
+B   FD00:192:168:200::/64 [200/0]
+     via FD00:172:16:255::15
 ```
 
-- Как видим весь трафик, передаваемый по BGP, будет отправляться через R15.
+***R22_IPv4***
+```
+R22#sh ip route bgp
+Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP
+       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area
+       N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2
+       E1 - OSPF external type 1, E2 - OSPF external type 2
+       i - IS-IS, su - IS-IS summary, L1 - IS-IS level-1, L2 - IS-IS level-2
+       ia - IS-IS inter area, * - candidate default, U - per-user static route
+       o - ODR, P - periodic downloaded static route, H - NHRP, l - LISP
+       a - application route
+       + - replicated route, % - next hop override
+
+Gateway of last resort is not set
+
+B        10.58.100.0/24 [20/0] via 21.22.100.2, 00:43:02
+B        10.64.100.0/30 [20/0] via 21.22.100.2, 00:50:23
+B        10.64.100.4/30 [20/0] via 21.22.100.2, 00:48:18
+B        10.64.100.8/30 [20/0] via 21.22.100.2, 00:49:50
+B        10.64.100.12/30 [20/0] via 21.22.100.2, 00:48:18
+B        10.64.100.16/30 [20/0] via 21.22.100.2, 00:48:18
+B        10.64.100.20/30 [20/0] via 21.22.100.2, 00:49:50
+B        172.16.255.14 [20/0] via 21.22.100.2, 00:41:24
+B        172.16.255.15 [20/0] via 21.22.100.2, 00:43:02
+B     192.168.10.0/24 [20/0] via 21.22.100.2, 00:43:02
+```
+
+***R22_IPv6***
+```
+R22#sh ipv6 route bgp
+IPv6 Routing Table - default - 40 entries
+Codes: C - Connected, L - Local, S - Static, U - Per-user Static route
+       B - BGP, HA - Home Agent, MR - Mobile Router, R - RIP
+       H - NHRP, I1 - ISIS L1, I2 - ISIS L2, IA - ISIS interarea
+       IS - ISIS summary, D - EIGRP, EX - EIGRP external, NM - NEMO
+       ND - ND Default, NDp - ND Prefix, DCE - Destination, NDr - Redirect
+       O - OSPF Intra, OI - OSPF Inter, OE1 - OSPF ext 1, OE2 - OSPF ext 2
+       ON1 - OSPF NSSA ext 1, ON2 - OSPF NSSA ext 2, la - LISP alt
+       lr - LISP site-registrations, ld - LISP dyn-eid, a - Application
+
+B   FD00:0:12:14::/112 [20/0]
+     via FE80::1, Ethernet0/1
+B   FD00:0:12:15::/112 [20/0]
+     via FE80::1, Ethernet0/1
+B   FD00:0:13:14::/112 [20/0]
+     via FE80::1, Ethernet0/1
+B   FD00:0:13:15::/112 [20/0]
+     via FE80::1, Ethernet0/1
+B   FD00:0:14:19::/112 [20/0]
+     via FE80::1, Ethernet0/1
+B   FD00:0:15:20::/112 [20/0]
+     via FE80::1, Ethernet0/1
+B   FD00:10:58:100::/64 [20/0]
+     via FE80::1, Ethernet0/1
+B   FD00:172:16:255::14/128 [20/0]
+     via FE80::1, Ethernet0/1
+B   FD00:172:16:255::15/128 [20/0]
+     via FE80::1, Ethernet0/1
+B   FD00:192:168:10::/64 [20/0]
+     via FE80::1, Ethernet0/1
+```
+
+- Как видим весь трафик, передаваемый "наружу" по BGP, будет отправляться через R21, а трафик передаваемый "внутрь" AS также будет проходить через R21.
 
 ### 4. Настроим офис С.-Петербург так, чтобы трафик до любого офиса распределялся по двум линкам одновременно:
 
@@ -394,7 +590,7 @@ B   2000:0:1001:301::/112 [200/0]
 
 ***R18***
 ```
-R18(config-router)#do sh run | sec bgp
+R18#sh run | sec bgp
 router bgp 2042
  bgp router-id 18.18.18.18
  bgp log-neighbor-changes
@@ -404,8 +600,8 @@ router bgp 2042
  neighbor 2000:0:2042:520::1 remote-as 520
  !
  address-family ipv4
+  network 24.100.40.4 mask 255.255.255.252
   network 26.100.40.0 mask 255.255.255.252
-  network 26.100.40.4 mask 255.255.255.252
   redistribute eigrp 1
   neighbor 24.100.40.5 activate
   neighbor 24.100.40.5 next-hop-self
@@ -430,10 +626,10 @@ router bgp 2042
 
 - В результате выполнения команды *sh ip bgp* видно, что все сети будут распределяться по двум сессиям:
 
-***R18***
+***R18_IPv4***
 ```
-R18#sh ip bgp
-BGP table version is 29, local router ID is 18.18.18.18
+R18# sh ip bgp
+BGP table version is 89, local router ID is 18.18.18.18
 Status codes: s suppressed, d damped, h history, * valid, > best, i - internal,
               r RIB-failure, S Stale, m multipath, b backup-path, f RT-Filter,
               x best-external, a additional-path, c RIB-compressed,
@@ -441,61 +637,84 @@ Origin codes: i - IGP, e - EGP, ? - incomplete
 RPKI validation codes: V valid, I invalid, N Not found
 
      Network          Next Hop            Metric LocPrf Weight Path
- *m  1.1.1.0/30       26.100.40.1                            0 520 i
- *>                   24.100.40.5                            0 520 i
- *m  2.2.2.0/30       26.100.40.1                            0 520 i
- *>                   24.100.40.5                            0 520 i
- *m  3.3.3.0/30       26.100.40.1              0             0 520 i
- *>                   24.100.40.5                            0 520 i
- *m  10.58.100.0/24   26.100.40.1                            0 520 301 1001 ?
- *>                   24.100.40.5                            0 520 301 1001 ?
+ *>  1.1.1.0/30       24.100.40.5                   200      0 520 i
+ *m                   26.100.40.1                   200      0 520 i
+ *>  2.2.2.0/30       24.100.40.5                   200      0 520 i
+ *m                   26.100.40.1                   200      0 520 i
+ *>  3.3.3.0/30       24.100.40.5                   200      0 520 i
+ *m                   26.100.40.1              0    200      0 520 i
+ *>  10.58.10.0/24    24.100.40.5                   200      0 520 2222 i
+ *m                   26.100.40.1                   200      0 520 2222 i
+ *m  10.58.100.0/24   26.100.40.1                            0 520 301 1001 i
+ *>                   24.100.40.5                            0 520 301 1001 i
  *>  10.58.200.0/24   10.64.20.2         1536000         32768 ?
  *>  10.64.20.0/30    0.0.0.0                  0         32768 ?
  *>  10.64.20.8/30    10.64.20.2         2048000         32768 ?
- *m  10.64.52.0/30    26.100.40.1                            0 520 i
- *>                   24.100.40.5                            0 520 i
- *m  10.64.52.4/30    26.100.40.1                            0 520 i
+ *m  10.64.52.0/30    24.100.40.5                            0 520 i
      Network          Next Hop            Metric LocPrf Weight Path
- *>                   24.100.40.5              0             0 520 i
+ *>                   26.100.40.1                            0 520 i
+ *m  10.64.52.4/30    24.100.40.5              0             0 520 i
+ *>                   26.100.40.1                            0 520 i
  *m  10.64.52.8/30    26.100.40.1              0             0 520 i
  *>                   24.100.40.5              0             0 520 i
  *m  10.64.52.12/30   26.100.40.1              0             0 520 i
  *>                   24.100.40.5                            0 520 i
- *m  10.64.100.0/30   26.100.40.1                            0 520 301 1001 ?
- *>                   24.100.40.5                            0 520 301 1001 ?
- *m  10.64.100.4/30   26.100.40.1                            0 520 301 1001 ?
- *>                   24.100.40.5                            0 520 301 1001 ?
- *m  10.64.100.8/30   26.100.40.1                            0 520 301 1001 ?
- *>                   24.100.40.5                            0 520 301 1001 ?
- *m  10.64.100.12/30  26.100.40.1                            0 520 301 1001 ?
- *>                   24.100.40.5                            0 520 301 1001 ?
- *m  10.64.100.16/30  26.100.40.1                            0 520 301 1001 ?
- *>                   24.100.40.5                            0 520 301 1001 ?
- *m  10.64.100.20/30  26.100.40.1                            0 520 301 1001 ?
- *>                   24.100.40.5                            0 520 301 1001 ?
- *m  14.14.14.14/32   26.100.40.1                            0 520 301 1001 ?
- *>                   24.100.40.5                            0 520 301 1001 ?
- *m  15.15.15.15/32   26.100.40.1                            0 520 301 1001 ?
- *>                   24.100.40.5                            0 520 301 1001 ?
- *   21.22.100.0/30   26.100.40.1                            0 520 101 i
+ *m  10.64.100.0/30   24.100.40.5                            0 520 301 1001 i
+ *>                   26.100.40.1                            0 520 301 1001 i
+ *m  10.64.100.4/30   24.100.40.5                            0 520 301 1001 i
+ *>                   26.100.40.1                            0 520 301 1001 i
+ *m  10.64.100.8/30   24.100.40.5                            0 520 301 1001 i
+ *>                   26.100.40.1                            0 520 301 1001 i
+ *m  10.64.100.12/30  24.100.40.5                            0 520 301 1001 i
+ *>                   26.100.40.1                            0 520 301 1001 i
+ *m  10.64.100.16/30  24.100.40.5                            0 520 301 1001 i
+ *>                   26.100.40.1                            0 520 301 1001 i
+ *m  10.64.100.20/30  24.100.40.5                            0 520 301 1001 i
+ *>                   26.100.40.1                            0 520 301 1001 i
+ *>  21.22.100.0/30   24.100.40.5                   200      0 520 301 i
+ *                    26.100.40.1                   200      0 520 101 i
+ *>  23.100.40.0/30   24.100.40.5                   200      0 520 i
      Network          Next Hop            Metric LocPrf Weight Path
- *>                   24.100.40.5                            0 520 301 i
- *m  23.100.40.0/30   26.100.40.1                            0 520 i
- *>                   24.100.40.5                            0 520 i
- *m  24.100.40.0/30   26.100.40.1                            0 520 i
+ *m                   26.100.40.1                   200      0 520 i
+ *>  24.100.40.0/30   24.100.40.5              0    200      0 520 i
+ *m                   26.100.40.1                   200      0 520 i
+ *>  24.100.40.4/30   0.0.0.0                  0         32768 i
+ *                    24.100.40.5              0    200      0 520 i
+ *                    26.100.40.1                   200      0 520 i
+ *>  26.100.40.0/30   0.0.0.0                  0         32768 i
+ *                    24.100.40.5                   200      0 520 i
+ *                    26.100.40.1              0    200      0 520 i
+ *>  85.10.22.0/30    24.100.40.5                   200      0 520 101 i
+ *m                   26.100.40.1                   200      0 520 101 i
+ *>  132.50.21.0/30   24.100.40.5                   200      0 520 301 i
+ *m                   26.100.40.1                   200      0 520 301 i
+ *m  172.16.255.14/32 24.100.40.5                            0 520 301 1001 i
+ *>                   26.100.40.1                            0 520 301 1001 i
+ *m  172.16.255.15/32 24.100.40.5                            0 520 301 1001 i
+ *>                   26.100.40.1                            0 520 301 1001 i
+ *m  172.16.255.23/32 24.100.40.5                            0 520 i
+ *>                   26.100.40.1                            0 520 i
+ *m  172.16.255.24/32 26.100.40.1                            0 520 i
  *>                   24.100.40.5              0             0 520 i
- rm  24.100.40.4/30   26.100.40.1                            0 520 i
- r>                   24.100.40.5              0             0 520 i
- rm  26.100.40.0/30   26.100.40.1              0             0 520 i
- r>                   24.100.40.5                            0 520 i
- *m  85.10.22.0/30    26.100.40.1                            0 520 101 i
- *>                   24.100.40.5                            0 520 101 i
- *m  132.50.21.0/30   26.100.40.1                            0 520 301 i
- *>                   24.100.40.5                            0 520 301 i
- *m  192.168.10.0     26.100.40.1                            0 520 301 1001 ?
- *>                   24.100.40.5                            0 520 301 1001 ?
+ *m  172.16.255.25/32 26.100.40.1                            0 520 i
+     Network          Next Hop            Metric LocPrf Weight Path
+ *>                   24.100.40.5                            0 520 i
+ *m  172.16.255.26/32 24.100.40.5                            0 520 i
+ *>                   26.100.40.1              0             0 520 i
+ *m  172.16.255.27/32 26.100.40.1                            0 520 1111 i
+ *>                   24.100.40.5                            0 520 1111 i
+ *>  172.16.255.28/32 24.100.40.5                   200      0 520 2222 i
+ *m                   26.100.40.1                   200      0 520 2222 i
+ *m  192.168.10.0     24.100.40.5                            0 520 301 1001 i
+ *>                   26.100.40.1                            0 520 301 1001 i
  *>  192.168.20.0     10.64.20.2         1536000         32768 ?
+ *>  192.168.100.0    24.100.40.5                   200      0 520 2222 i
+ *m                   26.100.40.1                   200      0 520 2222 i
 ```
+
+***R18_IPv4***
+```
+
 
   ### 5. Проверим все сети в лабораторной работе на IP связность и задокументируем все изменения:
 
