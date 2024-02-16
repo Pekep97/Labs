@@ -1,0 +1,150 @@
+R21#sh run
+Building configuration...
+
+Current configuration : 3787 bytes
+!
+! Last configuration change at 11:33:38 MSK Fri Feb 16 2024 by admin
+!
+version 15.4
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname R21
+!
+boot-start-marker
+boot-end-marker
+!
+enable secret 5 $1$/yqZ$WE/0YR0XnODtDBsZeUD1j/
+!
+no aaa new-model
+clock timezone MSK 3 0
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+multilink bundle-name authenticated
+!
+username admin privilege 15 secret 5 $1$U/Md$PI1HGnXQGVMa2VSKDea6M.
+!
+redundancy
+!
+interface Ethernet0/0
+ description l3:to-AS-1001
+ ip address 132.50.21.1 255.255.255.252
+ ipv6 address FE80::1 link-local
+ ipv6 address 2000:0:1001:301::1/112
+ ipv6 enable
+!
+interface Ethernet0/1
+ description l3:to-AS-101
+ ip address 21.22.100.2 255.255.255.252
+ ipv6 address FE80::1 link-local
+ ipv6 address 2000:0:301:101::2/112
+ ipv6 enable
+!
+interface Ethernet0/2
+ description l3:to-AS-520
+ ip address 24.100.40.2 255.255.255.252
+ ipv6 address FE80::1 link-local
+ ipv6 address 2000:0:520:301::2/112
+ ipv6 enable
+!
+interface Ethernet0/3
+ no ip address
+ shutdown
+!
+interface Ethernet1/0
+ no ip address
+ shutdown
+!
+interface Ethernet1/1
+ no ip address
+ shutdown
+!
+interface Ethernet1/2
+ no ip address
+ shutdown
+!
+interface Ethernet1/3
+ no ip address
+ shutdown
+!
+router bgp 301
+ bgp router-id 21.21.21.21
+ bgp log-neighbor-changes
+ neighbor 21.22.100.1 remote-as 101
+ neighbor 24.100.40.1 remote-as 520
+ neighbor 2000:0:301:101::1 remote-as 101
+ neighbor 2000:0:520:301::1 remote-as 520
+ neighbor 2000:0:1001:301::2 remote-as 1001
+ neighbor 132.50.21.2 remote-as 1001
+ !
+ address-family ipv4
+  network 21.22.100.0 mask 255.255.255.252
+  network 24.100.40.0 mask 255.255.255.252
+  network 132.50.21.0 mask 255.255.255.252
+  neighbor 21.22.100.1 activate
+  neighbor 24.100.40.1 activate
+  no neighbor 2000:0:301:101::1 activate
+  no neighbor 2000:0:520:301::1 activate
+  no neighbor 2000:0:1001:301::2 activate
+  neighbor 132.50.21.2 activate
+  neighbor 132.50.21.2 default-originate
+  neighbor 132.50.21.2 soft-reconfiguration inbound
+  neighbor 132.50.21.2 prefix-list DEFAULT+AS2042 out
+ exit-address-family
+ !
+ address-family ipv6
+  network 2000:0:301:101::/112
+  network 2000:0:520:301::/112
+  network 2000:0:1001:301::/112
+  neighbor 2000:0:301:101::1 activate
+  neighbor 2000:0:520:301::1 activate
+  neighbor 2000:0:1001:301::2 activate
+  neighbor 2000:0:1001:301::2 default-originate
+  neighbor 2000:0:1001:301::2 soft-reconfiguration inbound
+  neighbor 2000:0:1001:301::2 prefix-list DEFAULT+AS2042_IPv6 out
+ exit-address-family
+!
+ip forward-protocol nd
+!
+no ip http server
+no ip http secure-server
+ip route 0.0.0.0 0.0.0.0 Null0
+!
+ip prefix-list DEFAULT+AS2042 seq 5 permit 10.64.20.0/30
+ip prefix-list DEFAULT+AS2042 seq 10 permit 10.64.20.4/30
+ip prefix-list DEFAULT+AS2042 seq 15 permit 10.64.20.8/30
+ip prefix-list DEFAULT+AS2042 seq 20 permit 10.58.200.0/24
+ip prefix-list DEFAULT+AS2042 seq 25 permit 192.168.20.0/24
+ip prefix-list DEFAULT+AS2042 seq 30 permit 0.0.0.0/0
+ipv6 route ::/0 Null0
+!
+ipv6 prefix-list DEFAULT+AS2042_IPv6 seq 5 permit FD00:0:16:18::/112
+ipv6 prefix-list DEFAULT+AS2042_IPv6 seq 10 permit FD00:0:16:32::/112
+ipv6 prefix-list DEFAULT+AS2042_IPv6 seq 15 permit FD00:0:17:18::/112
+ipv6 prefix-list DEFAULT+AS2042_IPv6 seq 20 permit FD00:10:58:200::/64
+ipv6 prefix-list DEFAULT+AS2042_IPv6 seq 25 permit FD00:192:168:20::/64
+ipv6 prefix-list DEFAULT+AS2042_IPv6 seq 30 permit ::/0
+!
+control-plane
+!
+banner motd ^C unauthorized access prohibited ^C
+!
+line con 0
+ password cisco
+ logging synchronous
+ login local
+line aux 0
+line vty 0 4
+ password cisco
+ login
+ transport input none
+!
+end
