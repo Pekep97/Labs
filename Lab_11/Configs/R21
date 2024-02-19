@@ -114,7 +114,7 @@ router bgp 301
 !
 ip forward-protocol nd
 !
-ip as-path access-list 1 permit .2042$
+ip as-path access-list 1 permit _2042$
 !
 no ip http server
 no ip http secure-server
