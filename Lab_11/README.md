@@ -456,7 +456,7 @@ Total number of prefixes 1
 ***R21***
 ```
 R21#sh run | sec access-list
-ip as-path access-list 1 permit .2042$
+ip as-path access-list 1 permit _2042$
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
