@@ -1,9 +1,9 @@
 R21#sh run
 Building configuration...
 
-Current configuration : 3787 bytes
+Current configuration : 3122 bytes
 !
-! Last configuration change at 11:33:38 MSK Fri Feb 16 2024 by admin
+! Last configuration change at 16:43:59 MSK Mon Feb 19 2024 by admin
 !
 version 15.4
 service timestamps debug datetime msec
@@ -97,7 +97,7 @@ router bgp 301
   neighbor 132.50.21.2 activate
   neighbor 132.50.21.2 default-originate
   neighbor 132.50.21.2 soft-reconfiguration inbound
-  neighbor 132.50.21.2 prefix-list DEFAULT+AS2042 out
+  neighbor 132.50.21.2 filter-list 1 out
  exit-address-family
  !
  address-family ipv6
@@ -109,29 +109,20 @@ router bgp 301
   neighbor 2000:0:1001:301::2 activate
   neighbor 2000:0:1001:301::2 default-originate
   neighbor 2000:0:1001:301::2 soft-reconfiguration inbound
-  neighbor 2000:0:1001:301::2 prefix-list DEFAULT+AS2042_IPv6 out
+  neighbor 2000:0:1001:301::2 filter-list 1 out
  exit-address-family
 !
 ip forward-protocol nd
 !
+ip as-path access-list 1 permit .2042$
+!
 no ip http server
 no ip http secure-server
-ip route 0.0.0.0 0.0.0.0 Null0
 !
-ip prefix-list DEFAULT+AS2042 seq 5 permit 10.64.20.0/30
-ip prefix-list DEFAULT+AS2042 seq 10 permit 10.64.20.4/30
-ip prefix-list DEFAULT+AS2042 seq 15 permit 10.64.20.8/30
-ip prefix-list DEFAULT+AS2042 seq 20 permit 10.58.200.0/24
-ip prefix-list DEFAULT+AS2042 seq 25 permit 192.168.20.0/24
-ip prefix-list DEFAULT+AS2042 seq 30 permit 0.0.0.0/0
-ipv6 route ::/0 Null0
-!
-ipv6 prefix-list DEFAULT+AS2042_IPv6 seq 5 permit FD00:0:16:18::/112
-ipv6 prefix-list DEFAULT+AS2042_IPv6 seq 10 permit FD00:0:16:32::/112
-ipv6 prefix-list DEFAULT+AS2042_IPv6 seq 15 permit FD00:0:17:18::/112
-ipv6 prefix-list DEFAULT+AS2042_IPv6 seq 20 permit FD00:10:58:200::/64
-ipv6 prefix-list DEFAULT+AS2042_IPv6 seq 25 permit FD00:192:168:20::/64
-ipv6 prefix-list DEFAULT+AS2042_IPv6 seq 30 permit ::/0
+route-map DEFAULT+AS_2042 permit 10
+ match ip address prefix-list DEFAULT
+ match as-path 1
+ match ipv6 address prefix-list DEFAULT_IPv6
 !
 control-plane
 !
