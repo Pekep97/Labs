@@ -1,9 +1,9 @@
 R22#sh run
 Building configuration...
 
-Current configuration : 3106 bytes
+Current configuration : 3053 bytes
 !
-! Last configuration change at 10:59:12 MSK Fri Feb 16 2024 by admin
+! Last configuration change at 16:36:13 MSK Mon Feb 19 2024 by admin
 !
 version 15.4
 service timestamps debug datetime msec
@@ -116,10 +116,8 @@ ip forward-protocol nd
 !
 no ip http server
 no ip http secure-server
-ip route 0.0.0.0 0.0.0.0 Null0
 !
 ip prefix-list DEFAULT seq 5 permit 0.0.0.0/0
-ipv6 route ::/0 Null0
 !
 ipv6 prefix-list DEFAULT_IPv6 seq 5 permit ::/0
 !
