@@ -134,7 +134,7 @@
 | Чокурдах     | 10     | DHCP_CHKR       |
 |              | 100    | MANAGEMENT_CHKR |
 
-- Создадим ***acess-list AS-Path***, в котором разрешим передачу только пустого значения *AS-PATH*, что разрешит передачу только собственной AS и применим его на исходящее направление в сторону провайдеров Киторн и Ламас на маршрутизаторах R14, R15;
+- Создадим ***acess-list AS-Path***, в котором разрешим передачу только пустого значения *AS-PATH*, что разрешит передачу только префиксов, порожденных в собственной AS и применим его на исходящее направление в сторону провайдеров Киторн и Ламас на маршрутизаторах R14, R15;
 - Покажем пример конфигурации на R14:
 
 ***R14***
@@ -360,17 +360,11 @@ router bgp 2042
 
 ### 3. Настроим провайдера Киторн так, чтобы в офис Москва отдавался только маршрут по умолчанию:
 
-- Добавим маршрут ***0.0.0.0 0.0.0.0.0 Null0*** на маршрутизаторе R22 и разрешим трансляцию в офис москва только его при помощи ***prefix-list***;
+- На маршрутизаторе R22 разрешим трансляцию в офис Москва только маршрут по-умолчанию при помощи ***prefix-list***;
 - Покажем конфигурацию маршрутизатора R22:
 
 ***R22***
 ```
-R22#sh run | sec ip route
-
-ip route 0.0.0.0 0.0.0.0 Null0
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
 R22#sh run | sec prefix-list
   
 ip prefix-list DEFAULT seq 5 permit 0.0.0.0/0
@@ -378,59 +372,42 @@ ipv6 prefix-list DEFAULT_IPv6 seq 5 permit ::/0
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-R14#sh run | sec bgp
-router bgp 1001
- bgp router-id 14.14.14.14
+R22#sh run | sec bgp
+router bgp 101
+ bgp router-id 22.22.22.22
  bgp log-neighbor-changes
- neighbor 2000:0:1001:101::1 remote-as 101
- neighbor 85.10.22.1 remote-as 101
- neighbor 172.16.255.15 remote-as 1001
- neighbor 172.16.255.15 update-source Loopback0
- neighbor FD00:172:16:255::15 remote-as 1001
- neighbor FD00:172:16:255::15 update-source Loopback0
+ neighbor 21.22.100.2 remote-as 301
+ neighbor 23.100.40.1 remote-as 520
+ neighbor 2000:0:301:101::2 remote-as 301
+ neighbor 2000:0:520:101::1 remote-as 520
+ neighbor 2000:0:1001:101::2 remote-as 1001
+ neighbor 85.10.22.2 remote-as 1001
  !
  address-family ipv4
-  network 10.58.100.0 mask 255.255.255.0
-  network 10.64.100.0 mask 255.255.255.224
-  network 10.64.100.0 mask 255.255.255.252
-  network 10.64.100.4 mask 255.255.255.252
-  network 10.64.100.8 mask 255.255.255.252
-  network 10.64.100.12 mask 255.255.255.252
-  network 10.64.100.16 mask 255.255.255.252
-  network 10.64.100.20 mask 255.255.255.252
+  network 21.22.100.0 mask 255.255.255.252
+  network 23.100.40.0 mask 255.255.255.252
   network 85.10.22.0 mask 255.255.255.252
-  network 172.16.255.14 mask 255.255.255.255
-  network 192.168.10.0
-  no neighbor 2000:0:1001:101::1 activate
-  neighbor 85.10.22.1 activate
-  neighbor 85.10.22.1 next-hop-self
-  neighbor 85.10.22.1 soft-reconfiguration inbound
-  neighbor 85.10.22.1 route-map AS_PATH_1001_x3 out
-  neighbor 85.10.22.1 filter-list 1 out
-  neighbor 172.16.255.15 activate
-  neighbor 172.16.255.15 next-hop-self
-  neighbor 172.16.255.15 soft-reconfiguration inbound
-  no neighbor FD00:172:16:255::15 activate
+  neighbor 21.22.100.2 activate
+  neighbor 23.100.40.1 activate
+  no neighbor 2000:0:301:101::2 activate
+  no neighbor 2000:0:520:101::1 activate
+  no neighbor 2000:0:1001:101::2 activate
+  neighbor 85.10.22.2 activate
+  neighbor 85.10.22.2 default-originate
+  neighbor 85.10.22.2 soft-reconfiguration inbound
+  neighbor 85.10.22.2 prefix-list DEFAULT out
  exit-address-family
  !
  address-family ipv6
+  network 2000:0:301:101::/112
+  network 2000:0:520:101::/112
   network 2000:0:1001:101::/112
-  network FD00:0:12:14::/112
-  network FD00:0:12:15::/112
-  network FD00:0:13:14::/112
-  network FD00:0:13:15::/112
-  network FD00:0:14:19::/112
-  network FD00:0:15:20::/112
-  network FD00:10:58:100::/64
-  network FD00:172:16:255::14/128
-  network FD00:192:168:10::/64
-  neighbor 2000:0:1001:101::1 activate
-  neighbor 2000:0:1001:101::1 next-hop-self
-  neighbor 2000:0:1001:101::1 soft-reconfiguration inbound
-  neighbor 2000:0:1001:101::1 route-map AS_PATH_1001_x3 out
-  neighbor 2000:0:1001:101::1 filter-list 1 out
-  neighbor FD00:172:16:255::15 activate
-  neighbor FD00:172:16:255::15 next-hop-self
+  neighbor 2000:0:301:101::2 activate
+  neighbor 2000:0:520:101::1 activate
+  neighbor 2000:0:1001:101::2 activate
+  neighbor 2000:0:1001:101::2 default-originate
+  neighbor 2000:0:1001:101::2 soft-reconfiguration inbound
+  neighbor 2000:0:1001:101::2 prefix-list DEFAULT_IPv6 out
  exit-address-family
 ```
 
@@ -473,32 +450,13 @@ Total number of prefixes 1
 
 ### 4. Настроим провайдера Ламас так, чтобы в офис Москва отдавался только маршрут по умолчанию и префикс офиса С.-Петербург:
 
-- Добавим маршрут ***0.0.0.0 0.0.0.0.0 Null0*** на маршрутизаторе R21 и разрешим трансляцию в офис Москва его и префиксов офиса С.-Петербург при помощи ***prefix-list***;
+- На маршрутизаторе R21 разрешим трансляцию в офис Москва маршрута по-умолчанию и префиксов офиса С.-Петербург при помощи ***acess-list AS-Path***;
 - Покажем конфигурацию маршрутизатора R21:
 
 ***R21***
 ```
-R21#sh run | sec ip route
-
-ip route 0.0.0.0 0.0.0.0 Null0
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-R21#sh run | sec prefix-list
-  
-ip prefix-list DEFAULT+AS2042 seq 5 permit 10.64.20.0/30
-ip prefix-list DEFAULT+AS2042 seq 10 permit 10.64.20.4/30
-ip prefix-list DEFAULT+AS2042 seq 15 permit 10.64.20.8/30
-ip prefix-list DEFAULT+AS2042 seq 20 permit 10.58.200.0/24
-ip prefix-list DEFAULT+AS2042 seq 25 permit 192.168.20.0/24
-ip prefix-list DEFAULT+AS2042 seq 30 permit 0.0.0.0/0
-
-ipv6 prefix-list DEFAULT+AS2042_IPv6 seq 5 permit FD00:0:16:18::/112
-ipv6 prefix-list DEFAULT+AS2042_IPv6 seq 10 permit FD00:0:16:32::/112
-ipv6 prefix-list DEFAULT+AS2042_IPv6 seq 15 permit FD00:0:17:18::/112
-ipv6 prefix-list DEFAULT+AS2042_IPv6 seq 20 permit FD00:10:58:200::/64
-ipv6 prefix-list DEFAULT+AS2042_IPv6 seq 25 permit FD00:192:168:20::/64
-ipv6 prefix-list DEFAULT+AS2042_IPv6 seq 30 permit ::/0
+R21#sh run | sec access-list
+ip as-path access-list 1 permit .2042$
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -525,7 +483,7 @@ router bgp 301
   neighbor 132.50.21.2 activate
   neighbor 132.50.21.2 default-originate
   neighbor 132.50.21.2 soft-reconfiguration inbound
-  neighbor 132.50.21.2 prefix-list DEFAULT+AS2042 out
+  neighbor 132.50.21.2 filter-list 1 out
  exit-address-family
  !
  address-family ipv6
@@ -537,7 +495,7 @@ router bgp 301
   neighbor 2000:0:1001:301::2 activate
   neighbor 2000:0:1001:301::2 default-originate
   neighbor 2000:0:1001:301::2 soft-reconfiguration inbound
-  neighbor 2000:0:1001:301::2 prefix-list DEFAULT+AS2042_IPv6 out
+  neighbor 2000:0:1001:301::2 filter-list 1 out
  exit-address-family
 ```
 
