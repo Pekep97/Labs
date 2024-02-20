@@ -17,7 +17,7 @@
 5. Настроим для IPv4 DHCP сервер в офисе Москва на маршрутизаторах R12 и R13. VPC1 и VPC7 получают сетевые настройки по DHCP;
 6. Настроим NTP сервер на R12 и R13. Все устройства в офисе Москва синхронизируют время с R12 и R13.
 
-### 1. Настроим NAT(PAT) на R14 и R15. Трансляция осуществляется в адрес автономной системы AS1001.
+### 1. Настроим NAT(PAT) на R14 и R15. Трансляция осуществляется в адрес автономной системы AS1001:
 
 - Исследуемая схема описана [тут.](https://github.com/Pekep97/Labs/tree/main/Lab_04) Для упрощения понимания задублируем в этой работе только нужное:
 
@@ -108,6 +108,7 @@
 |              | e0/1       | l3:to-R17       | 10.64.20.1    | 255.255.255.252 (/30) | -           | fd00:0:17:18::1     | /112        | fe80::1        |
 |              | e0/2       | l3:to-AS-520    | 24.100.40.6   | 255.255.255.252 (/30) | -           | 2000:0:520:2042::2  | /112        | fe80::1        |
 |              | e0/3       | l3:to-AS-520    | 26.100.40.2   | 255.255.255.252 (/30) | -           | 2000:0:2042:520::2  | /112        | fe80::2        |
+|              | Loopback1  | to_NAT               | 53.17.29.18   | 255.255.255.0(/24)  | -           |   |         |         |
 | R32          | e0/0       | l3:to-R16       | 10.64.20.10   | 255.255.255.252 (/30) | -           | fd00:0:16:32::2     | /112        | fe80::2        |
 | VRRP_R16+R17 | -          | MANAGEMENT_SPB  | 10.58.200.1   | 255.255.255.0 (/24)   | -           | -                   | -           | -              |
 |              | -          | DHCP_SPB        | 192.168.20.1  | 255.255.255.0 (/24)   | -           | -                   | -           | -              |
@@ -137,5 +138,308 @@
 | Чокурдах     | 10     | DHCP_CHKR       |
 |              | 100    | MANAGEMENT_CHKR |
 
-- Создадим интерфейс ***Loopback1*** и назначим IP-адреса согласно [таблице](https://github.com/Pekep97/Labs/tree/main/Lab_10#%D1%82%D0%B0%D0%B1%D0%BB%D0%B8%D1%86%D0%B0-%D0%B0%D0%B4%D1%80%D0%B5%D1%81%D0%BD%D0%BE%D0%B3%D0%BE-%D0%BF%D1%80%D0%BE%D1%81%D1%82%D1%80%D0%B0%D0%BD%D1%81%D1%82%D0%B2%D0%B0) для реализации отказоустойчивости, добавим назначенные сети в IGP протоколы офиса Москва. 
-- Настроим iBGP в офисе Москва между маршрутизаторами R14 и R15, покажем настройку на R14:
+- Создадим интерфейс ***Loopback1*** и назначим IP-адреса согласно [таблице](https://github.com/Pekep97/Labs/blob/main/Lab_12/README.md#%D1%82%D0%B0%D0%B1%D0%BB%D0%B8%D1%86%D0%B0-%D0%B0%D0%B4%D1%80%D0%B5%D1%81%D0%BD%D0%BE%D0%B3%D0%BE-%D0%BF%D1%80%D0%BE%D1%81%D1%82%D1%80%D0%B0%D0%BD%D1%81%D1%82%D0%B2%D0%B0), через который будем реализовывать NAT(PAT) на R14 и R15; для реализации отказоустойчивости, добавим назначенные сети в eBGP протокол офиса Москва и удалим сеть ***192.168.10.0/24*** из протокола.
+- Настроим NAT, eBGP в офисе Москва на R14 и R15 с учетом новых сетей, покажем настройку на R15:
+
+***R15***
+```
+R15#sh run | sec access-list
+
+ip access-list standard NAT
+ permit 192.168.10.0 0.0.0.255
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+R15#sh run inter e0/0
+Building configuration...
+
+Current configuration : 274 bytes
+!
+interface Ethernet0/0
+ description l3:to-R13
+ ip address 10.64.100.14 255.255.255.252
+ ip nat enable
+ ip ospf network point-to-point
+ ipv6 address FE80::2 link-local
+ ipv6 address FD00:0:13:15::2/112
+ ipv6 enable
+ ipv6 ospf 1 area 0
+ ipv6 ospf network point-to-point
+end
+
+R15#sh run inter e0/1
+Building configuration...
+
+Current configuration : 273 bytes
+!
+interface Ethernet0/1
+ description l3:to-R12
+ ip address 10.64.100.6 255.255.255.252
+ ip nat enable
+ ip ospf network point-to-point
+ ipv6 address FE80::2 link-local
+ ipv6 address FD00:0:12:15::2/112
+ ipv6 enable
+ ipv6 ospf 1 area 0
+ ipv6 ospf network point-to-point
+end
+
+R15#sh run inter e0/2
+Building configuration...
+
+Current configuration : 193 bytes
+!
+interface Ethernet0/2
+ description l3:to-AS-301
+ ip address 132.50.21.2 255.255.255.252
+ ip nat enable
+ ipv6 address FE80::2 link-local
+ ipv6 address 2000:0:1001:301::2/112
+ ipv6 enable
+end
+
+R15#sh run inter l1
+Building configuration...
+
+Current configuration : 100 bytes
+!
+interface Loopback1
+ description to_NAT
+ ip address 37.85.13.15 255.255.255.0
+ ip nat enable
+end
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+R15#sh run | sec bgp
+router bgp 1001
+ bgp router-id 15.15.15.15
+ bgp log-neighbor-changes
+ neighbor 2000:0:1001:301::1 remote-as 301
+ neighbor 132.50.21.1 remote-as 301
+ neighbor 172.16.255.14 remote-as 1001
+ neighbor FD00:172:16:255::14 remote-as 1001
+ !
+ address-family ipv4
+  network 10.58.100.0 mask 255.255.255.0
+  network 10.64.100.0 mask 255.255.255.252
+  network 10.64.100.4 mask 255.255.255.252
+  network 10.64.100.8 mask 255.255.255.252
+  network 10.64.100.12 mask 255.255.255.252
+  network 10.64.100.16 mask 255.255.255.252
+  network 10.64.100.20 mask 255.255.255.252
+  network 37.85.13.0 mask 255.255.255.0
+  network 132.50.21.0 mask 255.255.255.252
+  network 172.16.255.15 mask 255.255.255.255
+  no neighbor 2000:0:1001:301::1 activate
+  neighbor 132.50.21.1 activate
+  neighbor 132.50.21.1 next-hop-self
+  neighbor 132.50.21.1 soft-reconfiguration inbound
+  neighbor 132.50.21.1 route-map LP_200 in
+  neighbor 132.50.21.1 filter-list 1 out
+  neighbor 172.16.255.14 activate
+  neighbor 172.16.255.14 next-hop-self
+  no neighbor FD00:172:16:255::14 activate
+ exit-address-family
+ !
+ address-family ipv6
+  network 2000:0:1001:301::/112
+  network FD00:0:12:14::/112
+  network FD00:0:12:15::/112
+  network FD00:0:13:14::/112
+  network FD00:0:13:15::/112
+  network FD00:0:14:19::/112
+  network FD00:0:15:20::/112
+  network FD00:10:58:100::/64
+  network FD00:172:16:255::15/128
+  network FD00:192:168:10::/64
+  neighbor 2000:0:1001:301::1 activate
+  neighbor 2000:0:1001:301::1 next-hop-self
+  neighbor 2000:0:1001:301::1 soft-reconfiguration inbound
+  neighbor 2000:0:1001:301::1 route-map LP_200 in
+  neighbor 2000:0:1001:301::1 filter-list 1 out
+  neighbor FD00:172:16:255::14 activate
+  neighbor FD00:172:16:255::14 next-hop-self
+ exit-address-family
+```
+
+- Проверим работу NAT пропинговав с VPC1 адрес, который находится за пределами  AS1001, например (IPv4 23.100.40.1) и показав статистику NAT-трансляций на R15:
+
+***VPC1***
+```
+VPCS> sh ip
+
+NAME        : VPCS[1]
+IP/MASK     : 192.168.10.10/24
+GATEWAY     : 192.168.10.1
+DNS         : 192.168.10.1
+DHCP SERVER : 192.168.10.5
+DHCP LEASE  : 217526, 217800/108900/190575
+DOMAIN NAME : DHCP_MSK.com
+MAC         : 00:50:79:66:68:01
+LPORT       : 20000
+RHOST:PORT  : 127.0.0.1:30000
+MTU         : 1500
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+VPCS> ping 23.100.40.1
+
+84 bytes from 23.100.40.1 icmp_seq=1 ttl=249 time=2.165 ms
+84 bytes from 23.100.40.1 icmp_seq=2 ttl=249 time=2.565 ms
+84 bytes from 23.100.40.1 icmp_seq=3 ttl=249 time=2.502 ms
+84 bytes from 23.100.40.1 icmp_seq=4 ttl=249 time=2.143 ms
+84 bytes from 23.100.40.1 icmp_seq=5 ttl=249 time=2.247 ms
+```
+
+***R15***
+```
+R15#sh ip nat nvi translations
+Pro Source global      Source local       Destin  local      Destin  global
+udp 37.85.13.15:9200   192.168.10.10:9200 23.100.40.1:9201   23.100.40.1:9201
+udp 37.85.13.15:42384  192.168.10.10:42384 23.100.40.1:42385 23.100.40.1:42385
+```
+
+### 2. Настроим NAT(PAT) на R18. Трансляция осуществляется в пул из 5 адресов автономной системы AS2042:
+
+- Создадим интерфейс ***Loopback1*** и назначим IP-адреса согласно [таблице](https://github.com/Pekep97/Labs/blob/main/Lab_12/README.md#%D1%82%D0%B0%D0%B1%D0%BB%D0%B8%D1%86%D0%B0-%D0%B0%D0%B4%D1%80%D0%B5%D1%81%D0%BD%D0%BE%D0%B3%D0%BE-%D0%BF%D1%80%D0%BE%D1%81%D1%82%D1%80%D0%B0%D0%BD%D1%81%D1%82%D0%B2%D0%B0), через который будем реализовывать NAT(PAT) на R18; добавим назначенную сеть в eBGP протокол офиса С.-Петербург и удалим сеть ***192.168.20.0/24*** из протокола.
+- Создадим ***nat-pool*** в который добавим 5 адресов (53.17.29.1...5), они будут использоваться для NAT-ирования сети ***192.168.20.0/24***;
+- Настроим NAT, eBGP в офисе С.-Петербург на R18 с учетом новой сети, покажем настройку на R18:
+
+***R18***
+```
+R18#sh run | sec ip nat pool
+ip nat pool PAT 53.17.29.1 53.17.29.5 netmask 255.255.255.0
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+R18#sh run | sec access-list
+ip access-list standard NAT
+ permit 192.168.20.0 0.0.0.255
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+R18#sh run inter e0/0
+Building configuration...
+
+Current configuration : 186 bytes
+!
+interface Ethernet0/0
+ description l3:to-R16
+ ip address 10.64.20.5 255.255.255.252
+ ip nat enable
+ ipv6 address FE80::1 link-local
+ ipv6 address FD00:0:16:18::1/112
+ ipv6 enable
+end
+
+R18#sh run inter e0/1
+Building configuration...
+
+Current configuration : 186 bytes
+!
+interface Ethernet0/1
+ description l3:to-R17
+ ip address 10.64.20.1 255.255.255.252
+ ip nat enable
+ ipv6 address FE80::1 link-local
+ ipv6 address FD00:0:17:18::1/112
+ ipv6 enable
+end
+
+R18#sh run inter e0/2
+Building configuration...
+
+Current configuration : 190 bytes
+!
+interface Ethernet0/2
+ description l3:to-R24
+ ip address 24.100.40.6 255.255.255.252
+ ip nat enable
+ ipv6 address FE80::1 link-local
+ ipv6 address 2000:0:520:2042::2/112
+ ipv6 enable
+end
+
+R18#sh run inter l1
+Building configuration...
+
+Current configuration : 80 bytes
+!
+interface Loopback1
+ ip address 53.17.29.18 255.255.255.0
+ ip nat enable
+end
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+R18#sh run | sec bgp
+router bgp 2042
+ bgp router-id 18.18.18.18
+ bgp log-neighbor-changes
+ neighbor 24.100.40.5 remote-as 520
+ neighbor 26.100.40.1 remote-as 520
+ neighbor 2000:0:520:2042::1 remote-as 520
+ neighbor 2000:0:2042:520::1 remote-as 520
+ !
+ address-family ipv4
+  network 10.58.200.0 mask 255.255.255.0
+  network 10.64.20.0 mask 255.255.255.252
+  network 10.64.20.4 mask 255.255.255.252
+  network 10.64.20.8 mask 255.255.255.252
+  network 24.100.40.4 mask 255.255.255.252
+  network 26.100.40.0 mask 255.255.255.252
+  network 53.17.29.0 mask 255.255.255.0
+  neighbor 24.100.40.5 activate
+  neighbor 24.100.40.5 next-hop-self
+  neighbor 24.100.40.5 prefix-list DENY_TRANSIT out
+  neighbor 26.100.40.1 activate
+  neighbor 26.100.40.1 next-hop-self
+  neighbor 26.100.40.1 prefix-list DENY_TRANSIT out
+  no neighbor 2000:0:520:2042::1 activate
+  no neighbor 2000:0:2042:520::1 activate
+  maximum-paths 2
+ exit-address-family
+ ```
+
+- Проверим работу NAT пропинговав с VPC8 адрес, который находится за пределами  AS1001, например (IPv4 23.100.40.1) и показав статистику NAT-трансляций на R18:
+
+***VPC8***
+```
+VPCS> ping 23.100.40.1
+
+84 bytes from 23.100.40.1 icmp_seq=1 ttl=252 time=1.406 ms
+84 bytes from 23.100.40.1 icmp_seq=2 ttl=252 time=1.601 ms
+84 bytes from 23.100.40.1 icmp_seq=3 ttl=252 time=1.702 ms
+84 bytes from 23.100.40.1 icmp_seq=4 ttl=252 time=1.431 ms
+84 bytes from 23.100.40.1 icmp_seq=5 ttl=252 time=1.665 ms
+```
+
+***R18***
+```
+R18#sh ip nat nvi translations
+Pro Source global      Source local       Destin  local      Destin  global
+icmp 53.17.29.1:5289   192.168.20.6:5289  23.100.40.1:5289   23.100.40.1:5289
+icmp 53.17.29.1:5545   192.168.20.6:5545  23.100.40.1:5545   23.100.40.1:5545
+icmp 53.17.29.1:5801   192.168.20.6:5801  23.100.40.1:5801   23.100.40.1:5801
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+R18#sh ip nat nvi statistics
+Total active translations: 5 (0 static, 5 dynamic; 5 extended)
+NAT Enabled interfaces:
+  Ethernet0/0, Ethernet0/1, Ethernet0/2, Loopback1
+Hits: 17  Misses: 20
+CEF Translated packets: 20, CEF Punted packets: 0
+Expired translations: 15
+Dynamic mappings:
+-- Source [Id: 1] access-list NAT pool PAT refcount 5
+ pool PAT: netmask 255.255.255.0
+        start 53.17.29.1 end 53.17.29.5
+        type generic, total addresses 5, allocated 1 (20%), misses 0
+```
+
+### 3. Настроим статический NAT для R20:
+
+
+
