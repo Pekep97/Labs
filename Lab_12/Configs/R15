@@ -1,0 +1,192 @@
+R15#sh run
+Building configuration...
+
+Current configuration : 5027 bytes
+!
+! Last configuration change at 14:54:42 MSK Wed Feb 21 2024 by admin
+! NVRAM config last updated at 15:21:35 MSK Wed Feb 21 2024 by admin
+!
+version 15.4
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname R15
+!
+boot-start-marker
+boot-end-marker
+!
+enable secret 5 $1$/yqZ$WE/0YR0XnODtDBsZeUD1j/
+!
+no aaa new-model
+clock timezone MSK 3 0
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+multilink bundle-name authenticated
+!
+username admin privilege 15 secret 5 $1$U/Md$PI1HGnXQGVMa2VSKDea6M.
+!
+redundancy
+!
+interface Loopback0
+ ip address 172.16.255.15 255.255.255.255
+ ipv6 address FE80::1 link-local
+ ipv6 address FD00:172:16:255::15/128
+ ipv6 enable
+ ipv6 ospf 1 area 0
+!
+interface Loopback1
+ description to_NAT
+ ip address 37.85.13.15 255.255.255.0
+ ip nat enable
+!
+interface Ethernet0/0
+ description l3:to-R13
+ ip address 10.64.100.14 255.255.255.252
+ ip nat enable
+ ip ospf network point-to-point
+ ipv6 address FE80::2 link-local
+ ipv6 address FD00:0:13:15::2/112
+ ipv6 enable
+ ipv6 ospf 1 area 0
+ ipv6 ospf network point-to-point
+!
+interface Ethernet0/1
+ description l3:to-R12
+ ip address 10.64.100.6 255.255.255.252
+ ip nat enable
+ ip ospf network point-to-point
+ ipv6 address FE80::2 link-local
+ ipv6 address FD00:0:12:15::2/112
+ ipv6 enable
+ ipv6 ospf 1 area 0
+ ipv6 ospf network point-to-point
+!
+interface Ethernet0/2
+ description l3:to-AS-301
+ ip address 132.50.21.2 255.255.255.252
+ ip nat enable
+ ipv6 address FE80::2 link-local
+ ipv6 address 2000:0:1001:301::2/112
+ ipv6 enable
+!
+interface Ethernet0/3
+ description l3:to-R20
+ ip address 10.64.100.17 255.255.255.252
+ ip nat enable
+ ip ospf network point-to-point
+ ipv6 address FE80::2 link-local
+ ipv6 address FD00:0:15:20::1/112
+ ipv6 enable
+ ipv6 ospf 1 area 102
+ ipv6 ospf network point-to-point
+!
+router ospf 1
+ router-id 15.15.15.15
+ area 102 filter-list prefix area_101_deny in
+ passive-interface Ethernet0/2
+ network 10.64.100.4 0.0.0.3 area 0
+ network 10.64.100.12 0.0.0.3 area 0
+ network 10.64.100.16 0.0.0.3 area 102
+ network 172.16.255.15 0.0.0.0 area 0
+ default-information originate always
+!
+router bgp 1001
+ bgp router-id 15.15.15.15
+ bgp log-neighbor-changes
+ neighbor 2000:0:1001:301::1 remote-as 301
+ neighbor 132.50.21.1 remote-as 301
+ neighbor 172.16.255.14 remote-as 1001
+ neighbor FD00:172:16:255::14 remote-as 1001
+ !
+ address-family ipv4
+  network 10.58.100.0 mask 255.255.255.0
+  network 10.64.100.0 mask 255.255.255.252
+  network 10.64.100.4 mask 255.255.255.252
+  network 10.64.100.8 mask 255.255.255.252
+  network 10.64.100.12 mask 255.255.255.252
+  network 10.64.100.20 mask 255.255.255.252
+  network 37.85.13.0 mask 255.255.255.0
+  network 132.50.21.0 mask 255.255.255.252
+  network 172.16.255.15 mask 255.255.255.255
+  no neighbor 2000:0:1001:301::1 activate
+  neighbor 132.50.21.1 activate
+  neighbor 132.50.21.1 next-hop-self
+  neighbor 132.50.21.1 soft-reconfiguration inbound
+  neighbor 132.50.21.1 route-map LP_200 in
+  neighbor 132.50.21.1 filter-list 1 out
+  neighbor 172.16.255.14 activate
+  neighbor 172.16.255.14 next-hop-self
+  no neighbor FD00:172:16:255::14 activate
+ exit-address-family
+ !
+ address-family ipv6
+  network 2000:0:1001:301::/112
+  network FD00:0:12:14::/112
+  network FD00:0:12:15::/112
+  network FD00:0:13:14::/112
+  network FD00:0:13:15::/112
+  network FD00:0:14:19::/112
+  network FD00:0:15:20::/112
+  network FD00:10:58:100::/64
+  network FD00:172:16:255::15/128
+  network FD00:192:168:10::/64
+  neighbor 2000:0:1001:301::1 activate
+  neighbor 2000:0:1001:301::1 next-hop-self
+  neighbor 2000:0:1001:301::1 soft-reconfiguration inbound
+  neighbor 2000:0:1001:301::1 route-map LP_200 in
+  neighbor 2000:0:1001:301::1 filter-list 1 out
+  neighbor FD00:172:16:255::14 activate
+  neighbor FD00:172:16:255::14 next-hop-self
+ exit-address-family
+!
+ip forward-protocol nd
+!
+ip as-path access-list 1 permit ^$
+!
+no ip http server
+no ip http secure-server
+ip nat source list NAT interface Loopback1 overload
+ip nat source static 10.64.100.18 37.85.13.20
+ip nat source static tcp 10.64.100.22 22 37.85.13.22 22 extendable
+!
+ip access-list standard NAT
+ permit 192.168.10.0 0.0.0.255
+!
+ip prefix-list area_101_deny seq 5 deny 10.64.100.20/30
+ip prefix-list area_101_deny seq 10 permit 0.0.0.0/0 le 32
+ipv6 router ospf 1
+ router-id 15.15.15.15
+ area 102 filter-list prefix area_101_deny in
+ passive-interface Ethernet0/2
+!
+ipv6 prefix-list area_101_deny seq 5 deny FD00:0:14:19::/112
+ipv6 prefix-list area_101_deny seq 10 permit ::/0 le 128
+route-map LP_200 permit 10
+ set local-preference 200
+!
+control-plane
+!
+banner motd ^C unauthorized access prohibited ^C
+!
+line con 0
+ password cisco
+ logging synchronous
+ login local
+line aux 0
+line vty 0 4
+ password cisco
+ login
+ transport input none
+!
+ntp server 172.16.255.12 source Loopback0
+ntp server 172.16.255.13 source Loopback0
+!
+end
