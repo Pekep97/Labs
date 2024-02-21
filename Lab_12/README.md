@@ -23,7 +23,7 @@
 
 ### Исследуемая схема:
 
-![Исследуемая схема](https://github.com/Pekep97/Labs/blob/main/Lab_04/Lab_04.png)
+![Исследуемая схема](https://github.com/Pekep97/Labs/blob/main/Lab_12/Lab_12.png)
 
 ### Таблица адресного пространства:
 
