@@ -1,0 +1,204 @@
+R18#sh run
+Building configuration...
+
+Current configuration : 5043 bytes
+!
+! Last configuration change at 16:15:10 MSK Tue Feb 20 2024 by admin
+!
+version 15.4
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname R18
+!
+boot-start-marker
+boot-end-marker
+!
+enable secret 5 $1$/yqZ$WE/0YR0XnODtDBsZeUD1j/
+!
+no aaa new-model
+clock timezone MSK 3 0
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+multilink bundle-name authenticated
+!
+username admin privilege 15 secret 5 $1$U/Md$PI1HGnXQGVMa2VSKDea6M.
+!
+redundancy
+!
+interface Loopback1
+ ip address 53.17.29.18 255.255.255.0
+ ip nat enable
+!
+interface Ethernet0/0
+ description l3:to-R16
+ ip address 10.64.20.5 255.255.255.252
+ ip nat enable
+ ipv6 address FE80::1 link-local
+ ipv6 address FD00:0:16:18::1/112
+ ipv6 enable
+!
+interface Ethernet0/1
+ description l3:to-R17
+ ip address 10.64.20.1 255.255.255.252
+ ip nat enable
+ ipv6 address FE80::1 link-local
+ ipv6 address FD00:0:17:18::1/112
+ ipv6 enable
+!
+interface Ethernet0/2
+ description l3:to-R24
+ ip address 24.100.40.6 255.255.255.252
+ ip nat enable
+ ipv6 address FE80::1 link-local
+ ipv6 address 2000:0:520:2042::2/112
+ ipv6 enable
+!
+interface Ethernet0/3
+ description l3:to-R26
+ ip address 26.100.40.2 255.255.255.252
+ ipv6 address FE80::2 link-local
+ ipv6 address 2000:0:2042:520::2/112
+ ipv6 enable
+!
+router eigrp NAMED
+ !
+ address-family ipv4 unicast autonomous-system 1
+  !
+  af-interface Ethernet0/0
+   summary-address 0.0.0.0 0.0.0.0
+  exit-af-interface
+  !
+  af-interface Ethernet0/1
+   summary-address 0.0.0.0 0.0.0.0
+  exit-af-interface
+  !
+  topology base
+  exit-af-topology
+  network 10.64.20.0 0.0.0.3
+  eigrp router-id 18.18.18.18
+ exit-address-family
+!
+router eigrp NAMED_v6
+ !
+ address-family ipv6 unicast autonomous-system 1
+  !
+  af-interface default
+   shutdown
+  exit-af-interface
+  !
+  af-interface Ethernet0/2
+   passive-interface
+  exit-af-interface
+  !
+  af-interface Ethernet0/3
+   passive-interface
+  exit-af-interface
+  !
+  af-interface Ethernet0/0
+   summary-address ::/0
+   no shutdown
+  exit-af-interface
+  !
+  af-interface Ethernet0/1
+   summary-address ::/0
+   no shutdown
+  exit-af-interface
+  !
+  topology base
+  exit-af-topology
+  eigrp router-id 18.18.18.18
+ exit-address-family
+!
+router bgp 2042
+ bgp router-id 18.18.18.18
+ bgp log-neighbor-changes
+ neighbor 24.100.40.5 remote-as 520
+ neighbor 26.100.40.1 remote-as 520
+ neighbor 2000:0:520:2042::1 remote-as 520
+ neighbor 2000:0:2042:520::1 remote-as 520
+ !
+ address-family ipv4
+  network 10.58.200.0 mask 255.255.255.0
+  network 10.64.20.0 mask 255.255.255.252
+  network 10.64.20.4 mask 255.255.255.252
+  network 10.64.20.8 mask 255.255.255.252
+  network 24.100.40.4 mask 255.255.255.252
+  network 26.100.40.0 mask 255.255.255.252
+  network 53.17.29.0 mask 255.255.255.0
+  neighbor 24.100.40.5 activate
+  neighbor 24.100.40.5 next-hop-self
+  neighbor 24.100.40.5 prefix-list DENY_TRANSIT out
+  neighbor 26.100.40.1 activate
+  neighbor 26.100.40.1 next-hop-self
+  neighbor 26.100.40.1 prefix-list DENY_TRANSIT out
+  no neighbor 2000:0:520:2042::1 activate
+  no neighbor 2000:0:2042:520::1 activate
+  maximum-paths 2
+ exit-address-family
+ !
+ address-family ipv6
+  maximum-paths 2
+  network 2000:0:520:2042::/112
+  network 2000:0:2042:520::/112
+  network FD00:0:16:18::/112
+  network FD00:0:16:32::/112
+  network FD00:0:17:18::/112
+  network FD00:10:58:200::/64
+  network FD00:192:168:20::/64
+  neighbor 2000:0:520:2042::1 activate
+  neighbor 2000:0:520:2042::1 next-hop-self
+  neighbor 2000:0:520:2042::1 prefix-list DENY_TRANSIT_IPv6 out
+  neighbor 2000:0:2042:520::1 activate
+  neighbor 2000:0:2042:520::1 next-hop-self
+  neighbor 2000:0:2042:520::1 prefix-list DENY_TRANSIT_IPv6 out
+ exit-address-family
+!
+ip forward-protocol nd
+!
+no ip http server
+no ip http secure-server
+ip nat pool PAT 53.17.29.1 53.17.29.5 netmask 255.255.255.0
+ip nat source list NAT pool PAT overload
+!
+ip access-list standard NAT
+ permit 192.168.20.0 0.0.0.255
+!
+ip prefix-list DENY_TRANSIT seq 5 permit 10.64.20.0/30
+ip prefix-list DENY_TRANSIT seq 10 permit 10.64.20.4/30
+ip prefix-list DENY_TRANSIT seq 15 permit 10.64.20.8/30
+ip prefix-list DENY_TRANSIT seq 20 permit 10.58.200.0/24
+ip prefix-list DENY_TRANSIT seq 25 permit 192.168.20.0/24
+ip prefix-list DENY_TRANSIT seq 30 permit 53.17.29.0/24
+!
+ipv6 prefix-list DENY_TRANSIT_IPv6 seq 5 permit FD00:0:16:18::/112
+ipv6 prefix-list DENY_TRANSIT_IPv6 seq 10 permit FD00:0:16:32::/112
+ipv6 prefix-list DENY_TRANSIT_IPv6 seq 15 permit FD00:0:17:18::/112
+ipv6 prefix-list DENY_TRANSIT_IPv6 seq 20 permit FD00:10:58:200::/64
+ipv6 prefix-list DENY_TRANSIT_IPv6 seq 25 permit FD00:192:168:20::/64
+route-map SET_PERP_x3 permit 10
+ set as-path prepend 2042 2042 2042
+!
+control-plane
+!
+banner motd ^C unauthorized access prohibited ^C
+!
+line con 0
+ password cisco
+ logging synchronous
+ login local
+line aux 0
+line vty 0 4
+ password cisco
+ login
+ transport input none
+!
+end
