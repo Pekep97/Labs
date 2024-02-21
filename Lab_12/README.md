@@ -15,7 +15,8 @@
 4. Настроим NAT так, чтобы R19 был доступен с любого узла для удаленного управления;
   4*. Настроим статический NAT(PAT) для офиса Чокурдах;
 5. Настроим для IPv4 DHCP сервер в офисе Москва на маршрутизаторах R12 и R13. VPC1 и VPC7 получают сетевые настройки по DHCP;
-6. Настроим NTP сервер на R12 и R13. Все устройства в офисе Москва синхронизируют время с R12 и R13.
+6. Настроим NTP сервер на R12 и R13. Все устройства в офисе Москва синхронизируют время с R12 и R13;
+7. Проверим все сети в лабораторной работе на IP связность и задокументируем все изменения.
 
 ### 1. Настроим NAT(PAT) на R14 и R15. Трансляция осуществляется в адрес автономной системы AS1001:
 
@@ -626,3 +627,191 @@ ip nat pool VPC31 63.47.15.31 63.47.15.31 netmask 255.255.255.0
 
 ### 6. Настроим NTP сервер на R12 и R13. Все устройства в офисе Москва синхронизируют время с R12 и R13:
 
+- Создадим интерфейс ***Loopback0*** на R12 и R13 и назначим IP-адреса согласно [таблице](https://github.com/Pekep97/Labs/blob/main/Lab_12/README.md#%D1%82%D0%B0%D0%B1%D0%BB%D0%B8%D1%86%D0%B0-%D0%B0%D0%B4%D1%80%D0%B5%D1%81%D0%BD%D0%BE%D0%B3%D0%BE-%D0%BF%D1%80%D0%BE%D1%81%D1%82%D1%80%D0%B0%D0%BD%D1%81%D1%82%D0%B2%D0%B0), который будем использовать в качестве NTP-сервера и покажем настройку на R13:
+
+***R13***
+```
+R13#sh run inter l0
+!
+interface Loopback0
+ ip address 172.16.255.13 255.255.255.255
+end
+!!!!!!!!!!!!!!!!!!!!!!
+R13#sh run | sec ntp
+ntp logging
+ntp source Loopback0
+ntp master 13
+ntp update-calendar
+```
+
+- Настроим все остальные устройства в качестве клиентов, покажем пример настройки на SW2:
+
+***SW2***
+```
+SW2#sh run | sec ntp
+ntp server 172.16.255.12 source Vlan100
+ntp server 172.16.255.13 source Vlan100
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+SW2#sh ntp associations
+
+  address         ref clock       st   when   poll reach  delay  offset   disp
++~172.16.255.12   127.127.1.1     12     51     64    77  1.000   0.500  2.925
+*~172.16.255.13   127.127.1.1     13     55     64    77  1.000   0.500  2.898
+ * sys.peer, # selected, + candidate, - outlyer, x falseticker, ~ configured
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+SW2#sh clock detail
+*15:07:59.513 MSK Wed Feb 21 2024
+Time source is NTP
+```
+
+### 7. Проверим все сети в лабораторной работе на IP связность и задокументируем все изменения:
+
+- Продемонстрируем IP-связность показав полную таблицу маршрутизации на R27, так как он наиболее отдален от всех AS:
+
+***R27_IPv4***
+```
+R27#sh ip rou bgp
+Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP
+       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area
+       N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2
+       E1 - OSPF external type 1, E2 - OSPF external type 2
+       i - IS-IS, su - IS-IS summary, L1 - IS-IS level-1, L2 - IS-IS level-2
+       ia - IS-IS inter area, * - candidate default, U - per-user static route
+       o - ODR, P - periodic downloaded static route, H - NHRP, l - LISP
+       a - application route
+       + - replicated route, % - next hop override
+
+Gateway of last resort is not set
+
+      2.0.0.0/30 is subnetted, 1 subnets
+B        2.2.2.0 [20/0] via 1.1.1.2, 2w6d
+      3.0.0.0/30 is subnetted, 1 subnets
+B        3.3.3.0 [20/0] via 1.1.1.2, 2w6d
+      10.0.0.0/8 is variably subnetted, 14 subnets, 2 masks
+B        10.58.10.0/24 [20/0] via 1.1.1.2, 04:20:53
+B        10.58.100.0/24 [20/0] via 1.1.1.2, 00:30:42
+B        10.58.200.0/24 [20/0] via 1.1.1.2, 22:54:01
+B        10.64.20.0/30 [20/0] via 1.1.1.2, 22:54:01
+B        10.64.20.4/30 [20/0] via 1.1.1.2, 22:54:01
+B        10.64.52.0/30 [20/0] via 1.1.1.2, 2w6d
+B        10.64.52.4/30 [20/0] via 1.1.1.2, 2w6d
+B        10.64.52.8/30 [20/0] via 1.1.1.2, 2w6d
+B        10.64.52.12/30 [20/0] via 1.1.1.2, 2w6d
+B        10.64.100.0/30 [20/0] via 1.1.1.2, 00:30:42
+B        10.64.100.4/30 [20/0] via 1.1.1.2, 00:30:42
+B        10.64.100.8/30 [20/0] via 1.1.1.2, 00:30:42
+B        10.64.100.12/30 [20/0] via 1.1.1.2, 00:30:42
+B        10.64.100.20/30 [20/0] via 1.1.1.2, 00:30:42
+      21.0.0.0/30 is subnetted, 1 subnets
+B        21.22.100.0 [20/0] via 1.1.1.2, 1d22h
+      23.0.0.0/30 is subnetted, 1 subnets
+B        23.100.40.0 [20/0] via 1.1.1.2, 2w6d
+      24.0.0.0/30 is subnetted, 2 subnets
+B        24.100.40.0 [20/0] via 1.1.1.2, 2w6d
+B        24.100.40.4 [20/0] via 1.1.1.2, 2w6d
+      26.0.0.0/30 is subnetted, 1 subnets
+B        26.100.40.0 [20/0] via 1.1.1.2, 2w6d
+      37.0.0.0/24 is subnetted, 1 subnets
+B        37.85.13.0 [20/0] via 1.1.1.2, 00:30:42
+      49.0.0.0/24 is subnetted, 1 subnets
+B        49.28.35.0 [20/0] via 1.1.1.2, 00:30:42
+      53.0.0.0/24 is subnetted, 1 subnets
+B        53.17.29.0 [20/0] via 1.1.1.2, 22:54:01
+      63.0.0.0/24 is subnetted, 1 subnets
+B        63.47.15.0 [20/0] via 1.1.1.2, 04:20:53
+      85.0.0.0/30 is subnetted, 1 subnets
+B        85.10.22.0 [20/0] via 1.1.1.2, 1d22h
+      132.50.0.0/30 is subnetted, 1 subnets
+B        132.50.21.0 [20/0] via 1.1.1.2, 1d19h
+      172.16.0.0/32 is subnetted, 8 subnets
+B        172.16.255.14 [20/0] via 1.1.1.2, 00:30:42
+B        172.16.255.15 [20/0] via 1.1.1.2, 00:30:42
+B        172.16.255.23 [20/0] via 1.1.1.2, 2w6d
+B        172.16.255.24 [20/0] via 1.1.1.2, 2w6d
+B        172.16.255.25 [20/0] via 1.1.1.2, 2w6d
+B        172.16.255.26 [20/0] via 1.1.1.2, 2w6d
+B        172.16.255.28 [20/0] via 1.1.1.2, 04:20:53
+B     192.168.100.0/24 [20/0] via 1.1.1.2, 04:20:53
+```
+
+***R27_IPv6***
+```
+R27#sh ipv6 rou bgp
+IPv6 Routing Table - default - 37 entries
+Codes: C - Connected, L - Local, S - Static, U - Per-user Static route
+       B - BGP, HA - Home Agent, MR - Mobile Router, R - RIP
+       H - NHRP, I1 - ISIS L1, I2 - ISIS L2, IA - ISIS interarea
+       IS - ISIS summary, D - EIGRP, EX - EIGRP external, NM - NEMO
+       ND - ND Default, NDp - ND Prefix, DCE - Destination, NDr - Redirect
+       O - OSPF Intra, OI - OSPF Inter, OE1 - OSPF ext 1, OE2 - OSPF ext 2
+       ON1 - OSPF NSSA ext 1, ON2 - OSPF NSSA ext 2, la - LISP alt
+       lr - LISP site-registrations, ld - LISP dyn-eid, a - Application
+B   2000:0:301:101::/112 [20/0]
+     via FE80::2, Ethernet0/0
+B   2000:0:520:101::/112 [20/0]
+     via FE80::2, Ethernet0/0
+B   2000:0:520:301::/112 [20/20]
+     via FE80::2, Ethernet0/0
+B   2000:0:520:2042::/112 [20/20]
+     via FE80::2, Ethernet0/0
+B   2000:0:520:2222::/112 [20/0]
+     via FE80::2, Ethernet0/0
+B   2000:0:520:3333::/112 [20/10]
+     via FE80::2, Ethernet0/0
+B   2000:0:1001:101::/112 [20/0]
+     via FE80::2, Ethernet0/0
+B   2000:0:1001:301::/112 [20/0]
+     via FE80::2, Ethernet0/0
+B   2000:0:2042:520::/112 [20/10]
+     via FE80::2, Ethernet0/0
+B   FD00:0:12:14::/112 [20/0]
+     via FE80::2, Ethernet0/0
+B   FD00:0:12:15::/112 [20/0]
+     via FE80::2, Ethernet0/0
+B   FD00:0:13:14::/112 [20/0]
+     via FE80::2, Ethernet0/0
+B   FD00:0:13:15::/112 [20/0]
+     via FE80::2, Ethernet0/0
+B   FD00:0:14:19::/112 [20/0]
+     via FE80::2, Ethernet0/0
+B   FD00:0:15:20::/112 [20/0]
+     via FE80::2, Ethernet0/0
+B   FD00:0:16:18::/112 [20/0]
+     via FE80::2, Ethernet0/0
+B   FD00:0:17:18::/112 [20/0]
+     via FE80::2, Ethernet0/0
+B   FD00:0:23:24::/112 [20/0]
+     via FE80::2, Ethernet0/0
+B   FD00:0:23:25::/112 [20/0]
+     via FE80::2, Ethernet0/0
+B   FD00:0:24:26::/112 [20/20]
+     via FE80::2, Ethernet0/0
+B   FD00:0:25:26::/112 [20/0]
+     via FE80::2, Ethernet0/0
+B   FD00:10:58:10::/64 [20/0]
+     via FE80::2, Ethernet0/0
+B   FD00:10:58:100::/64 [20/0]
+     via FE80::2, Ethernet0/0
+B   FD00:10:58:200::/64 [20/0]
+     via FE80::2, Ethernet0/0
+B   FD00:172:16:255::14/128 [20/0]
+     via FE80::2, Ethernet0/0
+B   FD00:172:16:255::15/128 [20/0]
+     via FE80::2, Ethernet0/0
+B   FD00:172:16:255::23/128 [20/0]
+     via FE80::2, Ethernet0/0
+B   FD00:172:16:255::24/128 [20/30]
+     via FE80::2, Ethernet0/0
+B   FD00:172:16:255::25/128 [20/0]
+     via FE80::2, Ethernet0/0
+B   FD00:172:16:255::26/128 [20/20]
+     via FE80::2, Ethernet0/0
+B   FD00:172:16:255::28/128 [20/0]
+     via FE80::2, Ethernet0/0
+B   FD00:192:168:10::/64 [20/0]
+     via FE80::2, Ethernet0/0
+B   FD00:192:168:100::/64 [20/0]
+     via FE80::2, Ethernet0/0
+```
+
+Все изменения задокументированы [здесь.]()
