@@ -469,3 +469,72 @@ tcp 37.85.13.22:22     10.64.100.22:22    ---                ---
 ```
 
 ### 4. Настроим NAT так, чтобы R19 был доступен с любого узла для удаленного управления;
+
+- Настроим на R19 возможность подключения по SSH:
+
+***R19***
+```
+hostname R19
+!
+enable secret 5 $1$/yqZ$WE/0YR0XnODtDBsZeUD1j/
+!
+aaa new-model
+!
+ip domain name OTUS
+!
+username admin privilege 15 secret 5 $1$U/Md$PI1HGnXQGVMa2VSKDea6M.
+!
+ip ssh version 2
+!
+line vty 0 2
+ password cisco
+ transport input ssh
+```
+
+- На R14, R15 настроим статический NAT с IP-адресов ***49.28.35.22***, ***37.85.13.22*** с пробросом порта SSH (22) на ***10.64.100.22***;
+- Покажем настройку на R15:
+
+***R15***
+```
+ip nat source static tcp 10.64.100.22 22 37.85.13.22 22 extendable
+```
+
+- Проверим работу NAT пропинговав IP-адреса  ***49.28.35.22***, ***37.85.13.22*** с R27 (результат должнен быть отрицателен для IP ***49.28.35.22*** пока есть в сети R15, так как он настроен приоритетным в AS1001), а затем подключимся к этим адресам через SSH с маршрутизатора R27 (результат должнен быть отрицателен для IP ***49.28.35.22*** пока есть в сети R15, так как он настроен приоритетным в AS1001):
+
+***R27***
+```
+R27#ping 37.85.13.22
+Type escape sequence to abort.
+Sending 5, 100-byte ICMP Echos to 37.85.13.22, timeout is 2 seconds:
+!!!!!
+Success rate is 100 percent (5/5), round-trip min/avg/max = 1/1/1 ms
+!
+R27#ping 49.28.35.22
+Type escape sequence to abort.
+Sending 5, 100-byte ICMP Echos to 49.28.35.22, timeout is 2 seconds:
+.....
+Success rate is 0 percent (0/5)
+!
+R27#ssh 37.85.13.22
+Password:
+ unauthorized access prohibited
+R19>exit
+!
+[Connection to 37.85.13.22 closed by foreign host]
+R27#ssh 49.28.35.22
+R27#
+```
+- Покажем NAT-трансляции на R15:
+
+***R15***
+```
+R15#sh ip nat nvi translations
+Pro Source global      Source local       Destin  local      Destin  global
+tcp 1.1.1.1:39191      1.1.1.1:39191      37.85.13.22:22     10.64.100.22:22
+--- 37.85.13.20        10.64.100.18       ---                ---
+tcp 37.85.13.22:22     10.64.100.22:22    ---                ---
+```
+
+### 4*. Настроим статический NAT(PAT) для офиса Чокурдах:
+
+
