@@ -1,0 +1,120 @@
+SW4#sh run
+Building configuration...
+
+Current configuration : 2484 bytes
+!
+! Last configuration change at 14:55:43 MSK Wed Feb 21 2024 by admin
+! NVRAM config last updated at 14:55:45 MSK Wed Feb 21 2024 by admin
+!
+version 15.2
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+service compress-config
+!
+hostname SW4
+!
+boot-start-marker
+boot-end-marker
+!
+enable secret 5 $1$/yqZ$WE/0YR0XnODtDBsZeUD1j/
+!
+username admin privilege 15 secret 5 $1$6BQ4$2t2Prcmn8fdBuJ9sZYMSs/
+no aaa new-model
+clock timezone MSK 3 0
+!
+ip dhcp snooping vlan 10
+ip dhcp snooping
+no ip domain-lookup
+ip cef
+no ipv6 cef
+!
+!
+spanning-tree mode pvst
+spanning-tree extend system-id
+!
+vlan internal allocation policy ascending
+!
+interface Port-channel45
+ switchport trunk allowed vlan 10,100
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ ip dhcp snooping trust
+!
+interface Ethernet0/0
+ switchport trunk allowed vlan 10,100
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ ip dhcp snooping trust
+!
+interface Ethernet0/1
+ switchport trunk allowed vlan 10,100
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ ip dhcp snooping trust
+!
+interface Ethernet0/2
+ switchport trunk allowed vlan 10,100
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ channel-protocol lacp
+ channel-group 45 mode passive
+!
+interface Ethernet0/3
+ switchport trunk allowed vlan 10,100
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ channel-protocol lacp
+ channel-group 45 mode passive
+!
+interface Ethernet1/0
+ switchport trunk allowed vlan 100
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ spanning-tree bpdufilter enable
+!
+interface Ethernet1/1
+ switchport trunk allowed vlan 10
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ spanning-tree bpdufilter enable
+ ip dhcp snooping trust
+!
+interface Ethernet1/2
+!
+interface Ethernet1/3
+!
+interface Vlan10
+ no ip address
+!
+interface Vlan100
+ ip address 10.58.100.14 255.255.255.0
+ ipv6 address FE80::4 link-local
+ ipv6 address FD00:10:58:100::4/64
+ ipv6 enable
+!
+ip default-gateway 10.58.100.1
+ip forward-protocol nd
+!
+no ip http server
+no ip http secure-server
+!
+ip route 0.0.0.0 0.0.0.0 10.58.100.1
+!
+control-plane
+!
+banner motd ^C unauthorized access prohibited ^C
+!
+line con 0
+ password cisco
+ logging synchronous
+ login local
+line aux 0
+line vty 0 4
+ password cisco
+ login
+!
+ntp server 172.16.255.12 source Vlan100
+ntp server 172.16.255.13 source Vlan100
+!
+end
