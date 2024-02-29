@@ -1,0 +1,239 @@
+R28#sh run
+Building configuration...
+
+Current configuration : 5397 bytes
+!
+! Last configuration change at 14:11:16 MSK Thu Feb 29 2024 by admin
+!
+version 15.4
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname R28
+!
+boot-start-marker
+boot-end-marker
+!
+enable secret 5 $1$/yqZ$WE/0YR0XnODtDBsZeUD1j/
+!
+no aaa new-model
+clock timezone MSK 3 0
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+ip dhcp excluded-address 192.168.100.1 192.168.100.5
+!
+ip dhcp pool DHCP_CHKR
+ network 192.168.100.0 255.255.255.0
+ default-router 192.168.100.1
+ dns-server 192.168.100.1
+ domain-name DHCP_CHKR.com
+ lease 2 12 30
+!
+ip dhcp pool VPC30
+ host 192.168.100.30 255.255.255.0
+ client-identifier 0100.5079.6668.1e
+!
+ip dhcp pool VPC31
+ host 192.168.100.31 255.255.255.0
+ client-identifier 0100.5079.6668.1f
+!
+no ip domain lookup
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+multilink bundle-name authenticated
+!
+username admin privilege 15 secret 5 $1$U/Md$PI1HGnXQGVMa2VSKDea6M.
+!
+redundancy
+!
+track 1 ip sla 1 reachability
+ delay down 10 up 5
+!
+interface Loopback0
+ ip address 172.16.255.28 255.255.255.255
+ ipv6 address FE80::1 link-local
+ ipv6 address FD00:172:16:255::28/128
+ ipv6 enable
+!
+interface Loopback1
+ description to_NAT
+ ip address 63.47.15.28 255.255.255.0
+ ip nat enable
+!
+interface Tunnel1
+ ip address 10.0.1.3 255.255.255.0
+ no ip redirects
+ ip mtu 1400
+ ip nhrp map multicast 37.85.13.15
+ ip nhrp map 10.0.1.1 37.85.13.15
+ ip nhrp network-id 1
+ ip nhrp nhs 10.0.1.1
+ ip tcp adjust-mss 1360
+ ip ospf network broadcast
+ ip ospf priority 0
+ tunnel source Loopback1
+ tunnel mode gre multipoint
+!
+interface Ethernet0/0
+ description l3:to-AS-520
+ ip address 3.3.3.1 255.255.255.252
+ ip nat enable
+ shutdown
+ ipv6 address FE80::2 link-local
+ ipv6 address 2000:0:520:3333::1/112
+ ipv6 enable
+!
+interface Ethernet0/1
+ description l3:to-AS-520
+ ip address 2.2.2.1 255.255.255.252
+ ip nat enable
+ ipv6 address FE80::1 link-local
+ ipv6 address 2000:0:520:2222::1/112
+ ipv6 enable
+!
+interface Ethernet0/2
+ no ip address
+!
+interface Ethernet0/2.10
+ description DHCP_CHKR
+ encapsulation dot1Q 10
+ ip address 192.168.100.1 255.255.255.0
+ ip nat enable
+ ip policy route-map permit_to-R25
+ ipv6 address FE80::1 link-local
+ ipv6 address FD00:192:168:100::1/64
+ ipv6 enable
+!
+interface Ethernet0/2.100
+ description MANAGEMENT_CHKR
+ encapsulation dot1Q 100
+ ip address 10.58.10.1 255.255.255.0
+ ip policy route-map permit_to-R26
+ ipv6 address FE80::1 link-local
+ ipv6 address FD00:10:58:10::1/64
+ ipv6 enable
+!
+interface Ethernet0/3
+ no ip address
+ shutdown
+!
+interface Ethernet1/0
+ no ip address
+ shutdown
+!
+interface Ethernet1/1
+ no ip address
+ shutdown
+!
+interface Ethernet1/2
+ no ip address
+ shutdown
+!
+interface Ethernet1/3
+ no ip address
+ shutdown
+!
+router ospf 1
+ router-id 28.28.28.28
+ network 10.0.1.0 0.0.0.255 area 1001
+!
+router bgp 2222
+ bgp router-id 28.28.28.28
+ bgp log-neighbor-changes
+ neighbor 2.2.2.2 remote-as 520
+ neighbor 3.3.3.2 remote-as 520
+ neighbor 2000:0:520:2222::2 remote-as 520
+ neighbor 2000:0:520:3333::2 remote-as 520
+ !
+ address-family ipv4
+  network 2.2.2.0 mask 255.255.255.252
+  network 3.3.3.0 mask 255.255.255.252
+  network 10.58.10.0 mask 255.255.255.0
+  network 63.47.15.0 mask 255.255.255.0
+  network 172.16.255.28 mask 255.255.255.255
+  network 192.168.100.0
+  neighbor 2.2.2.2 activate
+  neighbor 2.2.2.2 next-hop-self
+  neighbor 3.3.3.2 activate
+  neighbor 3.3.3.2 next-hop-self
+  no neighbor 2000:0:520:2222::2 activate
+  no neighbor 2000:0:520:3333::2 activate
+ exit-address-family
+ !
+ address-family ipv6
+  redistribute connected
+  neighbor 2000:0:520:2222::2 activate
+  neighbor 2000:0:520:2222::2 next-hop-self
+  neighbor 2000:0:520:3333::2 activate
+  neighbor 2000:0:520:3333::2 next-hop-self
+ exit-address-family
+!
+ip forward-protocol nd
+!
+no ip http server
+no ip http secure-server
+ip nat pool VPC30 63.47.15.30 63.47.15.30 netmask 255.255.255.0
+ip nat pool VPC31 63.47.15.31 63.47.15.31 netmask 255.255.255.0
+ip nat source list VPC30 pool VPC30 overload
+ip nat source list VPC31 pool VPC31 overload
+ip nat source static 192.168.100.30 63.47.15.30
+ip nat source static 192.168.100.31 63.47.15.31
+ip route 10.64.52.0 255.255.255.252 2.2.2.2 track 1
+ip route 10.64.52.0 255.255.255.252 3.3.3.2 10
+!
+ip access-list standard VPC30
+ permit 192.168.100.30
+ip access-list standard VPC31
+ permit 192.168.100.31
+!
+ip sla 1
+ icmp-echo 2.2.2.2 source-ip 2.2.2.1
+ threshold 1000
+ timeout 1500
+ frequency 3
+ip sla schedule 1 life forever start-time now
+!
+route-map permit_to-R26 permit 10
+ description permit_to-R26
+ match ip address 101
+ match ipv6 address permit_to-R26
+ set ip next-hop 3.3.3.2
+ set ipv6 next-hop 2000:0:520:3333::2
+!
+route-map permit_to-R25 permit 10
+ description permit_to-R25
+ match ip address 100
+ match ipv6 address permit_to-R25
+ set ip next-hop 2.2.2.2
+ set ipv6 next-hop 2000:0:520:2222::2
+!
+access-list 100 permit ip 192.168.100.0 0.0.0.255 any
+access-list 101 permit ip 10.58.10.0 0.0.0.255 any
+!
+ipv6 access-list permit_to-R25
+ permit ipv6 FD00:192:168:100::/64 any
+!
+ipv6 access-list permit_to-R26
+ permit ipv6 FD00:10:58:10::/64 any
+!
+control-plane
+!
+banner motd ^C unauthorized access prohibited ^C
+!
+line con 0
+ password cisco
+ logging synchronous
+ login local
+line aux 0
+line vty 0 4
+ password cisco
+ login
+ transport input none
+!
+end
