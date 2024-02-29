@@ -136,7 +136,7 @@
 | Чокурдах     | 10     | DHCP_CHKR       |
 |              | 100    | MANAGEMENT_CHKR |
 
-- Создадим интерфейс ***Tunnel0*** и назначим IP-адреса согласно [таблице](https://github.com/Pekep97/Labs/blob/main/Lab_12/README.md#%D1%82%D0%B0%D0%B1%D0%BB%D0%B8%D1%86%D0%B0-%D0%B0%D0%B4%D1%80%D0%B5%D1%81%D0%BD%D0%BE%D0%B3%D0%BE-%D0%BF%D1%80%D0%BE%D1%81%D1%82%D1%80%D0%B0%D0%BD%D1%81%D1%82%D0%B2%D0%B0), через который будем реализовывать GRE на R18 и R15;
+- Создадим интерфейс ***Tunnel0*** и назначим IP-адреса согласно [таблице](https://github.com/Pekep97/Labs/blob/main/LAB_13/README.md#%D1%82%D0%B0%D0%B1%D0%BB%D0%B8%D1%86%D0%B0-%D0%B0%D0%B4%D1%80%D0%B5%D1%81%D0%BD%D0%BE%D0%B3%D0%BE-%D0%BF%D1%80%D0%BE%D1%81%D1%82%D1%80%D0%B0%D0%BD%D1%81%D1%82%D0%B2%D0%B0), через который будем реализовывать GRE на R18 и R15;
 - Покажем конфигурацию на R15:
 
 ***R15***
@@ -173,6 +173,133 @@ Success rate is 100 percent (5/5), round-trip min/avg/max = 1/1/1 ms
 
 ### 2. Настроим DMVMN между Москва и Чокурдах, Лабытнанги:
 
-- Создадим интерфейс ***Tunnel1*** и назначим IP-адреса согласно [таблице](https://github.com/Pekep97/Labs/blob/main/Lab_12/README.md#%D1%82%D0%B0%D0%B1%D0%BB%D0%B8%D1%86%D0%B0-%D0%B0%D0%B4%D1%80%D0%B5%D1%81%D0%BD%D0%BE%D0%B3%D0%BE-%D0%BF%D1%80%D0%BE%D1%81%D1%82%D1%80%D0%B0%D0%BD%D1%81%D1%82%D0%B2%D0%B0), через который будем реализовывать DMVPN на R15, R27 и R28;
+- Создадим интерфейс ***Tunnel1*** на R15, R27 и R28 и назначим IP-адреса согласно [таблице](https://github.com/Pekep97/Labs/blob/main/LAB_13/README.md#%D1%82%D0%B0%D0%B1%D0%BB%D0%B8%D1%86%D0%B0-%D0%B0%D0%B4%D1%80%D0%B5%D1%81%D0%BD%D0%BE%D0%B3%D0%BE-%D0%BF%D1%80%D0%BE%D1%81%D1%82%D1%80%D0%B0%D0%BD%D1%81%D1%82%D0%B2%D0%B0), через который будем реализовывать DMVPN 2 фаза, так как этот вариант построения туннеля оптимизирует прохождение трафика между офисами;
+- Покажем конфигурацию на R15 (HUB):
 
-- 
+***R15***
+```
+R15#sh run int t1
+Building configuration...
+
+Current configuration : 269 bytes
+!
+interface Tunnel1
+ ip address 10.0.1.1 255.255.255.0
+ no ip redirects
+ ip mtu 1400
+ ip nhrp map multicast dynamic
+ ip nhrp network-id 1
+ ip tcp adjust-mss 1360
+ tunnel source Loopback1
+ tunnel mode gre multipoint
+end
+```
+
+- Покжем таблицу ***NHRP*** на R15:
+
+***R15***
+```
+R15#sh ip nhrp
+10.0.1.2/32 via 10.0.1.2
+   Tunnel1 created 1d01h, expire 01:28:34
+   Type: dynamic, Flags: unique registered used nhop
+   NBMA address: 115.237.93.27
+10.0.1.3/32 via 10.0.1.3
+   Tunnel1 created 1d01h, expire 01:32:47
+   Type: dynamic, Flags: unique registered used nhop
+   NBMA address: 63.47.15.28
+```
+
+- Покажем состояние туннеля DMVPN на R15:
+
+***R15***
+```
+R15#sh dmvpn
+Legend: Attrb --> S - Static, D - Dynamic, I - Incomplete
+        N - NATed, L - Local, X - No Socket
+        # Ent --> Number of NHRP entries with same NBMA peer
+        NHS Status: E --> Expecting Replies, R --> Responding, W --> Waiting
+        UpDn Time --> Up or Down Time for a Tunnel
+==========================================================================
+
+Interface: Tunnel1, IPv4 NHRP Details
+Type:Hub, NHRP Peers:2,
+
+ # Ent  Peer NBMA Addr Peer Tunnel Add State  UpDn Tm Attrb
+ ----- --------------- --------------- ----- -------- -----
+     1 115.237.93.27          10.0.1.2    UP    1d01h     D
+     1 63.47.15.28            10.0.1.3    UP    1d01h     D
+```
+
+### 3. Добьемся в офисах лабораторной работы IP связности и задокументируем все изменения:
+
+- Для организации IP связности между офисами Москва, С.- Петербург, Лабытнанги и Чокурдах расширим настройки OSPF c учетом того что это будет туннель в офисе Москва, и настроим OSPF в остальных офисах по этому же принципу;
+ * AREA 1000 - Tunnel0;
+ * AREA 1001 - Tunnel1.
+- Покажем конфигурацию на R18:
+
+***R18***
+```
+R18#sh run | sec ospf
+ router ospf 1
+ router-id 18.18.18.18
+ redistribute eigrp 1 subnets
+ network 10.0.0.0 0.0.0.255 area 1000
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+R18#sh run int t0
+Building configuration...
+
+Current configuration : 217 bytes
+!
+interface Tunnel0
+ ip address 10.0.0.2 255.255.255.0
+ ip mtu 1400
+ ip tcp adjust-mss 1360
+ ip ospf network broadcast
+ ip ospf priority 0
+ keepalive 10 3
+ tunnel source Loopback1
+ tunnel destination 37.85.13.15
+end
+```
+
+- Так как все сети офисов доступны через протокол OSPF, для организации связности покажем таблицу маршрутизации потокола на самом удаленном маршрутизаторе (R27):
+
+***R27***
+```
+R27#sh ip rou ospf
+Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP
+       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area
+       N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2
+       E1 - OSPF external type 1, E2 - OSPF external type 2
+       i - IS-IS, su - IS-IS summary, L1 - IS-IS level-1, L2 - IS-IS level-2
+       ia - IS-IS inter area, * - candidate default, U - per-user static route
+       o - ODR, P - periodic downloaded static route, H - NHRP, l - LISP
+       a - application route
+       + - replicated route, % - next hop override
+
+Gateway of last resort is 1.1.1.2 to network 0.0.0.0
+
+      10.0.0.0/8 is variably subnetted, 14 subnets, 3 masks
+O IA     10.0.0.0/24 [110/2000] via 10.0.1.1, 01:53:07, Tunnel1
+O IA     10.58.100.0/24 [110/1020] via 10.0.1.1, 01:53:07, Tunnel1
+O E2     10.58.200.0/24 [110/20] via 10.0.1.1, 01:25:45, Tunnel1
+O E2     10.64.20.0/30 [110/20] via 10.0.1.1, 01:41:34, Tunnel1
+O E2     10.64.20.8/30 [110/20] via 10.0.1.1, 01:25:45, Tunnel1
+O IA     10.64.100.0/30 [110/1020] via 10.0.1.1, 01:53:07, Tunnel1
+O IA     10.64.100.4/30 [110/1010] via 10.0.1.1, 01:53:07, Tunnel1
+O IA     10.64.100.8/30 [110/1020] via 10.0.1.1, 01:53:07, Tunnel1
+O IA     10.64.100.12/30 [110/1010] via 10.0.1.1, 01:53:07, Tunnel1
+O IA     10.64.100.16/30 [110/1010] via 10.0.1.1, 01:53:07, Tunnel1
+O IA     10.64.100.20/30 [110/1030] via 10.0.1.1, 01:53:07, Tunnel1
+      172.16.0.0/32 is subnetted, 6 subnets
+O IA     172.16.255.12 [110/1011] via 10.0.1.1, 01:53:07, Tunnel1
+O IA     172.16.255.13 [110/1011] via 10.0.1.1, 01:53:07, Tunnel1
+O IA     172.16.255.14 [110/1021] via 10.0.1.1, 01:53:07, Tunnel1
+O IA     172.16.255.15 [110/1001] via 10.0.1.1, 01:53:07, Tunnel1
+O IA  192.168.10.0/24 [110/1020] via 10.0.1.1, 01:53:07, Tunnel1
+O E2  192.168.20.0/24 [110/20] via 10.0.1.1, 01:25:45, Tunnel1
+```
+
+- Из таблицы видно, что все сети доступны через туннель.
+- Все изменения задокументированны [здесь.]()
