@@ -1,0 +1,117 @@
+R20#sh run
+Building configuration...
+
+Current configuration : 2373 bytes
+!
+! Last configuration change at 18:06:26 MSK Sun Mar 17 2024 by admin
+! NVRAM config last updated at 18:16:57 MSK Sun Mar 17 2024 by admin
+!
+version 15.4
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname R20
+!
+boot-start-marker
+boot-end-marker
+!
+enable secret 5 $1$/yqZ$WE/0YR0XnODtDBsZeUD1j/
+!
+no aaa new-model
+clock timezone MSK 3 0
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+multilink bundle-name authenticated
+!
+username admin privilege 15 secret 5 $1$U/Md$PI1HGnXQGVMa2VSKDea6M.
+!
+redundancy
+!
+interface Loopback0
+ description BGP_1001
+ ip address 172.16.255.20 255.255.255.255
+ ipv6 address FE80::1 link-local
+ ipv6 address FD00:172:16:255::20/128
+ ipv6 enable
+ ipv6 ospf 1 area 102
+!
+interface Ethernet0/0
+ description l3:to-R15
+ ip address 10.64.100.18 255.255.255.252
+ ip ospf network point-to-point
+ ipv6 address FE80::1 link-local
+ ipv6 address FD00:0:15:20::2/112
+ ipv6 enable
+ ipv6 ospf 1 area 102
+ ipv6 ospf network point-to-point
+!
+interface Ethernet0/1
+ no ip address
+ shutdown
+!
+interface Ethernet0/2
+ no ip address
+ shutdown
+!
+interface Ethernet0/3
+ no ip address
+ shutdown
+!
+router ospf 1
+ router-id 20.20.20.20
+ network 10.64.100.16 0.0.0.3 area 102
+ network 172.16.255.20 0.0.0.0 area 102
+!
+router bgp 1001
+ bgp router-id 20.20.20.20
+ bgp log-neighbor-changes
+ neighbor 172.16.255.15 remote-as 1001
+ neighbor 172.16.255.15 update-source Loopback0
+ neighbor 172.16.255.15 timers 20 60
+ neighbor FD00:172:16:255::15 remote-as 1001
+ neighbor FD00:172:16:255::15 update-source Loopback0
+ !
+ address-family ipv4
+  neighbor 172.16.255.15 activate
+  no neighbor FD00:172:16:255::15 activate
+ exit-address-family
+ !
+ address-family ipv6
+  neighbor FD00:172:16:255::15 activate
+ exit-address-family
+!
+ip forward-protocol nd
+!
+no ip http server
+no ip http secure-server
+!
+ipv6 router ospf 1
+ router-id 20.20.20.20
+!
+control-plane
+!
+banner motd ^C unauthorized access prohibited ^C
+!
+line con 0
+ password cisco
+ logging synchronous
+ login local
+line aux 0
+line vty 0 4
+ password cisco
+ login
+ transport input none
+!
+ntp update-calendar
+ntp server 172.16.255.12 source Ethernet0/0
+ntp server 172.16.255.13 source Ethernet0/0
+!
+end
