@@ -1,0 +1,157 @@
+R13#sh run
+Building configuration...
+
+Current configuration : 3631 bytes
+!
+! Last configuration change at 22:51:51 MSK Sun Mar 17 2024 by admin
+! NVRAM config last updated at 23:39:23 MSK Sun Mar 17 2024 by admin
+!
+version 15.4
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname R13
+!
+boot-start-marker
+boot-end-marker
+!
+enable secret 5 $1$/yqZ$WE/0YR0XnODtDBsZeUD1j/
+!
+no aaa new-model
+clock timezone MSK 3 0
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+ip dhcp excluded-address 192.168.10.1 192.168.10.5
+ip dhcp excluded-address 192.168.10.128 192.168.10.255
+!
+ip dhcp pool DHCP_MSK
+ network 192.168.10.0 255.255.255.0
+ default-router 192.168.10.1
+ dns-server 192.168.10.1
+ domain-name DHCP_MSK.com
+ lease 2 12 30
+!
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+multilink bundle-name authenticated
+!
+username admin privilege 15 secret 5 $1$oiCq$/GWsWDICleh2G7ggNm8vm1
+!
+redundancy
+!
+interface Loopback0
+ description BGP_1001
+ ip address 172.16.255.13 255.255.255.255
+ ipv6 address FE80::1 link-local
+ ipv6 address FD00:172:16:255::13/128
+ ipv6 enable
+ ipv6 ospf 1 area 0
+!
+interface Ethernet0/0
+ description l3:to-SW5
+ ip address 10.58.100.5 255.255.255.252
+ ipv6 address FE80::1 link-local
+ ipv6 address FD00:0:13:5::1/112
+ ipv6 enable
+ ipv6 ospf 1 area 10
+!
+interface Ethernet0/1
+ description l3:to-R14
+ ip address 10.64.100.9 255.255.255.252
+ ip ospf network point-to-point
+ ipv6 address FE80::1 link-local
+ ipv6 address FD00:0:13:14::1/112
+ ipv6 enable
+ ipv6 ospf 1 area 0
+ ipv6 ospf network point-to-point
+!
+interface Ethernet0/2
+ description l3:to-R15
+ ip address 10.64.100.13 255.255.255.252
+ ip ospf network point-to-point
+ ipv6 address FE80::1 link-local
+ ipv6 address FD00:0:13:15::1/112
+ ipv6 enable
+ ipv6 ospf 1 area 0
+ ipv6 ospf network point-to-point
+!
+interface Ethernet0/3
+ description l3:to-R12
+ ip address 10.64.100.30 255.255.255.252
+ ipv6 address FE80::1 link-local
+ ipv6 address FD00:0:13:12::1/112
+ ipv6 enable
+ ipv6 ospf 1 area 0
+!
+router ospf 1
+ router-id 13.13.13.13
+ area 10 stub
+ network 10.58.100.4 0.0.0.3 area 10
+ network 10.64.100.8 0.0.0.3 area 0
+ network 10.64.100.12 0.0.0.3 area 0
+ network 10.64.100.28 0.0.0.3 area 0
+ network 172.16.255.13 0.0.0.0 area 0
+!
+router bgp 1001
+ bgp router-id 13.13.13.13
+ bgp log-neighbor-changes
+ neighbor 172.16.255.14 remote-as 1001
+ neighbor 172.16.255.14 update-source Loopback0
+ neighbor 172.16.255.14 timers 20 60
+ neighbor 172.16.255.15 remote-as 1001
+ neighbor 172.16.255.15 update-source Loopback0
+ neighbor 172.16.255.15 timers 20 60
+ neighbor FD00:172:16:255::14 remote-as 1001
+ neighbor FD00:172:16:255::14 update-source Loopback0
+ neighbor FD00:172:16:255::14 timers 20 60
+ neighbor FD00:172:16:255::15 remote-as 1001
+ neighbor FD00:172:16:255::15 update-source Loopback0
+ neighbor FD00:172:16:255::15 timers 20 60
+ !
+ address-family ipv4
+  neighbor 172.16.255.14 activate
+  neighbor 172.16.255.15 activate
+  no neighbor FD00:172:16:255::14 activate
+  no neighbor FD00:172:16:255::15 activate
+ exit-address-family
+ !
+ address-family ipv6
+  neighbor FD00:172:16:255::14 activate
+  neighbor FD00:172:16:255::15 activate
+ exit-address-family
+!
+ip forward-protocol nd
+!
+no ip http server
+no ip http secure-server
+!
+ipv6 router ospf 1
+ router-id 13.13.13.13
+ area 10 stub
+!
+control-plane
+!
+banner motd ^C unauthorized access prohibited ^C
+!
+line con 0
+ password cisco
+ logging synchronous
+ login local
+line aux 0
+line vty 0 4
+ password cisco
+ login
+ transport input none
+!
+ntp logging
+ntp source Loopback0
+ntp master 2
+ntp update-calendar
+!
+end
