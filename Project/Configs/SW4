@@ -1,0 +1,170 @@
+SW4#sh run
+Building configuration...
+
+Current configuration : 3679 bytes
+!
+! Last configuration change at 23:29:52 MSK Sun Mar 17 2024 by admin
+! NVRAM config last updated at 23:39:11 MSK Sun Mar 17 2024 by admin
+!
+version 15.2
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+service compress-config
+!
+hostname SW4
+!
+boot-start-marker
+boot-end-marker
+!
+enable secret 5 $1$/yqZ$WE/0YR0XnODtDBsZeUD1j/
+!
+username admin privilege 15 secret 5 $1$6BQ4$2t2Prcmn8fdBuJ9sZYMSs/
+no aaa new-model
+clock timezone MSK 3 0
+!
+no ip domain-lookup
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+spanning-tree mode pvst
+spanning-tree extend system-id
+!
+vlan internal allocation policy ascending
+!
+interface Loopback0
+ description BGP_1001
+ ip address 172.16.255.4 255.255.255.255
+ ipv6 address FE80::1 link-local
+ ipv6 address FD00:172:16:255::4/128
+ ipv6 ospf 1 area 10
+!
+interface Port-channel45
+ description l3:to-SW5
+ no switchport
+ ip address 10.58.100.9 255.255.255.252
+ ip ospf network broadcast
+ ipv6 address FE80::1 link-local
+ ipv6 address FD00:0:4:5::1/112
+ ipv6 enable
+ ipv6 ospf 1 area 10
+!
+interface Ethernet0/0
+ description l3:to-SW3
+ no switchport
+ ip address 10.58.100.13 255.255.255.252
+ duplex auto
+ ipv6 address FE80::1 link-local
+ ipv6 address FD00:0:4:3::1/112
+ ipv6 enable
+ ipv6 ospf 1 area 10
+!
+interface Ethernet0/1
+ description l3:to-SW2
+ no switchport
+ ip address 10.58.100.25 255.255.255.252
+ duplex auto
+ ipv6 address FE80::1 link-local
+ ipv6 address FD00:0:4:2::1/112
+ ipv6 enable
+ ipv6 ospf 1 area 10
+!
+interface Ethernet0/2
+ no switchport
+ no ip address
+ ip ospf network broadcast
+ duplex auto
+ channel-protocol lacp
+ channel-group 45 mode active
+!
+interface Ethernet0/3
+ no switchport
+ no ip address
+ ip ospf network broadcast
+ duplex auto
+ channel-protocol lacp
+ channel-group 45 mode active
+!
+interface Ethernet1/0
+ description l3:to-R12
+ no switchport
+ ip address 10.58.100.2 255.255.255.252
+ duplex auto
+ ipv6 address FE80::2 link-local
+ ipv6 address FD00:0:12:4::2/112
+ ipv6 enable
+ ipv6 ospf 1 area 10
+!
+interface Ethernet1/1
+!
+interface Ethernet1/2
+!
+interface Ethernet1/3
+!
+interface Vlan10
+ no ip address
+!
+router ospf 1
+ router-id 4.4.4.4
+ area 10 stub
+ network 10.58.100.0 0.0.0.3 area 10
+ network 10.58.100.8 0.0.0.3 area 10
+ network 10.58.100.12 0.0.0.3 area 10
+ network 10.58.100.24 0.0.0.3 area 10
+ network 172.16.255.4 0.0.0.0 area 10
+!
+router bgp 1001
+ bgp router-id 4.4.4.4
+ bgp log-neighbor-changes
+ neighbor 172.16.255.14 remote-as 1001
+ neighbor 172.16.255.14 update-source Loopback0
+ neighbor 172.16.255.14 timers 20 60
+ neighbor 172.16.255.15 remote-as 1001
+ neighbor 172.16.255.15 update-source Loopback0
+ neighbor 172.16.255.15 timers 20 60
+ neighbor FD00:172:16:255::14 remote-as 1001
+ neighbor FD00:172:16:255::14 update-source Loopback0
+ neighbor FD00:172:16:255::14 timers 20 60
+ neighbor FD00:172:16:255::15 remote-as 1001
+ neighbor FD00:172:16:255::15 update-source Loopback0
+ neighbor FD00:172:16:255::15 timers 20 60
+ !
+ address-family ipv4
+  neighbor 172.16.255.14 activate
+  neighbor 172.16.255.15 activate
+  no neighbor FD00:172:16:255::14 activate
+  no neighbor FD00:172:16:255::15 activate
+ exit-address-family
+ !
+ address-family ipv6
+  neighbor FD00:172:16:255::14 activate
+  neighbor FD00:172:16:255::15 activate
+ exit-address-family
+!
+ip forward-protocol nd
+!
+no ip http server
+no ip http secure-server
+!
+ipv6 router ospf 1
+ router-id 4.4.4.4
+ area 10 stub
+!
+control-plane
+!
+banner motd ^C unauthorized access prohibited ^C
+!
+line con 0
+ password cisco
+ logging synchronous
+ login local
+line aux 0
+line vty 0 4
+ password cisco
+ login
+!
+ntp server 172.16.255.12
+ntp server 172.16.255.13
+!
+end
