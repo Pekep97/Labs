@@ -1,0 +1,141 @@
+SW3#sh run
+Building configuration...
+
+Current configuration : 3187 bytes
+!
+! Last configuration change at 23:35:18 MSK Sun Mar 17 2024 by admin
+! NVRAM config last updated at 23:36:20 MSK Sun Mar 17 2024 by admin
+!
+version 15.2
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+service compress-config
+!
+hostname SW3
+!
+boot-start-marker
+boot-end-marker
+!
+enable secret 5 $1$/yqZ$WE/0YR0XnODtDBsZeUD1j/
+!
+username admin privilege 15 secret 5 $1$9Q46$sHp3xAb97BLoCAs5poHzn0
+no aaa new-model
+clock timezone MSK 3 0
+!
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+spanning-tree mode rapid-pvst
+spanning-tree extend system-id
+!
+vlan internal allocation policy ascending
+!
+interface Loopback0
+ description BGP_1001
+ ip address 172.16.255.3 255.255.255.255
+ ipv6 address FE80::1 link-local
+ ipv6 address FD00:172:16:255::3/128
+ ipv6 enable
+ ipv6 ospf 1 area 10
+!
+interface Ethernet0/0
+ description l3:to-SW4
+ no switchport
+ ip address 10.58.100.14 255.255.255.252
+ duplex auto
+ ipv6 address FE80::2 link-local
+ ipv6 address FD00:0:4:3::2/112
+ ipv6 enable
+ ipv6 ospf 1 area 10
+!
+interface Ethernet0/1
+ description l3:to-SW5
+ no switchport
+ ip address 10.58.100.22 255.255.255.252
+ duplex auto
+ ipv6 address FE80::2 link-local
+ ipv6 address FD00:0:5:3::2/112
+ ipv6 enable
+ ipv6 ospf 1 area 10
+!
+interface Ethernet0/2
+ description l2:to-corporate
+ switchport access vlan 10
+ switchport mode access
+!
+interface Ethernet0/3
+!
+interface Vlan10
+ description DHCP_MSK
+ ip address 192.168.10.3 255.255.255.0
+ ip helper-address 172.16.255.13
+ ip helper-address 172.16.255.12
+ vrrp 10 description DHCP_MSK
+ vrrp 10 ip 192.168.10.1
+ vrrp 10 priority 110
+!
+router ospf 1
+ router-id 3.3.3.3
+ area 10 stub
+ network 10.58.100.12 0.0.0.3 area 10
+ network 10.58.100.20 0.0.0.3 area 10
+ network 172.16.255.3 0.0.0.0 area 10
+ network 192.168.10.0 0.0.0.255 area 10
+!
+router bgp 1001
+ bgp router-id 3.3.3.3
+ bgp log-neighbor-changes
+ neighbor 172.16.255.14 remote-as 1001
+ neighbor 172.16.255.14 update-source Loopback0
+ neighbor 172.16.255.14 timers 20 60
+ neighbor 172.16.255.15 remote-as 1001
+ neighbor 172.16.255.15 update-source Loopback0
+ neighbor 172.16.255.15 timers 20 60
+ neighbor FD00:172:16:255::14 remote-as 1001
+ neighbor FD00:172:16:255::14 update-source Loopback0
+ neighbor FD00:172:16:255::14 timers 20 60
+ neighbor FD00:172:16:255::15 remote-as 1001
+ neighbor FD00:172:16:255::15 update-source Loopback0
+ neighbor FD00:172:16:255::15 timers 20 60
+ !
+ address-family ipv4
+  neighbor 172.16.255.14 activate
+  neighbor 172.16.255.15 activate
+  no neighbor FD00:172:16:255::14 activate
+  no neighbor FD00:172:16:255::15 activate
+ exit-address-family
+ !
+ address-family ipv6
+  neighbor FD00:172:16:255::14 activate
+  neighbor FD00:172:16:255::15 activate
+ exit-address-family
+!
+ip default-gateway 192.168.10.1
+ip forward-protocol nd
+!
+no ip http server
+no ip http secure-server
+!
+ipv6 router ospf 1
+ router-id 3.3.3.3
+ area 10 stub
+!
+control-plane
+!
+banner motd ^C unauthorized access prohibited ^C
+!
+line con 0
+ password cisco
+ logging synchronous
+ login local
+line aux 0
+line vty 0 4
+ password cisco
+ login
+!
+ntp server 172.16.255.12
+ntp server 172.16.255.13
+!
+end
