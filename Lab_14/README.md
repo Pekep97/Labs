@@ -237,7 +237,7 @@ crypto ipsec profile IPSEC_PROF
  tunnel protection ipsec profile IPSEC_PROF
 ```
 
-- Добавим к туннельному интерфейсу привязку к IPSEC-у:
+- Добавим к туннельным интерфейсам ***Tunnel0*** привязку к IPSEC-у:
 
 ```
 R18#sh run int t0
