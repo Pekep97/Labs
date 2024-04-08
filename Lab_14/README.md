@@ -237,7 +237,7 @@ crypto ipsec profile IPSEC_PROF
  tunnel protection ipsec profile IPSEC_PROF
 ```
 
-- Добавим к туннельному интерфейсу привязку к IPSEC-у
+- Добавим к туннельному интерфейсу привязку к IPSEC-у:
 
 ```
 R18#sh run int t0
@@ -396,6 +396,29 @@ crypto ipsec transform-set DMVPN esp-aes esp-md5-hmac
 crypto ipsec profile DMVPN_PROF
  set transform-set DMVPN
  set ikev2-profile PROFILE1
+```
+
+- Добавим к туннельномым интерфейсам ***Tunnel1*** привязку к IPSEC-у:
+
+```
+R15#sh run int t1
+Building configuration...
+
+Current configuration : 313 bytes
+!
+interface Tunnel1
+ ip address 10.0.1.1 255.255.255.0
+ no ip redirects
+ ip mtu 1400
+ ip nhrp map multicast dynamic
+ ip nhrp network-id 1
+ ip tcp adjust-mss 1360
+ ip ospf network broadcast
+ ip ospf priority 255
+ tunnel source Loopback1
+ tunnel mode gre multipoint
+ !!!!!!! tunnel protection ipsec profile DMVPN_PROF !!!!!!!!!!
+end
 ```
 
 - Проверим установление фаз на R27:
