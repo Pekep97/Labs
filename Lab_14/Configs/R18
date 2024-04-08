@@ -1,0 +1,281 @@
+R18#sh run
+Building configuration...
+
+Current configuration : 8828 bytes
+!
+! Last configuration change at 19:37:25 MSK Mon Apr 8 2024 by admin
+!
+version 15.4
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname R18
+!
+boot-start-marker
+boot-end-marker
+!
+enable secret 5 $1$/yqZ$WE/0YR0XnODtDBsZeUD1j/
+!
+no aaa new-model
+clock timezone MSK 3 0
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+multilink bundle-name authenticated
+!
+crypto pki trustpoint VPN
+ enrollment url http://10.0.0.1:80
+ ip-address Tunnel0
+ revocation-check none
+!
+crypto pki certificate chain VPN
+ certificate 06
+  3082023A 30820122 A0030201 02020106 300D0609 2A864886 F70D0101 05050030
+  0D310B30 09060355 04031302 4341301E 170D3234 30343038 30373130 35345A17
+  0D323530 34303830 37313035 345A302B 31293010 06092A86 4886F70D 01090216
+  03523138 30150609 2A864886 F70D0109 08130831 302E302E 302E3230 5C300D06
+  092A8648 86F70D01 01010500 034B0030 48024100 B69E6954 EF4DF549 9F22CD76
+  81DEB4A3 FD3AC5F6 7B1581AB 60FC0C2A 70808EA3 66D3AB34 47908D31 D91EE66E
+  DF869BF5 FD68C891 2D3AA045 3DF5DC65 68EF5BE9 02030100 01A34F30 4D300B06
+  03551D0F 04040302 05A0301F 0603551D 23041830 16801407 601554DB 36CA5A76
+  EC7BFEF1 104C18F4 8FD2F530 1D060355 1D0E0416 0414CF1A 3B1FAF1D DCFA1D7D
+  7934D5A7 898AC1A2 53DF300D 06092A86 4886F70D 01010505 00038201 0100C307
+  2D742466 957D0F4B B11BD142 52C286E7 8496FD73 4ED586DA AF21DD8F 13550586
+  FB013BB0 24C118CE 7D4E7D8A C2611687 7FD149AB DF06DBEA 44B0CF5A 202246A4
+  277B290F ABA71BDE 090ED8A2 F15BF9F7 39734B73 12732719 E1F873CA 8AAD31E7
+  608012C0 834A20FA 7067810B A3313404 21FC9362 3ECFBB1F 0601124D 2B4842D3
+  94951949 E573BACC 45FC7D5B 6953FFF7 B93BF1A4 409FA239 D051726C 8C1982F7
+  6188EF8B 70FC7A29 D3648EF9 F4C196AC 81685B6F FD70222A 005F2B61 3612100E
+  9CF1E76A F025B27C 7A90C572 9D48475C AD1F3623 3A0D3EB3 BD07523A 88A6A9D3
+  1F373638 2D92A879 DA58865C A9FEC1B1 D707756C D20D413E 45281813 BED3
+        quit
+ certificate ca 01
+  308202F8 308201E0 A0030201 02020101 300D0609 2A864886 F70D0101 04050030
+  0D310B30 09060355 04031302 4341301E 170D3234 30343032 31363437 34305A17
+  0D323730 34303231 36343734 305A300D 310B3009 06035504 03130243 41308201
+  22300D06 092A8648 86F70D01 01010500 0382010F 00308201 0A028201 0100E3CC
+  B7F6B7D0 42275FE9 556BF584 5D102FAD 62AF1826 CE1EC77B ABB45620 558664BC
+  25B5FA3A 440A5BA7 C906FFC8 D9494289 F16B1510 B292710B 50454731 B260F9DE
+  843D5FE9 112D6051 93E46A26 C652729F 0E933885 CC17EB17 3DC398C1 2D8FDCCC
+  D149D1B8 4815BCCC E80E8AB7 275AF173 6598A8C4 291897ED D5D04BF9 E1B6DF11
+  09F32903 D892F4F8 FC2EBBE3 76BA2D46 1663F061 79277896 24F7A921 EEFD8F05
+  BE62BEAC 6649D52E 7A540A63 2B9A5C78 0354F6B6 2F377511 C71A43C8 F45C796B
+  AA5BF4F4 0C7AA102 0EDCC681 F352D815 AD1172B9 0653F0A7 FF28C03C C662E1C9
+  6751392A B64DD072 3D78D234 EF36C02F EA18066D 25E2F9F7 E03A291E F6030203
+  010001A3 63306130 0F060355 1D130101 FF040530 030101FF 300E0603 551D0F01
+  01FF0404 03020186 301F0603 551D2304 18301680 14076015 54DB36CA 5A76EC7B
+  FEF1104C 18F48FD2 F5301D06 03551D0E 04160414 07601554 DB36CA5A 76EC7BFE
+  F1104C18 F48FD2F5 300D0609 2A864886 F70D0101 04050003 82010100 36D39310
+  4F98EA90 809C0204 3489D8C4 70E3AFCF A03013D4 B96F2794 C7918827 C1755F88
+  2B71A7E1 360EE89A 8038F256 72BF5C51 CF0F8933 909B5CAD 4FAF1A7C B537B030
+  2CFC8598 E6402DF3 C0E85840 B926873D 59E5339C ED292823 C22CDA79 D6CFE7C8
+  2E3B7148 6E992638 C85CCDE1 08C72742 D88A14F1 7DC02779 675DC3D7 3A229BF3
+  84D97ECD 10F6CCA2 C5733487 4A68F5E5 1F9139CA 0EDBF76D 95834B50 5CC57670
+  714CF87B 95EEB37D B09E25C0 32BDC0F9 2458F961 D356CF7A 5654AAE2 01716238
+  3CB05668 60CD124E 84B5592C AF5341A9 F7486778 737F9A2D 2980BFA8 1CADE1A0
+  C1A9D106 C53FA3A6 7790A814 860EE63F 848E50F9 61CDF846 8809F6C4
+        quit
+username admin privilege 15 secret 5 $1$U/Md$PI1HGnXQGVMa2VSKDea6M.
+!
+redundancy
+!
+crypto ikev2 proposal PROP_R15
+ encryption aes-cbc-128
+ integrity md5
+ group 2
+!
+crypto ikev2 policy IKEV2
+ proposal PROP_R15
+!
+crypto ikev2 profile PROFILE1
+ match address local interface Loopback1
+ match identity remote address 0.0.0.0
+ authentication remote rsa-sig
+ authentication local rsa-sig
+ pki trustpoint VPN
+!
+crypto ipsec transform-set IPSEC_TS esp-aes esp-md5-hmac
+ mode tunnel
+!
+crypto ipsec profile IPSEC_PROF
+ set transform-set IPSEC_TS
+ set ikev2-profile PROFILE1
+!
+interface Loopback1
+ ip address 53.17.29.18 255.255.255.0
+ ip nat enable
+!
+interface Tunnel0
+ ip address 10.0.0.2 255.255.255.0
+ tunnel source Loopback1
+ tunnel destination 37.85.13.15
+ tunnel protection ipsec profile IPSEC_PROF
+!
+interface Ethernet0/0
+ description l3:to-R16
+ ip address 10.64.20.5 255.255.255.252
+ ip nat enable
+ ipv6 address FE80::1 link-local
+ ipv6 address FD00:0:16:18::1/112
+ ipv6 enable
+!
+interface Ethernet0/1
+ description l3:to-R17
+ ip address 10.64.20.1 255.255.255.252
+ ip nat enable
+ ipv6 address FE80::1 link-local
+ ipv6 address FD00:0:17:18::1/112
+ ipv6 enable
+!
+interface Ethernet0/2
+ description l3:to-R24
+ ip address 24.100.40.6 255.255.255.252
+ ip nat enable
+ ipv6 address FE80::1 link-local
+ ipv6 address 2000:0:520:2042::2/112
+ ipv6 enable
+!
+interface Ethernet0/3
+ description l3:to-R26
+ ip address 26.100.40.2 255.255.255.252
+ ipv6 address FE80::2 link-local
+ ipv6 address 2000:0:2042:520::2/112
+ ipv6 enable
+!
+router eigrp NAMED
+ !
+ address-family ipv4 unicast autonomous-system 1
+  !
+  af-interface Ethernet0/0
+   summary-address 0.0.0.0 0.0.0.0
+  exit-af-interface
+  !
+  af-interface Ethernet0/1
+   summary-address 0.0.0.0 0.0.0.0
+  exit-af-interface
+  !
+  topology base
+  exit-af-topology
+  network 10.64.20.0 0.0.0.3
+  eigrp router-id 18.18.18.18
+ exit-address-family
+!
+router eigrp NAMED_v6
+ !
+ address-family ipv6 unicast autonomous-system 1
+  !
+  af-interface default
+   shutdown
+  exit-af-interface
+  !
+  af-interface Ethernet0/2
+   passive-interface
+  exit-af-interface
+  !
+  af-interface Ethernet0/3
+   passive-interface
+  exit-af-interface
+  !
+  af-interface Ethernet0/0
+   summary-address ::/0
+   no shutdown
+  exit-af-interface
+  !
+  af-interface Ethernet0/1
+   summary-address ::/0
+   no shutdown
+  exit-af-interface
+  !
+  topology base
+  exit-af-topology
+  eigrp router-id 18.18.18.18
+ exit-address-family
+!
+router ospf 1
+ router-id 18.18.18.18
+ redistribute eigrp 1 subnets
+ network 10.0.0.0 0.0.0.255 area 1000
+!
+router bgp 2042
+ bgp router-id 18.18.18.18
+ bgp log-neighbor-changes
+ neighbor 24.100.40.5 remote-as 520
+ neighbor 26.100.40.1 remote-as 520
+ neighbor 2000:0:520:2042::1 remote-as 520
+ neighbor 2000:0:2042:520::1 remote-as 520
+ !
+ address-family ipv4
+  network 24.100.40.4 mask 255.255.255.252
+  network 26.100.40.0 mask 255.255.255.252
+  network 53.17.29.0 mask 255.255.255.0
+  neighbor 24.100.40.5 activate
+  neighbor 24.100.40.5 next-hop-self
+  neighbor 24.100.40.5 prefix-list DENY_TRANSIT out
+  neighbor 26.100.40.1 activate
+  neighbor 26.100.40.1 next-hop-self
+  neighbor 26.100.40.1 prefix-list DENY_TRANSIT out
+  no neighbor 2000:0:520:2042::1 activate
+  no neighbor 2000:0:2042:520::1 activate
+  maximum-paths 2
+ exit-address-family
+ !
+ address-family ipv6
+  maximum-paths 2
+  network 2000:0:520:2042::/112
+  network 2000:0:2042:520::/112
+  network FD00:0:16:18::/112
+  neighbor 2000:0:520:2042::1 activate
+  neighbor 2000:0:520:2042::1 next-hop-self
+  neighbor 2000:0:520:2042::1 prefix-list DENY_TRANSIT_IPv6 out
+  neighbor 2000:0:2042:520::1 activate
+  neighbor 2000:0:2042:520::1 next-hop-self
+  neighbor 2000:0:2042:520::1 prefix-list DENY_TRANSIT_IPv6 out
+ exit-address-family
+!
+ip forward-protocol nd
+!
+no ip http server
+no ip http secure-server
+ip nat pool PAT 53.17.29.1 53.17.29.5 netmask 255.255.255.0
+ip nat source list NAT pool PAT overload
+!
+ip access-list standard NAT
+ permit 192.168.20.0 0.0.0.255
+!
+ip prefix-list DENY_TRANSIT seq 5 permit 10.64.20.0/30
+ip prefix-list DENY_TRANSIT seq 10 permit 10.64.20.4/30
+ip prefix-list DENY_TRANSIT seq 15 permit 10.64.20.8/30
+ip prefix-list DENY_TRANSIT seq 20 permit 10.58.200.0/24
+ip prefix-list DENY_TRANSIT seq 25 permit 192.168.20.0/24
+ip prefix-list DENY_TRANSIT seq 30 permit 53.17.29.0/24
+!
+ipv6 prefix-list DENY_TRANSIT_IPv6 seq 5 permit FD00:0:16:18::/112
+ipv6 prefix-list DENY_TRANSIT_IPv6 seq 10 permit FD00:0:16:32::/112
+ipv6 prefix-list DENY_TRANSIT_IPv6 seq 15 permit FD00:0:17:18::/112
+ipv6 prefix-list DENY_TRANSIT_IPv6 seq 20 permit FD00:10:58:200::/64
+ipv6 prefix-list DENY_TRANSIT_IPv6 seq 25 permit FD00:192:168:20::/64
+route-map SET_PERP_x3 permit 10
+ set as-path prepend 2042 2042 2042
+!
+control-plane
+!
+banner motd ^C unauthorized access prohibited ^C
+!
+line con 0
+ password cisco
+ logging synchronous
+ login local
+line aux 0
+line vty 0 4
+ password cisco
+ login
+ transport input none
+!
+end
