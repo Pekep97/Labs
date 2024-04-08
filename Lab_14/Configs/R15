@@ -1,0 +1,418 @@
+R15#sh run
+Building configuration...
+
+Current configuration : 14934 bytes
+!
+! Last configuration change at 19:38:28 MSK Mon Apr 8 2024 by admin
+! NVRAM config last updated at 19:38:30 MSK Mon Apr 8 2024 by admin
+!
+version 15.4
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname R15
+!
+boot-start-marker
+boot-end-marker
+!
+enable secret 5 $1$/yqZ$WE/0YR0XnODtDBsZeUD1j/
+!
+no aaa new-model
+clock timezone MSK 3 0
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+ip domain name otus.ru
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+multilink bundle-name authenticated
+!
+crypto pki server CA
+ no database archive
+!
+crypto pki trustpoint CA
+ revocation-check crl
+ rsakeypair CA
+!
+crypto pki trustpoint VPN
+ enrollment url http://10.0.0.1:80
+ ip-address Tunnel0
+ revocation-check none
+!
+crypto pki certificate chain CA
+ certificate ca 01
+  308202F8 308201E0 A0030201 02020101 300D0609 2A864886 F70D0101 04050030
+  0D310B30 09060355 04031302 4341301E 170D3234 30343032 31363437 34305A17
+  0D323730 34303231 36343734 305A300D 310B3009 06035504 03130243 41308201
+  22300D06 092A8648 86F70D01 01010500 0382010F 00308201 0A028201 0100E3CC
+  B7F6B7D0 42275FE9 556BF584 5D102FAD 62AF1826 CE1EC77B ABB45620 558664BC
+  25B5FA3A 440A5BA7 C906FFC8 D9494289 F16B1510 B292710B 50454731 B260F9DE
+  843D5FE9 112D6051 93E46A26 C652729F 0E933885 CC17EB17 3DC398C1 2D8FDCCC
+  D149D1B8 4815BCCC E80E8AB7 275AF173 6598A8C4 291897ED D5D04BF9 E1B6DF11
+  09F32903 D892F4F8 FC2EBBE3 76BA2D46 1663F061 79277896 24F7A921 EEFD8F05
+  BE62BEAC 6649D52E 7A540A63 2B9A5C78 0354F6B6 2F377511 C71A43C8 F45C796B
+  AA5BF4F4 0C7AA102 0EDCC681 F352D815 AD1172B9 0653F0A7 FF28C03C C662E1C9
+  6751392A B64DD072 3D78D234 EF36C02F EA18066D 25E2F9F7 E03A291E F6030203
+  010001A3 63306130 0F060355 1D130101 FF040530 030101FF 300E0603 551D0F01
+  01FF0404 03020186 301F0603 551D2304 18301680 14076015 54DB36CA 5A76EC7B
+  FEF1104C 18F48FD2 F5301D06 03551D0E 04160414 07601554 DB36CA5A 76EC7BFE
+  F1104C18 F48FD2F5 300D0609 2A864886 F70D0101 04050003 82010100 36D39310
+  4F98EA90 809C0204 3489D8C4 70E3AFCF A03013D4 B96F2794 C7918827 C1755F88
+  2B71A7E1 360EE89A 8038F256 72BF5C51 CF0F8933 909B5CAD 4FAF1A7C B537B030
+  2CFC8598 E6402DF3 C0E85840 B926873D 59E5339C ED292823 C22CDA79 D6CFE7C8
+  2E3B7148 6E992638 C85CCDE1 08C72742 D88A14F1 7DC02779 675DC3D7 3A229BF3
+  84D97ECD 10F6CCA2 C5733487 4A68F5E5 1F9139CA 0EDBF76D 95834B50 5CC57670
+  714CF87B 95EEB37D B09E25C0 32BDC0F9 2458F961 D356CF7A 5654AAE2 01716238
+  3CB05668 60CD124E 84B5592C AF5341A9 F7486778 737F9A2D 2980BFA8 1CADE1A0
+  C1A9D106 C53FA3A6 7790A814 860EE63F 848E50F9 61CDF846 8809F6C4
+        quit
+crypto pki certificate chain VPN
+ certificate 05
+  30820242 3082012A A0030201 02020105 300D0609 2A864886 F70D0101 05050030
+  0D310B30 09060355 04031302 4341301E 170D3234 30343038 30373034 35365A17
+  0D323530 34303830 37303435 365A3033 31313015 06092A86 4886F70D 01090813
+  0831302E 302E302E 31301806 092A8648 86F70D01 0902160B 5231352E 6F747573
+  2E727530 5C300D06 092A8648 86F70D01 01010500 034B0030 48024100 99F1C4F9
+  59DD716E 98758869 0E959A4E E6869BFB 065AB433 3A3642D6 EE44AD91 804C1E45
+  B9228721 A043BDF8 D8CB54F0 82089206 A6071D26 F6D531BD D2E9F007 02030100
+  01A34F30 4D300B06 03551D0F 04040302 05A0301F 0603551D 23041830 16801407
+  601554DB 36CA5A76 EC7BFEF1 104C18F4 8FD2F530 1D060355 1D0E0416 04142122
+  CBB8FBF0 852FAF44 6FF3934C 3DC87F88 B15B300D 06092A86 4886F70D 01010505
+  00038201 01002FB1 CB3BC623 20439FB1 D662AAFD EECEE455 0270B2DB 892B043B
+  DD6AF2FB 0FF0A679 50057FE5 CAA72F6D B1BD59A2 95CD6426 C75AB874 3D8D975E
+  38F3E035 B63360DE 22C4ED24 80A1D096 986C02E8 3FF5617E 122C7F14 2D2C45DD
+  1186F4D2 9673FD77 0A475614 05262CAC 6027FB33 25C2FF26 E9850C77 5A0CD5AE
+  2DA6240B CC382ECB 3190C0EB 5A1A69B3 1A4E6D93 D4E5E596 E0E03AC0 B48B3CE8
+  E1409FC2 94AEE289 65C596D5 68DD9543 FB325253 2DD274B7 5A1D9414 16DE7B66
+  81286BAC AA9BE9F7 15FF00B0 549F679C 109F0391 C9B625EE 5377EA35 09103CB0
+  FADD1E47 22425663 B4CF06A7 08EE7448 ACC6C91B 432A2F61 D15781F8 3550BB31
+  9635F815 59F6
+        quit
+ certificate ca 01
+  308202F8 308201E0 A0030201 02020101 300D0609 2A864886 F70D0101 04050030
+  0D310B30 09060355 04031302 4341301E 170D3234 30343032 31363437 34305A17
+  0D323730 34303231 36343734 305A300D 310B3009 06035504 03130243 41308201
+  22300D06 092A8648 86F70D01 01010500 0382010F 00308201 0A028201 0100E3CC
+  B7F6B7D0 42275FE9 556BF584 5D102FAD 62AF1826 CE1EC77B ABB45620 558664BC
+  25B5FA3A 440A5BA7 C906FFC8 D9494289 F16B1510 B292710B 50454731 B260F9DE
+  843D5FE9 112D6051 93E46A26 C652729F 0E933885 CC17EB17 3DC398C1 2D8FDCCC
+  D149D1B8 4815BCCC E80E8AB7 275AF173 6598A8C4 291897ED D5D04BF9 E1B6DF11
+  09F32903 D892F4F8 FC2EBBE3 76BA2D46 1663F061 79277896 24F7A921 EEFD8F05
+  BE62BEAC 6649D52E 7A540A63 2B9A5C78 0354F6B6 2F377511 C71A43C8 F45C796B
+  AA5BF4F4 0C7AA102 0EDCC681 F352D815 AD1172B9 0653F0A7 FF28C03C C662E1C9
+  6751392A B64DD072 3D78D234 EF36C02F EA18066D 25E2F9F7 E03A291E F6030203
+  010001A3 63306130 0F060355 1D130101 FF040530 030101FF 300E0603 551D0F01
+  01FF0404 03020186 301F0603 551D2304 18301680 14076015 54DB36CA 5A76EC7B
+  FEF1104C 18F48FD2 F5301D06 03551D0E 04160414 07601554 DB36CA5A 76EC7BFE
+  F1104C18 F48FD2F5 300D0609 2A864886 F70D0101 04050003 82010100 36D39310
+  4F98EA90 809C0204 3489D8C4 70E3AFCF A03013D4 B96F2794 C7918827 C1755F88
+  2B71A7E1 360EE89A 8038F256 72BF5C51 CF0F8933 909B5CAD 4FAF1A7C B537B030
+  2CFC8598 E6402DF3 C0E85840 B926873D 59E5339C ED292823 C22CDA79 D6CFE7C8
+  2E3B7148 6E992638 C85CCDE1 08C72742 D88A14F1 7DC02779 675DC3D7 3A229BF3
+  84D97ECD 10F6CCA2 C5733487 4A68F5E5 1F9139CA 0EDBF76D 95834B50 5CC57670
+  714CF87B 95EEB37D B09E25C0 32BDC0F9 2458F961 D356CF7A 5654AAE2 01716238
+  3CB05668 60CD124E 84B5592C AF5341A9 F7486778 737F9A2D 2980BFA8 1CADE1A0
+  C1A9D106 C53FA3A6 7790A814 860EE63F 848E50F9 61CDF846 8809F6C4
+        quit
+username admin privilege 15 secret 5 $1$U/Md$PI1HGnXQGVMa2VSKDea6M.
+!
+redundancy
+!
+crypto ikev2 proposal PROP_R18
+ encryption aes-cbc-128
+ integrity md5
+ group 2
+!
+crypto ikev2 policy IKEV2
+ proposal PROP_R18
+!
+crypto ikev2 profile PROFILE1
+ match address local interface Loopback1
+ match identity remote address 0.0.0.0
+ authentication remote rsa-sig
+ authentication local rsa-sig
+ pki trustpoint VPN
+!
+crypto ipsec transform-set IPSEC_TS esp-aes esp-md5-hmac
+ mode tunnel
+crypto ipsec transform-set DMVPN esp-aes esp-md5-hmac
+ mode transport
+!
+crypto ipsec profile DMVPN_PROF
+ set transform-set DMVPN
+ set ikev2-profile PROFILE1
+!
+crypto ipsec profile IPSEC_PROF
+ set transform-set IPSEC_TS
+ set ikev2-profile PROFILE1
+!
+interface Loopback0
+ description BGP_1001
+ ip address 172.16.255.15 255.255.255.255
+ ipv6 address FE80::1 link-local
+ ipv6 address FD00:172:16:255::15/128
+ ipv6 enable
+ ipv6 ospf 1 area 0
+!
+interface Loopback1
+ description to_NAT
+ ip address 37.85.13.15 255.255.255.0
+ ip nat enable
+!
+interface Tunnel0
+ ip address 10.0.0.1 255.255.255.0
+ tunnel source Loopback1
+ tunnel destination 53.17.29.18
+ tunnel protection ipsec profile IPSEC_PROF
+!
+interface Tunnel1
+ ip address 10.0.1.1 255.255.255.0
+ no ip redirects
+ ip mtu 1400
+ ip nhrp map multicast dynamic
+ ip nhrp network-id 1
+ ip tcp adjust-mss 1360
+ ip ospf network broadcast
+ ip ospf priority 255
+ tunnel source Loopback1
+ tunnel mode gre multipoint
+ tunnel protection ipsec profile DMVPN_PROF
+!
+interface Ethernet0/0
+ description l3:to-R13
+ ip address 10.64.100.14 255.255.255.252
+ ip nat enable
+ ip ospf network point-to-point
+ ipv6 address FE80::2 link-local
+ ipv6 address FD00:0:13:15::2/112
+ ipv6 enable
+ ipv6 ospf 1 area 0
+ ipv6 ospf network point-to-point
+!
+interface Ethernet0/1
+ description l3:to-R12
+ ip address 10.64.100.6 255.255.255.252
+ ip nat enable
+ ip ospf network point-to-point
+ ipv6 address FE80::2 link-local
+ ipv6 address FD00:0:12:15::2/112
+ ipv6 enable
+ ipv6 ospf 1 area 0
+ ipv6 ospf network point-to-point
+!
+interface Ethernet0/2
+ description l3:to-AS-301
+ ip address 132.50.21.2 255.255.255.252
+ ip nat enable
+ ipv6 address FE80::2 link-local
+ ipv6 address 2000:0:1001:301::2/112
+ ipv6 enable
+!
+interface Ethernet0/3
+ description l3:to-R20
+ ip address 10.64.100.17 255.255.255.252
+ ip nat enable
+ ip ospf network point-to-point
+ ipv6 address FE80::2 link-local
+ ipv6 address FD00:0:15:20::1/112
+ ipv6 enable
+ ipv6 ospf 1 area 102
+ ipv6 ospf network point-to-point
+!
+interface Ethernet1/0
+ description l3:to-R14
+ ip address 10.64.100.26 255.255.255.252
+ ip ospf network point-to-point
+ ipv6 address FE80::1 link-local
+ ipv6 address FD00:0:15:14::1/112
+ ipv6 enable
+ ipv6 ospf 1 area 0
+!
+interface Ethernet1/1
+ no ip address
+ shutdown
+!
+interface Ethernet1/2
+ no ip address
+ shutdown
+!
+interface Ethernet1/3
+ no ip address
+ shutdown
+!
+router ospf 1
+ router-id 15.15.15.15
+ area 102 filter-list prefix area_101_deny in
+ passive-interface Ethernet0/2
+ network 10.0.0.0 0.0.0.255 area 1000
+ network 10.0.1.0 0.0.0.255 area 1001
+ network 10.64.100.4 0.0.0.3 area 0
+ network 10.64.100.12 0.0.0.3 area 0
+ network 10.64.100.16 0.0.0.3 area 102
+ network 10.64.100.24 0.0.0.3 area 0
+ network 172.16.255.15 0.0.0.0 area 0
+ default-information originate
+!
+router bgp 1001
+ bgp router-id 15.15.15.15
+ bgp cluster-id 1
+ bgp log-neighbor-changes
+ neighbor 2000:0:1001:301::1 remote-as 301
+ neighbor 132.50.21.1 remote-as 301
+ neighbor 172.16.255.2 remote-as 1001
+ neighbor 172.16.255.2 update-source Loopback0
+ neighbor 172.16.255.2 timers 20 60
+ neighbor 172.16.255.3 remote-as 1001
+ neighbor 172.16.255.3 update-source Loopback0
+ neighbor 172.16.255.3 timers 20 60
+ neighbor 172.16.255.4 remote-as 1001
+ neighbor 172.16.255.4 update-source Loopback0
+ neighbor 172.16.255.4 timers 20 60
+ neighbor 172.16.255.5 remote-as 1001
+ neighbor 172.16.255.5 update-source Loopback0
+ neighbor 172.16.255.5 timers 20 60
+ neighbor 172.16.255.12 remote-as 1001
+ neighbor 172.16.255.12 update-source Loopback0
+ neighbor 172.16.255.12 timers 20 60
+ neighbor 172.16.255.13 remote-as 1001
+ neighbor 172.16.255.13 update-source Loopback0
+ neighbor 172.16.255.13 timers 20 60
+ neighbor 172.16.255.14 remote-as 1001
+ neighbor 172.16.255.14 update-source Loopback0
+ neighbor 172.16.255.14 timers 20 60
+ neighbor 172.16.255.20 remote-as 1001
+ neighbor 172.16.255.20 update-source Loopback0
+ neighbor 172.16.255.20 timers 20 60
+ neighbor FD00:172:16:255::2 remote-as 1001
+ neighbor FD00:172:16:255::2 update-source Loopback0
+ neighbor FD00:172:16:255::2 timers 20 60
+ neighbor FD00:172:16:255::3 remote-as 1001
+ neighbor FD00:172:16:255::3 update-source Loopback0
+ neighbor FD00:172:16:255::3 timers 20 60
+ neighbor FD00:172:16:255::4 remote-as 1001
+ neighbor FD00:172:16:255::4 update-source Loopback0
+ neighbor FD00:172:16:255::4 timers 20 60
+ neighbor FD00:172:16:255::5 remote-as 1001
+ neighbor FD00:172:16:255::5 update-source Loopback0
+ neighbor FD00:172:16:255::5 timers 20 60
+ neighbor FD00:172:16:255::12 remote-as 1001
+ neighbor FD00:172:16:255::12 update-source Loopback0
+ neighbor FD00:172:16:255::12 timers 20 60
+ neighbor FD00:172:16:255::13 remote-as 1001
+ neighbor FD00:172:16:255::13 update-source Loopback0
+ neighbor FD00:172:16:255::13 timers 20 60
+ neighbor FD00:172:16:255::14 remote-as 1001
+ neighbor FD00:172:16:255::14 timers 20 60
+ neighbor FD00:172:16:255::20 remote-as 1001
+ neighbor FD00:172:16:255::20 update-source Loopback0
+ neighbor FD00:172:16:255::20 timers 20 60
+ !
+ address-family ipv4
+  network 37.85.13.0 mask 255.255.255.0
+  no neighbor 2000:0:1001:301::1 activate
+  neighbor 132.50.21.1 activate
+  neighbor 132.50.21.1 next-hop-self
+  neighbor 132.50.21.1 soft-reconfiguration inbound
+  neighbor 132.50.21.1 route-map LP_200 in
+  neighbor 132.50.21.1 filter-list 1 out
+  neighbor 172.16.255.2 activate
+  neighbor 172.16.255.2 route-reflector-client
+  neighbor 172.16.255.3 activate
+  neighbor 172.16.255.3 route-reflector-client
+  neighbor 172.16.255.4 activate
+  neighbor 172.16.255.4 route-reflector-client
+  neighbor 172.16.255.5 activate
+  neighbor 172.16.255.5 route-reflector-client
+  neighbor 172.16.255.12 activate
+  neighbor 172.16.255.12 route-reflector-client
+  neighbor 172.16.255.13 activate
+  neighbor 172.16.255.13 route-reflector-client
+  neighbor 172.16.255.14 activate
+  neighbor 172.16.255.14 route-reflector-client
+  neighbor 172.16.255.14 next-hop-self
+  neighbor 172.16.255.20 activate
+  neighbor 172.16.255.20 route-reflector-client
+  no neighbor FD00:172:16:255::2 activate
+  no neighbor FD00:172:16:255::3 activate
+  no neighbor FD00:172:16:255::4 activate
+  no neighbor FD00:172:16:255::5 activate
+  no neighbor FD00:172:16:255::12 activate
+  no neighbor FD00:172:16:255::13 activate
+  no neighbor FD00:172:16:255::14 activate
+  no neighbor FD00:172:16:255::20 activate
+ exit-address-family
+ !
+ address-family ipv6
+  network 2000:0:1001:301::/112
+  neighbor 2000:0:1001:301::1 activate
+  neighbor 2000:0:1001:301::1 next-hop-self
+  neighbor 2000:0:1001:301::1 soft-reconfiguration inbound
+  neighbor 2000:0:1001:301::1 route-map LP_200 in
+  neighbor 2000:0:1001:301::1 filter-list 1 out
+  neighbor FD00:172:16:255::2 activate
+  neighbor FD00:172:16:255::2 route-reflector-client
+  neighbor FD00:172:16:255::3 activate
+  neighbor FD00:172:16:255::3 route-reflector-client
+  neighbor FD00:172:16:255::4 activate
+  neighbor FD00:172:16:255::4 route-reflector-client
+  neighbor FD00:172:16:255::5 activate
+  neighbor FD00:172:16:255::5 route-reflector-client
+  neighbor FD00:172:16:255::12 activate
+  neighbor FD00:172:16:255::12 route-reflector-client
+  neighbor FD00:172:16:255::13 activate
+  neighbor FD00:172:16:255::13 route-reflector-client
+  neighbor FD00:172:16:255::14 activate
+  neighbor FD00:172:16:255::14 route-reflector-client
+  neighbor FD00:172:16:255::14 next-hop-self
+  neighbor FD00:172:16:255::20 activate
+  neighbor FD00:172:16:255::20 route-reflector-client
+ exit-address-family
+!
+ip forward-protocol nd
+!
+ip as-path access-list 1 permit ^$
+!
+ip http server
+no ip http secure-server
+ip nat source list NAT interface Loopback1 overload
+ip nat source static 10.64.100.18 37.85.13.20
+ip nat source static tcp 10.64.100.22 22 37.85.13.22 22 extendable
+!
+ip access-list standard NAT
+ permit 192.168.10.0 0.0.0.255
+!
+ip prefix-list area_101_deny seq 5 deny 10.64.100.20/30
+ip prefix-list area_101_deny seq 10 permit 0.0.0.0/0 le 32
+ipv6 router ospf 1
+ router-id 15.15.15.15
+ area 102 filter-list prefix area_101_deny in
+ passive-interface Ethernet0/2
+!
+ipv6 prefix-list area_101_deny seq 5 deny FD00:0:14:19::/112
+ipv6 prefix-list area_101_deny seq 10 permit ::/0 le 128
+route-map LP_200 permit 10
+ set local-preference 200
+!
+control-plane
+!
+banner motd ^C unauthorized access prohibited ^C
+!
+line con 0
+ password cisco
+ logging synchronous
+ login local
+line aux 0
+line vty 0 4
+ password cisco
+ login
+ transport input none
+!
+ntp server 172.16.255.12 source Loopback0
+ntp server 172.16.255.13 source Loopback0
+!
+end
