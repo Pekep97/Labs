@@ -1,0 +1,315 @@
+R28#sh run
+Building configuration...
+
+Current configuration : 9243 bytes
+!
+version 15.4
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname R28
+!
+boot-start-marker
+boot-end-marker
+!
+enable secret 5 $1$/yqZ$WE/0YR0XnODtDBsZeUD1j/
+!
+no aaa new-model
+clock timezone MSK 3 0
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+ip dhcp excluded-address 192.168.100.1 192.168.100.5
+!
+ip dhcp pool DHCP_CHKR
+ network 192.168.100.0 255.255.255.0
+ default-router 192.168.100.1
+ dns-server 192.168.100.1
+ domain-name DHCP_CHKR.com
+ lease 2 12 30
+!
+ip dhcp pool VPC30
+ host 192.168.100.30 255.255.255.0
+ client-identifier 0100.5079.6668.1e
+!
+ip dhcp pool VPC31
+ host 192.168.100.31 255.255.255.0
+ client-identifier 0100.5079.6668.1f
+!
+no ip domain lookup
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+multilink bundle-name authenticated
+!
+crypto pki trustpoint VPN
+ enrollment url http://10.0.1.1:80
+ ip-address Loopback1
+ revocation-check none
+!
+crypto pki certificate chain VPN
+ certificate 03
+  3082023D 30820125 A0030201 02020103 300D0609 2A864886 F70D0101 05050030
+  0D310B30 09060355 04031302 4341301E 170D3234 30343032 31373035 35345A17
+  0D323530 34303231 37303535 345A302E 312C3010 06092A86 4886F70D 01090216
+  03523238 30180609 2A864886 F70D0109 08130B36 332E3437 2E31352E 3238305C
+  300D0609 2A864886 F70D0101 01050003 4B003048 024100C2 BDDD71A2 A6D2BF3F
+  5A39EFAB 120E01B4 74F58F05 8A45A162 B7522B67 25B457F0 EB1164CF 8EC95B6E
+  BC84FE0C F94925B7 0B87D9AF E045A3C0 C2098338 A8EC9502 03010001 A34F304D
+  300B0603 551D0F04 04030205 A0301F06 03551D23 04183016 80140760 1554DB36
+  CA5A76EC 7BFEF110 4C18F48F D2F5301D 0603551D 0E041604 14B5D359 8AA327C7
+  87093F4B 42069BB0 C9B09F8F 31300D06 092A8648 86F70D01 01050500 03820101
+  00109CC3 653BA360 A56DFB97 8CF6B8B4 15374CF1 0B4047CB DD7060B5 E531345D
+  4C8CD44E 246E977A 432C8BE4 57584820 8E49BB07 7DE87CB0 0A3A67F2 14FDFA0F
+  58F84CAA 653FEB7C 2B44D517 ADEB5BFF D0B52C61 3CEF65FD 0ABA3E89 3B89C305
+  3E109EC9 DDD495A9 BF9CDC21 1C9117A3 B1D30546 4F0E6EB0 DBD9FBA8 67B94537
+  816C76A9 58A825B4 F9B8A534 3A1D7E4B 36126C35 8A3DB960 F6140E22 2DFA5291
+  EA30C75F DC367B29 CB9AFF91 DFAC4A1D 3C9076C3 F97178E5 6DCA214C 6922B8FD
+  97B565D9 C7E55B44 FA860EFF A9B3A38D AEF2C1E8 F8E3620B 2AA2BF73 C3601BA7
+  7C413E87 EAEE9208 37EAAC0B 06B6F784 06D6E27C 4B43A65B 6AAC884E E7EB1B29 8B
+        quit
+ certificate ca 01
+  308202F8 308201E0 A0030201 02020101 300D0609 2A864886 F70D0101 04050030
+  0D310B30 09060355 04031302 4341301E 170D3234 30343032 31363437 34305A17
+  0D323730 34303231 36343734 305A300D 310B3009 06035504 03130243 41308201
+  22300D06 092A8648 86F70D01 01010500 0382010F 00308201 0A028201 0100E3CC
+  B7F6B7D0 42275FE9 556BF584 5D102FAD 62AF1826 CE1EC77B ABB45620 558664BC
+  25B5FA3A 440A5BA7 C906FFC8 D9494289 F16B1510 B292710B 50454731 B260F9DE
+  843D5FE9 112D6051 93E46A26 C652729F 0E933885 CC17EB17 3DC398C1 2D8FDCCC
+  D149D1B8 4815BCCC E80E8AB7 275AF173 6598A8C4 291897ED D5D04BF9 E1B6DF11
+  09F32903 D892F4F8 FC2EBBE3 76BA2D46 1663F061 79277896 24F7A921 EEFD8F05
+  BE62BEAC 6649D52E 7A540A63 2B9A5C78 0354F6B6 2F377511 C71A43C8 F45C796B
+  AA5BF4F4 0C7AA102 0EDCC681 F352D815 AD1172B9 0653F0A7 FF28C03C C662E1C9
+  6751392A B64DD072 3D78D234 EF36C02F EA18066D 25E2F9F7 E03A291E F6030203
+  010001A3 63306130 0F060355 1D130101 FF040530 030101FF 300E0603 551D0F01
+  01FF0404 03020186 301F0603 551D2304 18301680 14076015 54DB36CA 5A76EC7B
+  FEF1104C 18F48FD2 F5301D06 03551D0E 04160414 07601554 DB36CA5A 76EC7BFE
+  F1104C18 F48FD2F5 300D0609 2A864886 F70D0101 04050003 82010100 36D39310
+  4F98EA90 809C0204 3489D8C4 70E3AFCF A03013D4 B96F2794 C7918827 C1755F88
+  2B71A7E1 360EE89A 8038F256 72BF5C51 CF0F8933 909B5CAD 4FAF1A7C B537B030
+  2CFC8598 E6402DF3 C0E85840 B926873D 59E5339C ED292823 C22CDA79 D6CFE7C8
+  2E3B7148 6E992638 C85CCDE1 08C72742 D88A14F1 7DC02779 675DC3D7 3A229BF3
+  84D97ECD 10F6CCA2 C5733487 4A68F5E5 1F9139CA 0EDBF76D 95834B50 5CC57670
+  714CF87B 95EEB37D B09E25C0 32BDC0F9 2458F961 D356CF7A 5654AAE2 01716238
+  3CB05668 60CD124E 84B5592C AF5341A9 F7486778 737F9A2D 2980BFA8 1CADE1A0
+  C1A9D106 C53FA3A6 7790A814 860EE63F 848E50F9 61CDF846 8809F6C4
+        quit
+username admin privilege 15 secret 5 $1$U/Md$PI1HGnXQGVMa2VSKDea6M.
+!
+redundancy
+!
+track 1 ip sla 1 reachability
+ delay down 10 up 5
+!
+crypto ikev2 proposal PROP_R15
+ encryption aes-cbc-128
+ integrity md5
+ group 2
+!
+crypto ikev2 policy IKEV2
+ proposal PROP_R15
+!
+crypto ikev2 profile PROFILE1
+ match address local interface Loopback1
+ match identity remote address 0.0.0.0
+ authentication remote rsa-sig
+ authentication local rsa-sig
+ pki trustpoint VPN
+!
+crypto ipsec transform-set DMVPN esp-aes esp-md5-hmac
+ mode transport
+!
+crypto ipsec profile DMVPN_PROF
+ set transform-set DMVPN
+ set ikev2-profile PROFILE1
+!
+interface Loopback0
+ ip address 172.16.255.28 255.255.255.255
+ ipv6 address FE80::1 link-local
+ ipv6 address FD00:172:16:255::28/128
+ ipv6 enable
+!
+interface Loopback1
+ description to_NAT
+ ip address 63.47.15.28 255.255.255.0
+ ip nat enable
+!
+interface Tunnel1
+ ip address 10.0.1.3 255.255.255.0
+ no ip redirects
+ ip mtu 1400
+ ip nhrp map multicast 37.85.13.15
+ ip nhrp map 10.0.1.1 37.85.13.15
+ ip nhrp network-id 1
+ ip nhrp nhs 10.0.1.1
+ ip tcp adjust-mss 1360
+ ip ospf network broadcast
+ ip ospf priority 0
+ tunnel source Loopback1
+ tunnel mode gre multipoint
+ tunnel protection ipsec profile DMVPN_PROF
+!
+interface Ethernet0/0
+ description l3:to-AS-520
+ ip address 3.3.3.1 255.255.255.252
+ ip nat enable
+ shutdown
+ ipv6 address FE80::2 link-local
+ ipv6 address 2000:0:520:3333::1/112
+ ipv6 enable
+!
+interface Ethernet0/1
+ description l3:to-AS-520
+ ip address 2.2.2.1 255.255.255.252
+ ip nat enable
+ ipv6 address FE80::1 link-local
+ ipv6 address 2000:0:520:2222::1/112
+ ipv6 enable
+!
+interface Ethernet0/2
+ no ip address
+!
+interface Ethernet0/2.10
+ description DHCP_CHKR
+ encapsulation dot1Q 10
+ ip address 192.168.100.1 255.255.255.0
+ ip nat enable
+ ip policy route-map permit_to-R25
+ ipv6 address FE80::1 link-local
+ ipv6 address FD00:192:168:100::1/64
+ ipv6 enable
+!
+interface Ethernet0/2.100
+ description MANAGEMENT_CHKR
+ encapsulation dot1Q 100
+ ip address 10.58.10.1 255.255.255.0
+ ip policy route-map permit_to-R26
+ ipv6 address FE80::1 link-local
+ ipv6 address FD00:10:58:10::1/64
+ ipv6 enable
+!
+interface Ethernet0/3
+ no ip address
+ shutdown
+!
+interface Ethernet1/0
+ no ip address
+ shutdown
+!
+interface Ethernet1/1
+ no ip address
+ shutdown
+!
+interface Ethernet1/2
+ no ip address
+ shutdown
+!
+interface Ethernet1/3
+ no ip address
+ shutdown
+!
+router ospf 1
+ router-id 28.28.28.28
+ network 10.0.1.0 0.0.0.255 area 1001
+!
+router bgp 2222
+ bgp router-id 28.28.28.28
+ bgp log-neighbor-changes
+ neighbor 2.2.2.2 remote-as 520
+ neighbor 3.3.3.2 remote-as 520
+ neighbor 2000:0:520:2222::2 remote-as 520
+ neighbor 2000:0:520:3333::2 remote-as 520
+ !
+ address-family ipv4
+  network 2.2.2.0 mask 255.255.255.252
+  network 3.3.3.0 mask 255.255.255.252
+  network 10.58.10.0 mask 255.255.255.0
+  network 63.47.15.0 mask 255.255.255.0
+  network 172.16.255.28 mask 255.255.255.255
+  network 192.168.100.0
+  neighbor 2.2.2.2 activate
+  neighbor 2.2.2.2 next-hop-self
+  neighbor 3.3.3.2 activate
+  neighbor 3.3.3.2 next-hop-self
+  no neighbor 2000:0:520:2222::2 activate
+  no neighbor 2000:0:520:3333::2 activate
+ exit-address-family
+ !
+ address-family ipv6
+  redistribute connected
+  neighbor 2000:0:520:2222::2 activate
+  neighbor 2000:0:520:2222::2 next-hop-self
+  neighbor 2000:0:520:3333::2 activate
+  neighbor 2000:0:520:3333::2 next-hop-self
+ exit-address-family
+!
+ip forward-protocol nd
+!
+no ip http server
+no ip http secure-server
+ip nat pool VPC30 63.47.15.30 63.47.15.30 netmask 255.255.255.0
+ip nat pool VPC31 63.47.15.31 63.47.15.31 netmask 255.255.255.0
+ip nat source list VPC30 pool VPC30 overload
+ip nat source list VPC31 pool VPC31 overload
+ip nat source static 192.168.100.30 63.47.15.30
+ip nat source static 192.168.100.31 63.47.15.31
+ip route 10.64.52.0 255.255.255.252 2.2.2.2 track 1
+ip route 10.64.52.0 255.255.255.252 3.3.3.2 10
+!
+ip access-list standard VPC30
+ permit 192.168.100.30
+ip access-list standard VPC31
+ permit 192.168.100.31
+!
+ip access-list extended R28_IPSEC_TS
+ permit ip any any
+!
+ip sla 1
+ icmp-echo 2.2.2.2 source-ip 2.2.2.1
+ threshold 1000
+ timeout 1500
+ frequency 3
+ip sla schedule 1 life forever start-time now
+!
+route-map permit_to-R26 permit 10
+ description permit_to-R26
+ match ip address 101
+ match ipv6 address permit_to-R26
+ set ip next-hop 3.3.3.2
+ set ipv6 next-hop 2000:0:520:3333::2
+!
+route-map permit_to-R25 permit 10
+ description permit_to-R25
+ match ip address 100
+ match ipv6 address permit_to-R25
+ set ip next-hop 2.2.2.2
+ set ipv6 next-hop 2000:0:520:2222::2
+!
+access-list 100 permit ip 192.168.100.0 0.0.0.255 any
+access-list 101 permit ip 10.58.10.0 0.0.0.255 any
+!
+ipv6 access-list permit_to-R25
+ permit ipv6 FD00:192:168:100::/64 any
+!
+ipv6 access-list permit_to-R26
+ permit ipv6 FD00:10:58:10::/64 any
+!
+control-plane
+!
+banner motd ^C unauthorized access prohibited ^C
+!
+line con 0
+ password cisco
+ logging synchronous
+ login local
+line aux 0
+line vty 0 4
+ password cisco
+ login
+ transport input none
+!
+end
